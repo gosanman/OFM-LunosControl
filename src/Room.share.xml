@@ -147,6 +147,90 @@
                 </TypeRestriction>
               </ParameterType>
 
+              <!-- ===== Betriebsarten (Teil 2) ===== -->
+              <ParameterType Id="%AID%_PT-RoomStage04" Name="RoomStage04">
+                <TypeRestriction Base="Value" SizeInBit="3">
+                  <Enumeration Text="Stillstand" Value="0" Id="%ENID%" />
+                  <Enumeration Text="Stufe 1" Value="1" Id="%ENID%" />
+                  <Enumeration Text="Stufe 2" Value="2" Id="%ENID%" />
+                  <Enumeration Text="Stufe 3" Value="3" Id="%ENID%" />
+                  <Enumeration Text="Stufe 4" Value="4" Id="%ENID%" />
+                </TypeRestriction>
+              </ParameterType>
+              <ParameterType Id="%AID%_PT-RoomCycleWish" Name="RoomCycleWish">
+                <TypeRestriction Base="Value" SizeInBit="3">
+                  <Enumeration Text="über das Objekt „Sommer“" Value="0" Id="%ENID%" />
+                  <Enumeration Text="Wärmerückgewinnung (kurzer Zyklus)" Value="1" Id="%ENID%" />
+                  <Enumeration Text="Sommer (langer Zyklus)" Value="2" Id="%ENID%" />
+                  <Enumeration Text="feste Richtung Zuluft" Value="3" Id="%ENID%" />
+                  <Enumeration Text="feste Richtung Abluft" Value="4" Id="%ENID%" />
+                </TypeRestriction>
+              </ParameterType>
+              <ParameterType Id="%AID%_PT-RoomRunOn" Name="RoomRunOn">
+                <TypeNumber SizeInBit="8" Type="unsignedInt" minInclusive="0" maxInclusive="60" />
+              </ParameterType>
+
+              <!-- ===== Zwangsobjekte, Nacht, Intervall, Abluft ===== -->
+              <ParameterType Id="%AID%_PT-RoomMode7" Name="RoomMode7">
+                <TypeRestriction Base="Value" SizeInBit="3">
+                  <Enumeration Text="Komfort" Value="1" Id="%ENID%" />
+                  <Enumeration Text="Standby" Value="2" Id="%ENID%" />
+                  <Enumeration Text="Nacht" Value="3" Id="%ENID%" />
+                  <Enumeration Text="Frost-/Gebäudeschutz" Value="4" Id="%ENID%" />
+                  <Enumeration Text="Stoßlüften" Value="5" Id="%ENID%" />
+                  <Enumeration Text="Temperatur-Absenkung" Value="6" Id="%ENID%" />
+                  <Enumeration Text="Ruhe (Aus)" Value="7" Id="%ENID%" />
+                </TypeRestriction>
+              </ParameterType>
+              <ParameterType Id="%AID%_PT-RoomNightMode" Name="RoomNightMode">
+                <TypeRestriction Base="Value" SizeInBit="3">
+                  <Enumeration Text="Nacht" Value="3" Id="%ENID%" />
+                  <Enumeration Text="Temperatur-Absenkung" Value="6" Id="%ENID%" />
+                  <Enumeration Text="Ruhe (Aus)" Value="7" Id="%ENID%" />
+                </TypeRestriction>
+              </ParameterType>
+              <ParameterType Id="%AID%_PT-RoomForcePrio" Name="RoomForcePrio">
+                <TypeRestriction Base="Value" SizeInBit="1">
+                  <Enumeration Text="gleichrangig — das zuletzt empfangene gewinnt" Value="0" Id="%ENID%" />
+                  <Enumeration Text="hierarchisch — 1 vor 2 vor 3" Value="1" Id="%ENID%" />
+                </TypeRestriction>
+              </ParameterType>
+              <ParameterType Id="%AID%_PT-RoomForceTimeout" Name="RoomForceTimeout">
+                <TypeNumber SizeInBit="8" Type="unsignedInt" minInclusive="0" maxInclusive="240" />
+              </ParameterType>
+              <ParameterType Id="%AID%_PT-RoomIntervalPeriod" Name="RoomIntervalPeriod">
+                <TypeNumber SizeInBit="16" Type="unsignedInt" minInclusive="30" maxInclusive="1440" />
+              </ParameterType>
+              <ParameterType Id="%AID%_PT-RoomIntervalActive" Name="RoomIntervalActive">
+                <TypeNumber SizeInBit="8" Type="unsignedInt" minInclusive="5" maxInclusive="120" />
+              </ParameterType>
+              <ParameterType Id="%AID%_PT-RoomExhaustLead" Name="RoomExhaustLead">
+                <TypeNumber SizeInBit="16" Type="unsignedInt" minInclusive="0" maxInclusive="300" />
+              </ParameterType>
+              <ParameterType Id="%AID%_PT-RoomExhaustLag" Name="RoomExhaustLag">
+                <TypeNumber SizeInBit="8" Type="unsignedInt" minInclusive="0" maxInclusive="60" />
+              </ParameterType>
+              <ParameterType Id="%AID%_PT-RoomExhaustInterval" Name="RoomExhaustInterval">
+                <TypeRestriction Base="Value" SizeInBit="4">
+                  <Enumeration Text="dauernd" Value="0" Id="%ENID%" />
+                  <Enumeration Text="1 min je 5 min" Value="1" Id="%ENID%" />
+                  <Enumeration Text="2 min je 5 min" Value="2" Id="%ENID%" />
+                  <Enumeration Text="1 min je 15 min" Value="3" Id="%ENID%" />
+                  <Enumeration Text="2 min je 15 min" Value="4" Id="%ENID%" />
+                  <Enumeration Text="5 min je 15 min" Value="5" Id="%ENID%" />
+                  <Enumeration Text="1 min je 30 min" Value="6" Id="%ENID%" />
+                  <Enumeration Text="2 min je 30 min" Value="7" Id="%ENID%" />
+                  <Enumeration Text="5 min je 30 min" Value="8" Id="%ENID%" />
+                  <Enumeration Text="10 min je 30 min" Value="9" Id="%ENID%" />
+                </TypeRestriction>
+              </ParameterType>
+              <ParameterType Id="%AID%_PT-RoomLockBehaviour" Name="RoomLockBehaviour">
+                <TypeRestriction Base="Value" SizeInBit="1">
+                  <Enumeration Text="Stillstand" Value="0" Id="%ENID%" />
+                  <Enumeration Text="Grundstufe der Betriebsart" Value="1" Id="%ENID%" />
+                </TypeRestriction>
+              </ParameterType>
+
             </ParameterTypes>
             <Parameters>
               <Union SizeInBit="32">
