@@ -29,7 +29,7 @@
                 <Parameter Id="%AID%_UP-%TT%00%GGG+14%" Name="Grp%Gn%Active" Offset="0" BitOffset="5" ParameterType="%AID%_PT-FanChannelActive" Text="Kanalaktivität" Value="0" />
                 <!-- 2 Bit Reserve auf Offset 0 -->
                 <Parameter Id="%AID%_UP-%TT%00%GGG+4%" Name="Grp%Gn%LeadRoom"  Offset="1" BitOffset="0" ParameterType="%AID%_PT-FanRoomNo"       Text="Führender Raum" Value="1" />
-                <Parameter Id="%AID%_UP-%TT%00%GGG+5%" Name="Grp%Gn%FollowSupply" Offset="1" BitOffset="4" ParameterType="%AID%_PT-FanRoomNo0"   Text="Folgt Zuluftanforderung von Raum" SuffixText="  (0 = aus)" Value="0" />
+                <Parameter Id="%AID%_UP-%TT%00%GGG+5%" Name="Grp%Gn%FollowSupply" Offset="1" BitOffset="4" ParameterType="%AID%_PT-FanRoomNo0"   Text="Folgt Zuluftanforderung von Raum" Value="0" />
                 <Parameter Id="%AID%_UP-%TT%00%GGG+6%" Name="Grp%Gn%DeadTime"  Offset="2" BitOffset="0" ParameterType="%AID%_PT-FanDeadTime"     Text="Totzeit vor Richtungswechsel" SuffixText=" s" Value="2" />
                 <!-- 1 Byte Reserve auf Offset 3 -->
                 <Parameter Id="%AID%_UP-%TT%00%GGG+7%"  Name="Grp%Gn%CycleS1"     Offset="4"  BitOffset="0" ParameterType="%AID%_PT-FanCycleTime" Text="Zykluszeit Stufe 1" SuffixText=" s" Value="70" />

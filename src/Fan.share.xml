@@ -105,11 +105,33 @@
                   <Enumeration Text="der führende Raum entscheidet" Value="1" Id="%ENID%" />
                 </TypeRestriction>
               </ParameterType>
+              <!-- Raumauswahl als Auswahlliste, nicht als Zahlenfeld. Die ETS kann die
+                   Eintraege nicht aus den Raumnamen bilden - Enum-Texte sind statisch -,
+                   aber eine Liste liest sich besser als ein Eingabefeld. -->
               <ParameterType Id="%AID%_PT-FanRoomNo" Name="FanRoomNo">
-                <TypeNumber SizeInBit="4" Type="unsignedInt" minInclusive="1" maxInclusive="8" />
+                <TypeRestriction Base="Value" SizeInBit="4" UIHint="DropDown">
+                  <Enumeration Text="Raum 1" Value="1" Id="%ENID%" />
+                  <Enumeration Text="Raum 2" Value="2" Id="%ENID%" />
+                  <Enumeration Text="Raum 3" Value="3" Id="%ENID%" />
+                  <Enumeration Text="Raum 4" Value="4" Id="%ENID%" />
+                  <Enumeration Text="Raum 5" Value="5" Id="%ENID%" />
+                  <Enumeration Text="Raum 6" Value="6" Id="%ENID%" />
+                  <Enumeration Text="Raum 7" Value="7" Id="%ENID%" />
+                  <Enumeration Text="Raum 8" Value="8" Id="%ENID%" />
+                </TypeRestriction>
               </ParameterType>
               <ParameterType Id="%AID%_PT-FanRoomNo0" Name="FanRoomNo0">
-                <TypeNumber SizeInBit="4" Type="unsignedInt" minInclusive="0" maxInclusive="8" />
+                <TypeRestriction Base="Value" SizeInBit="4" UIHint="DropDown">
+                  <Enumeration Text="aus" Value="0" Id="%ENID%" />
+                  <Enumeration Text="Raum 1" Value="1" Id="%ENID%" />
+                  <Enumeration Text="Raum 2" Value="2" Id="%ENID%" />
+                  <Enumeration Text="Raum 3" Value="3" Id="%ENID%" />
+                  <Enumeration Text="Raum 4" Value="4" Id="%ENID%" />
+                  <Enumeration Text="Raum 5" Value="5" Id="%ENID%" />
+                  <Enumeration Text="Raum 6" Value="6" Id="%ENID%" />
+                  <Enumeration Text="Raum 7" Value="7" Id="%ENID%" />
+                  <Enumeration Text="Raum 8" Value="8" Id="%ENID%" />
+                </TypeRestriction>
               </ParameterType>
               <ParameterType Id="%AID%_PT-FanDeadTime" Name="FanDeadTime">
                 <TypeNumber SizeInBit="8" Type="unsignedInt" minInclusive="1" maxInclusive="10" />
@@ -291,64 +313,10 @@
                 <ParameterSeparator Id="%AID%_PS-nnn" Text="Version: %ModuleVersion%" />
                 <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
                 <ParameterSeparator Id="%AID%_PS-nnn" Text="Gerät" UIHint="Headline" />
+                <ParameterRefRef RefId="%AID%_UP-%TT%00001_R-%TT%0000101" IndentLevel="1" />
                 <ParameterRefRef RefId="%AID%_UP-%TT%00002_R-%TT%0000201" IndentLevel="1" />
                 <ParameterRefRef RefId="%AID%_UP-2000003_R-200000301" IndentLevel="1" />
                 <ParameterRefRef RefId="%AID%_UP-2000002_R-200000201" IndentLevel="1" />
-              </ParameterBlock>
-
-              <!-- ===== Kanalauswahl =====
-                   Hier wird aktiviert - Raeume, Luefter und Verbuende. Was nicht aktiviert
-                   ist, erscheint links im Baum nicht. Je Kanal eine eigene Inline-Tabelle:
-                   die ETS rendert viele einzeilige Tabellen deutlich schneller als eine
-                   lange. Drei Abschnitte auf einer Seite, deshalb Zwischenueberschriften -
-                   ein Einzelmodul begaenne nach dem Beschluss direkt mit der Kopfzeile. -->
-              <ParameterBlock Id="%AID%_PB-nnn" Name="Kanalauswahl" Text="Kanalauswahl" Icon="format-list-bulleted-type" HelpContext="BASE-ChannelSelect">
-
-                <ParameterSeparator Id="%AID%_PS-nnn" Text="Räume" UIHint="Headline" />
-                <ParameterBlock Id="%AID%_PB-nnn" Inline="true" Layout="Grid">
-                  <Rows><Row Id="%AID%_PB-nnn_R-1" /></Rows>
-                  <Columns>
-                    <Column Id="%AID%_PB-nnn_C-1" Width="15%" />
-                    <Column Id="%AID%_PB-nnn_C-2" Width="35%" />
-                    <Column Id="%AID%_PB-nnn_C-3" Width="50%" />
-                  </Columns>
-                  <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,1" UIHint="Headline" Text="Raum" />
-                  <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,2" UIHint="Headline" Text="Kanalaktivität" />
-                  <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,3" UIHint="Headline" Text="Beschreibung" />
-                </ParameterBlock>
-                <op:include href="Room.templ.xml" xpath="//Dynamic/ChannelIndependentBlock/ParameterBlock[@Name='Settings']/*" type="template" prefix="ROOM" IsInner="true" />
-
-                <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
-                <ParameterSeparator Id="%AID%_PS-nnn" Text="Lüfter" UIHint="Headline" />
-                <ParameterRefRef RefId="%AID%_UP-%TT%00001_R-%TT%0000101" IndentLevel="1" />
-                <ParameterBlock Id="%AID%_PB-nnn" Inline="true" Layout="Grid">
-                  <Rows><Row Id="%AID%_PB-nnn_R-1" /></Rows>
-                  <Columns>
-                    <Column Id="%AID%_PB-nnn_C-1" Width="15%" />
-                    <Column Id="%AID%_PB-nnn_C-2" Width="35%" />
-                    <Column Id="%AID%_PB-nnn_C-3" Width="50%" />
-                  </Columns>
-                  <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,1" UIHint="Headline" Text="Lüfter" />
-                  <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,2" UIHint="Headline" Text="Kanalaktivität" />
-                  <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,3" UIHint="Headline" Text="Beschreibung" />
-                </ParameterBlock>
-                <op:include href="Fan.templ.xml" xpath="//Dynamic/ChannelIndependentBlock/ParameterBlock[@Name='Settings']/*" type="template" prefix="FAN" IsInner="true" />
-
-                <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
-                <ParameterSeparator Id="%AID%_PS-nnn" Text="Verbünde" UIHint="Headline" />
-                <ParameterBlock Id="%AID%_PB-nnn" Inline="true" Layout="Grid">
-                  <Rows><Row Id="%AID%_PB-nnn_R-1" /></Rows>
-                  <Columns>
-                    <Column Id="%AID%_PB-nnn_C-1" Width="15%" />
-                    <Column Id="%AID%_PB-nnn_C-2" Width="35%" />
-                    <Column Id="%AID%_PB-nnn_C-3" Width="50%" />
-                  </Columns>
-                  <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,1" UIHint="Headline" Text="Verbund" />
-                  <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,2" UIHint="Headline" Text="Kanalaktivität" />
-                  <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,3" UIHint="Headline" Text="Beschreibung" />
-                </ParameterBlock>
-                <op:usePart name="GROUP" xpath="//Dynamic/ChannelIndependentBlock/ParameterBlock[@Name='GroupSettings']/*" />
-
               </ParameterBlock>
 
               <!-- ===== Anschluss ===== -->
@@ -374,13 +342,67 @@
                 </choose>
               </ParameterBlock>
 
+              <!-- ===== Kanalauswahl =====
+                   Hier wird aktiviert. Was nicht aktiviert ist, erscheint links im Baum
+                   nicht. Je Kanal eine eigene Inline-Tabelle: die ETS rendert viele
+                   einzeilige Tabellen deutlich schneller als eine lange. Drei Abschnitte auf
+                   einer Seite, deshalb Zwischenueberschriften - ein Einzelmodul begaenne nach
+                   dem Beschluss vom 09.07.2026 direkt mit der Kopfzeile.
+                   Reihenfolge wie im Baum: Verbuende, Raeume, Luefter. -->
+              <ParameterBlock Id="%AID%_PB-nnn" Name="Kanalauswahl" Text="Kanalauswahl" Icon="format-list-bulleted-type" HelpContext="BASE-ChannelSelect">
+
+                <ParameterSeparator Id="%AID%_PS-nnn" Text="Verbünde" UIHint="Headline" />
+                <ParameterBlock Id="%AID%_PB-nnn" Inline="true" Layout="Grid">
+                  <Rows><Row Id="%AID%_PB-nnn_R-1" /></Rows>
+                  <Columns>
+                    <Column Id="%AID%_PB-nnn_C-1" Width="15%" />
+                    <Column Id="%AID%_PB-nnn_C-2" Width="35%" />
+                    <Column Id="%AID%_PB-nnn_C-3" Width="50%" />
+                  </Columns>
+                  <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,1" UIHint="Headline" Text="Verbund" />
+                  <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,2" UIHint="Headline" Text="Kanalaktivität" />
+                  <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,3" UIHint="Headline" Text="Beschreibung" />
+                </ParameterBlock>
+                <op:usePart name="GROUP" xpath="//Dynamic/ChannelIndependentBlock/ParameterBlock[@Name='GroupSettings']/*" />
+
+                <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
+                <ParameterSeparator Id="%AID%_PS-nnn" Text="Räume" UIHint="Headline" />
+                <ParameterBlock Id="%AID%_PB-nnn" Inline="true" Layout="Grid">
+                  <Rows><Row Id="%AID%_PB-nnn_R-1" /></Rows>
+                  <Columns>
+                    <Column Id="%AID%_PB-nnn_C-1" Width="15%" />
+                    <Column Id="%AID%_PB-nnn_C-2" Width="35%" />
+                    <Column Id="%AID%_PB-nnn_C-3" Width="50%" />
+                  </Columns>
+                  <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,1" UIHint="Headline" Text="Raum" />
+                  <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,2" UIHint="Headline" Text="Kanalaktivität" />
+                  <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,3" UIHint="Headline" Text="Beschreibung" />
+                </ParameterBlock>
+                <op:include href="Room.templ.xml" xpath="//Dynamic/ChannelIndependentBlock/ParameterBlock[@Name='Settings']/*" type="template" prefix="ROOM" IsInner="true" />
+
+                <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
+                <ParameterSeparator Id="%AID%_PS-nnn" Text="Lüfter" UIHint="Headline" />
+                <ParameterBlock Id="%AID%_PB-nnn" Inline="true" Layout="Grid">
+                  <Rows><Row Id="%AID%_PB-nnn_R-1" /></Rows>
+                  <Columns>
+                    <Column Id="%AID%_PB-nnn_C-1" Width="15%" />
+                    <Column Id="%AID%_PB-nnn_C-2" Width="35%" />
+                    <Column Id="%AID%_PB-nnn_C-3" Width="50%" />
+                  </Columns>
+                  <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,1" UIHint="Headline" Text="Lüfter" />
+                  <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,2" UIHint="Headline" Text="Kanalaktivität" />
+                  <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,3" UIHint="Headline" Text="Beschreibung" />
+                </ParameterBlock>
+                <op:include href="Fan.templ.xml" xpath="//Dynamic/ChannelIndependentBlock/ParameterBlock[@Name='Settings']/*" type="template" prefix="FAN" IsInner="true" />
+
+              </ParameterBlock>
+
               <!-- ===== Kanalseiten =====
-                   Ohne Sammelmappe: Raum-, Luefter- und Verbundseiten haengen direkt unter
-                   dem Modulknoten. Eine Sammelmappe haette keinen eigenen Inhalt und waere
-                   beim Anklicken leer; der Beschluss sieht sie auch nicht vor. -->
+                   Ohne Sammelmappe, direkt unter dem Modulknoten. Reihenfolge von grob nach
+                   fein: der Verbund fasst zusammen, der Raum fordert an, der Luefter treibt. -->
+                <op:usePart name="GROUP" xpath="//Dynamic/ChannelIndependentBlock/ParameterBlock[@Name='Groups']/*" />
                 <op:include href="Room.templ.xml" xpath="//Dynamic/ChannelIndependentBlock/ParameterBlock[@Name='Channel']/*" type="template" prefix="ROOM" IsInner="true" />
                 <op:include href="Fan.templ.xml" xpath="//Dynamic/ChannelIndependentBlock/ParameterBlock[@Name='Channel']/*" type="template" prefix="FAN" IsInner="true" />
-                <op:usePart name="GROUP" xpath="//Dynamic/ChannelIndependentBlock/ParameterBlock[@Name='Groups']/*" />
 
             </Channel>
           </Dynamic>
