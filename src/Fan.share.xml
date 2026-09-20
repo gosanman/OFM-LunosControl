@@ -71,6 +71,16 @@
               <!-- Klemme bzw. DAC-Ausgang, an dem dieser Luefter haengt. Vorgabe je Kanal
                    ist die eigene Kanalnummer (Value="%C%" - der Producer setzt sie ein),
                    also Luefter n an Kanal n. Wer anders verdrahtet hat, stellt es um. -->
+              <!-- Klemmenbilder. Muster aus Common.share.xml (PT-ETS): ein Bild ist ein
+                   Parametertyp TypePicture, der auf eine Baggage-Datei zeigt, plus ein
+                   Parameter mit Access="Read", der nichts speichert und nur angezeigt wird. -->
+              <ParameterType Id="%AID%_PT-BoardPic2" Name="BoardPic2">
+                <TypePicture RefId="%FILE-kwlboard2%" HorizontalAlignment="Left" />
+              </ParameterType>
+              <ParameterType Id="%AID%_PT-BoardPic4" Name="BoardPic4">
+                <TypePicture RefId="%FILE-kwlboard4%" HorizontalAlignment="Left" />
+              </ParameterType>
+
               <ParameterType Id="%AID%_PT-FanDacChannel" Name="FanDacChannel">
                 <TypeNumber SizeInBit="4" Type="unsignedInt" minInclusive="1" maxInclusive="12" />
               </ParameterType>
@@ -257,6 +267,8 @@
                 <Parameter Id="%AID%_UP-%TT%00002" Name="StartupDelay" Offset="1" BitOffset="0" ParameterType="%AID%_PT-FanStartupDelay" Text="Wartezeit nach Busspannungswiederkehr" SuffixText=" s" Value="3" />
                 <Parameter Id="%AID%_UP-%TT%00003" Name="GroupCount" Offset="2" BitOffset="0" ParameterType="%AID%_PT-FanGroupCount" Text="Anzahl der Verbünde" Value="2" />
               </Union>
+              <Parameter Id="%AID%_P-%TT%00010" Name="BoardPic2" ParameterType="%AID%_PT-BoardPic2" Text="" Access="Read" Value="" />
+              <Parameter Id="%AID%_P-%TT%00011" Name="BoardPic4" ParameterType="%AID%_PT-BoardPic4" Text="" Access="Read" Value="" />
               <!-- Offset 3 Reserve, ab Offset 4 die Verbuende -->
               <op:usePart name="GROUP" xpath="//Static/Parameters/*" />
             </Parameters>
@@ -264,6 +276,8 @@
               <ParameterRef Id="%AID%_UP-%TT%00001_R-%TT%0000101" RefId="%AID%_UP-%TT%00001" />
               <ParameterRef Id="%AID%_UP-%TT%00002_R-%TT%0000201" RefId="%AID%_UP-%TT%00002" />
               <ParameterRef Id="%AID%_UP-%TT%00003_R-%TT%0000301" RefId="%AID%_UP-%TT%00003" />
+              <ParameterRef Id="%AID%_P-%TT%00010_R-%TT%0001001" RefId="%AID%_P-%TT%00010" />
+              <ParameterRef Id="%AID%_P-%TT%00011_R-%TT%0001101" RefId="%AID%_P-%TT%00011" />
               <op:usePart name="GROUP" xpath="//Static/ParameterRefs/*" />
             </ParameterRefs>
             <ComObjectTable>
@@ -370,10 +384,22 @@
                 <ParameterSeparator Id="%AID%_PS-nnn" Text="Kanal und Klemme" UIHint="Headline" />
                 <choose ParamRefId="%AID%_UP-%TT%00001_R-%TT%0000101">
                   <when test="2">
-                <ParameterSeparator Id="%AID%_PS-nnn" Text="Entwicklungsaufbau Pico + DFR1073: Kanal 1 = VOUT0, Kanal 2 = VOUT1 des Breakout-Moduls. I²C-Adresse 0x58." UIHint="Information" Icon="kwlboard-2" />
+                <ParameterSeparator Id="%AID%_PS-nnn" Text="Entwicklungsaufbau Pico + DFR1073: Kanal 1 = VOUT0, Kanal 2 = VOUT1 des Breakout-Moduls. I²C-Adresse 0x58." UIHint="Information" />
+
+                    <ParameterBlock Id="%AID%_PB-nnn" Inline="true" Layout="Grid">
+                      <Rows><Row Id="%AID%_PB-nnn_R-1" /></Rows>
+                      <Columns><Column Id="%AID%_PB-nnn_C-1" Width="100%" /></Columns>
+                      <ParameterRefRef RefId="%AID%_P-%TT%00010_R-%TT%0001001" Cell="1,1" />
+                    </ParameterBlock>
                   </when>
                   <when test="4">
-                <ParameterSeparator Id="%AID%_PS-nnn" Text="KNXFANDRV Rev 0.1 — vier dreipolige Klemmen, Kanal 1 liegt links außen:" UIHint="Information" Icon="kwlboard-4" />
+                <ParameterSeparator Id="%AID%_PS-nnn" Text="KNXFANDRV Rev 0.1 — vier dreipolige Klemmen, Kanal 1 liegt links außen:" UIHint="Information" />
+
+                    <ParameterBlock Id="%AID%_PB-nnn" Inline="true" Layout="Grid">
+                      <Rows><Row Id="%AID%_PB-nnn_R-1" /></Rows>
+                      <Columns><Column Id="%AID%_PB-nnn_C-1" Width="100%" /></Columns>
+                      <ParameterRefRef RefId="%AID%_P-%TT%00011_R-%TT%0001101" Cell="1,1" />
+                    </ParameterBlock>
                 <ParameterSeparator Id="%AID%_PS-nnn" Text="Kanal 1  →  Klemme J3  ·  Netz S1  ·  U2 VOUT0 (0x58)" UIHint="Information" />
                 <ParameterSeparator Id="%AID%_PS-nnn" Text="Kanal 2  →  Klemme J4  ·  Netz S2  ·  U2 VOUT1 (0x58)" UIHint="Information" />
                 <ParameterSeparator Id="%AID%_PS-nnn" Text="Kanal 3  →  Klemme J5  ·  Netz S3  ·  U3 VOUT0 (0x59)" UIHint="Information" />
@@ -428,6 +454,12 @@
           <FileInfo TimeInfo="%DATETIME%" />
         </Baggage>
         <Baggage Id="%FILE-ICONS%" Name="Icons.zip" TargetPath="">
+          <FileInfo TimeInfo="%DATETIME%" />
+        </Baggage>
+        <Baggage Id="%FILE-kwlboard2%" Name="kwlboard-2.png" TargetPath="">
+          <FileInfo TimeInfo="%DATETIME%" />
+        </Baggage>
+        <Baggage Id="%FILE-kwlboard4%" Name="kwlboard-4.png" TargetPath="">
           <FileInfo TimeInfo="%DATETIME%" />
         </Baggage>
       </Baggages>

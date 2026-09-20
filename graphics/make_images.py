@@ -2,7 +2,7 @@
 """Erzeugt die Bilder fuer die ETS-Applikation.
 
   Baggages/Icons/kwlhw-N.png   32x32, je Eintrag der Hardwareauswahl
-  Baggages/Icons/kwlboard-N.png groesseres Klemmenbild fuer die Seite "Anschluss"
+  Baggages/kwlboard-N.png      Klemmenbild fuer die Seite "Anschluss" (TypePicture)
   graphics/kwlboard-N.svg      bearbeitbare Quelle desselben Bildes
 
 Die Klemmen sind von LINKS nach RECHTS angeordnet: Kanal 1 liegt links aussen.
@@ -12,6 +12,7 @@ import os
 from PIL import Image, ImageDraw, ImageFont
 
 ICON_DIR = os.path.join('src', 'Baggages', 'Icons')
+PIC_DIR = os.path.join('src', 'Baggages')
 SVG_DIR = 'graphics'
 
 # Klemmenbeschriftung je Platine. Kanal 1 steht vorn und liegt links aussen.
@@ -169,7 +170,7 @@ if __name__ == '__main__':
     for n in (2, 4, 6, 8, 10, 12):
         make_icon(n).save(os.path.join(ICON_DIR, 'kwlhw-%d.png' % n))
     for n in BOARDS:
-        make_board_png(n).save(os.path.join(ICON_DIR, 'kwlboard-%d.png' % n))
+        make_board_png(n).save(os.path.join(PIC_DIR, 'kwlboard-%d.png' % n))
         with open(os.path.join(SVG_DIR, 'kwlboard-%d.svg' % n), 'w', encoding='utf-8') as fh:
             fh.write(make_board_svg(n))
     print('Bilder erzeugt in %s und %s' % (ICON_DIR, SVG_DIR))
