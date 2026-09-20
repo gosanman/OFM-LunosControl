@@ -7,59 +7,345 @@
           <Static>
             <Parameters>
 
-              <!-- Beschreibung: nur ETS-seitig, kein Geraetespeicher. -->
+              <!-- Beschreibung: nur ETS-seitig, kein Geraetespeicher. Traegt den Seitentitel. -->
               <Parameter Id="%AID%_P-%TT%%CC%000" Name="r%C%Name" ParameterType="%AID%_PT-Text40Byte" Text="Beschreibung" Value="" />
 
-              <!-- Noch keine Kanalparameter. Es folgen (PLAN.md Woche 1 Tag 3 und 4,
-                   Spezifikation Abschnitt 4): Kanalaktivitaet, Aussenwertquelle,
-                   Standard-Betriebsart, sieben Betriebsart-Parametersaetze, Zwangsobjekte,
-                   Intervall, Grenzwert-Treppen rF/CO2/VOC, Temperatur, Abluftanforderung.
-                   Der Parameterspeicher darf dabei frei wachsen - er verschiebt keine
-                   Gruppenadresse. Die KO-Nummern duerfen es nicht (siehe unten). -->
+              <!-- ============================================================================
+                   Speicherbild je Raumkanal, Teil 1 (Sensorik und Fuehrungen), 36 Byte:
+                     0      Aktiv(1) Aussenwerte(1) Betriebsartquelle(1) HandEndetBeiModus(1)
+                            BeiFehlwerten(1) TempFuehrungRichtung(1) VOC-Einheit(2)
+                     1      Standardbetriebsart(3) Entfeuchtungsstufe(3)
+                     2      Kuehlstufe(3) Waermestufe(3)
+                     3      Handbetriebsdauer
+                     4..5   Sensorueberwachung
+                     6..10  Feuchte GW0..GW4
+                     11     Entfeuchten ein     12  Entfeuchten aus
+                     13     Frostgrenze         14  Hitzegrenze      15  Temperaturabstand
+                     16..25 CO2 GW0..GW4
+                     26..35 VOC GW0..GW4
+                   Ab Offset 36 folgt Teil 2 (Betriebsarten, Zwangsobjekte, Abluft) an Tag 4.
+                   Ein wachsender Parameterblock verschiebt keine Gruppenadresse.
+                   ============================================================================ -->
+
+              <Union SizeInBit="48">
+                <Memory CodeSegment="%AID%_RS-04-00000" Offset="0" BitOffset="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%001" Name="r%C%Active"        Offset="0" BitOffset="0" ParameterType="%AID%_PT-RoomChannelActive"  Text="Kanalaktivität" Value="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%002" Name="r%C%OutdoorSource" Offset="0" BitOffset="1" ParameterType="%AID%_PT-RoomOutdoorSource"  Text="Außenwerte" Value="1" />
+                <Parameter Id="%AID%_UP-%TT%%CC%003" Name="r%C%ModeSource"    Offset="0" BitOffset="2" ParameterType="%AID%_PT-RoomModeSource"     Text="Betriebsartvorgabe" Value="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%004" Name="r%C%ManualClears"  Offset="0" BitOffset="3" ParameterType="%AID%_PT-RoomYesNo"          Text="Betriebsartwechsel beendet den Handbetrieb" Value="1" />
+                <Parameter Id="%AID%_UP-%TT%%CC%005" Name="r%C%OnMissing"     Offset="0" BitOffset="4" ParameterType="%AID%_PT-RoomOnMissing"      Text="Bei fehlenden Messwerten" Value="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%006" Name="r%C%TempLeadMode"  Offset="0" BitOffset="5" ParameterType="%AID%_PT-RoomTempLeadMode"   Text="Objekt „Temperaturführung aktiv“" Value="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%007" Name="r%C%VOCUnit"       Offset="0" BitOffset="6" ParameterType="%AID%_PT-RoomVOCUnit"        Text="Format des VOC-Sensors" Value="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%008" Name="r%C%DefaultMode"   Offset="1" BitOffset="0" ParameterType="%AID%_PT-RoomMode4"          Text="Standard-Betriebsart" Value="2" />
+                <Parameter Id="%AID%_UP-%TT%%CC%009" Name="r%C%DehumStage"    Offset="1" BitOffset="3" ParameterType="%AID%_PT-RoomStage14"        Text="Stufe bei Entfeuchtung" Value="2" />
+                <!-- 2 Bit Reserve auf Offset 1 -->
+                <Parameter Id="%AID%_UP-%TT%%CC%010" Name="r%C%CoolStage"     Offset="2" BitOffset="0" ParameterType="%AID%_PT-RoomStage14"        Text="Stufe bei freier Kühlung" Value="3" />
+                <Parameter Id="%AID%_UP-%TT%%CC%011" Name="r%C%HeatStage"     Offset="2" BitOffset="3" ParameterType="%AID%_PT-RoomStage14"        Text="Stufe bei Warmluftnutzung" Value="2" />
+                <!-- 2 Bit Reserve auf Offset 2 -->
+                <Parameter Id="%AID%_UP-%TT%%CC%012" Name="r%C%ManualTimeout" Offset="3" BitOffset="0" ParameterType="%AID%_PT-RoomManualTimeout"  Text="Handbetrieb gilt" SuffixText=" min  (0 = dauerhaft)" Value="60" />
+                <Parameter Id="%AID%_UP-%TT%%CC%013" Name="r%C%SensorTimeout" Offset="4" BitOffset="0" ParameterType="%AID%_PT-RoomSensorTimeout"  Text="Sensorwert gilt als fehlend nach" SuffixText=" min  (0 = keine Überwachung)" Value="60" />
+              </Union>
+
+              <!-- Feuchte: Grenzwert-Treppe und Feuchtevergleich -->
+              <Union SizeInBit="80">
+                <Memory CodeSegment="%AID%_RS-04-00000" Offset="6" BitOffset="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%020" Name="r%C%HumGW0" Offset="0" BitOffset="0" ParameterType="%AID%_PT-RoomHumGW" Text="Grenzwert 0 — schaltet Stufe 1 aus" SuffixText=" %" Value="45" />
+                <Parameter Id="%AID%_UP-%TT%%CC%021" Name="r%C%HumGW1" Offset="1" BitOffset="0" ParameterType="%AID%_PT-RoomHumGW" Text="Grenzwert 1 — schaltet Stufe 1 ein" SuffixText=" %" Value="50" />
+                <Parameter Id="%AID%_UP-%TT%%CC%022" Name="r%C%HumGW2" Offset="2" BitOffset="0" ParameterType="%AID%_PT-RoomHumGW" Text="Grenzwert 2 — schaltet Stufe 2 ein" SuffixText=" %" Value="55" />
+                <Parameter Id="%AID%_UP-%TT%%CC%023" Name="r%C%HumGW3" Offset="3" BitOffset="0" ParameterType="%AID%_PT-RoomHumGW" Text="Grenzwert 3 — schaltet Stufe 3 ein" SuffixText=" %" Value="60" />
+                <Parameter Id="%AID%_UP-%TT%%CC%024" Name="r%C%HumGW4" Offset="4" BitOffset="0" ParameterType="%AID%_PT-RoomHumGW" Text="Grenzwert 4 — schaltet Stufe 4 ein" SuffixText=" %" Value="65" />
+                <Parameter Id="%AID%_UP-%TT%%CC%025" Name="r%C%DehumOn"  Offset="5" BitOffset="0" ParameterType="%AID%_PT-RoomDehumHpa" Text="Entfeuchten ab Dampfdruckdifferenz" SuffixText=" × 0,1 hPa" Value="15" />
+                <Parameter Id="%AID%_UP-%TT%%CC%026" Name="r%C%DehumOff" Offset="6" BitOffset="0" ParameterType="%AID%_PT-RoomDehumHpa" Text="Feuchteführung sperren unter" SuffixText=" × 0,1 hPa" Value="5" />
+                <Parameter Id="%AID%_UP-%TT%%CC%027" Name="r%C%FrostTemp" Offset="7" BitOffset="0" ParameterType="%AID%_PT-RoomFrostTemp" Text="Frostgrenze innen" SuffixText=" °C" Value="8" />
+                <Parameter Id="%AID%_UP-%TT%%CC%028" Name="r%C%HeatTemp"  Offset="8" BitOffset="0" ParameterType="%AID%_PT-RoomHeatTemp" Text="Hitzegrenze innen" SuffixText=" °C" Value="30" />
+                <Parameter Id="%AID%_UP-%TT%%CC%029" Name="r%C%TempGap"   Offset="9" BitOffset="0" ParameterType="%AID%_PT-RoomTempGap" Text="Mindestabstand innen/außen" SuffixText=" K" Value="3" />
+              </Union>
+
+              <!-- CO2- und VOC-Treppe -->
+              <Union SizeInBit="160">
+                <Memory CodeSegment="%AID%_RS-04-00000" Offset="16" BitOffset="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%030" Name="r%C%CO2GW0" Offset="0" BitOffset="0" ParameterType="%AID%_PT-RoomCO2GW" Text="Grenzwert 0 — schaltet Stufe 1 aus" SuffixText=" ppm" Value="700" />
+                <Parameter Id="%AID%_UP-%TT%%CC%031" Name="r%C%CO2GW1" Offset="2" BitOffset="0" ParameterType="%AID%_PT-RoomCO2GW" Text="Grenzwert 1 — schaltet Stufe 1 ein" SuffixText=" ppm" Value="850" />
+                <Parameter Id="%AID%_UP-%TT%%CC%032" Name="r%C%CO2GW2" Offset="4" BitOffset="0" ParameterType="%AID%_PT-RoomCO2GW" Text="Grenzwert 2 — schaltet Stufe 2 ein" SuffixText=" ppm" Value="1000" />
+                <Parameter Id="%AID%_UP-%TT%%CC%033" Name="r%C%CO2GW3" Offset="6" BitOffset="0" ParameterType="%AID%_PT-RoomCO2GW" Text="Grenzwert 3 — schaltet Stufe 3 ein" SuffixText=" ppm" Value="1300" />
+                <Parameter Id="%AID%_UP-%TT%%CC%034" Name="r%C%CO2GW4" Offset="8" BitOffset="0" ParameterType="%AID%_PT-RoomCO2GW" Text="Grenzwert 4 — schaltet Stufe 4 ein" SuffixText=" ppm" Value="1700" />
+                <Parameter Id="%AID%_UP-%TT%%CC%035" Name="r%C%VOCGW0" Offset="10" BitOffset="0" ParameterType="%AID%_PT-RoomVOCGW" Text="Grenzwert 0 — schaltet Stufe 1 aus" Value="300" />
+                <Parameter Id="%AID%_UP-%TT%%CC%036" Name="r%C%VOCGW1" Offset="12" BitOffset="0" ParameterType="%AID%_PT-RoomVOCGW" Text="Grenzwert 1 — schaltet Stufe 1 ein" Value="500" />
+                <Parameter Id="%AID%_UP-%TT%%CC%037" Name="r%C%VOCGW2" Offset="14" BitOffset="0" ParameterType="%AID%_PT-RoomVOCGW" Text="Grenzwert 2 — schaltet Stufe 2 ein" Value="750" />
+                <Parameter Id="%AID%_UP-%TT%%CC%038" Name="r%C%VOCGW3" Offset="16" BitOffset="0" ParameterType="%AID%_PT-RoomVOCGW" Text="Grenzwert 3 — schaltet Stufe 3 ein" Value="1000" />
+                <Parameter Id="%AID%_UP-%TT%%CC%039" Name="r%C%VOCGW4" Offset="18" BitOffset="0" ParameterType="%AID%_PT-RoomVOCGW" Text="Grenzwert 4 — schaltet Stufe 4 ein" Value="1500" />
+              </Union>
 
             </Parameters>
             <ParameterRefs>
               <ParameterRef Id="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" RefId="%AID%_P-%TT%%CC%000" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%001_R-%TT%%CC%00101" RefId="%AID%_UP-%TT%%CC%001" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%002_R-%TT%%CC%00201" RefId="%AID%_UP-%TT%%CC%002" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%003_R-%TT%%CC%00301" RefId="%AID%_UP-%TT%%CC%003" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%004_R-%TT%%CC%00401" RefId="%AID%_UP-%TT%%CC%004" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%005_R-%TT%%CC%00501" RefId="%AID%_UP-%TT%%CC%005" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%006_R-%TT%%CC%00601" RefId="%AID%_UP-%TT%%CC%006" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%007_R-%TT%%CC%00701" RefId="%AID%_UP-%TT%%CC%007" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%008_R-%TT%%CC%00801" RefId="%AID%_UP-%TT%%CC%008" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%009_R-%TT%%CC%00901" RefId="%AID%_UP-%TT%%CC%009" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%010_R-%TT%%CC%01001" RefId="%AID%_UP-%TT%%CC%010" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%011_R-%TT%%CC%01101" RefId="%AID%_UP-%TT%%CC%011" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%012_R-%TT%%CC%01201" RefId="%AID%_UP-%TT%%CC%012" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%013_R-%TT%%CC%01301" RefId="%AID%_UP-%TT%%CC%013" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%020_R-%TT%%CC%02001" RefId="%AID%_UP-%TT%%CC%020" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%021_R-%TT%%CC%02101" RefId="%AID%_UP-%TT%%CC%021" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%022_R-%TT%%CC%02201" RefId="%AID%_UP-%TT%%CC%022" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%023_R-%TT%%CC%02301" RefId="%AID%_UP-%TT%%CC%023" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%024_R-%TT%%CC%02401" RefId="%AID%_UP-%TT%%CC%024" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%025_R-%TT%%CC%02501" RefId="%AID%_UP-%TT%%CC%025" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%026_R-%TT%%CC%02601" RefId="%AID%_UP-%TT%%CC%026" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%027_R-%TT%%CC%02701" RefId="%AID%_UP-%TT%%CC%027" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%028_R-%TT%%CC%02801" RefId="%AID%_UP-%TT%%CC%028" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%029_R-%TT%%CC%02901" RefId="%AID%_UP-%TT%%CC%029" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%030_R-%TT%%CC%03001" RefId="%AID%_UP-%TT%%CC%030" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%031_R-%TT%%CC%03101" RefId="%AID%_UP-%TT%%CC%031" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%032_R-%TT%%CC%03201" RefId="%AID%_UP-%TT%%CC%032" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%033_R-%TT%%CC%03301" RefId="%AID%_UP-%TT%%CC%033" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%034_R-%TT%%CC%03401" RefId="%AID%_UP-%TT%%CC%034" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%035_R-%TT%%CC%03501" RefId="%AID%_UP-%TT%%CC%035" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%036_R-%TT%%CC%03601" RefId="%AID%_UP-%TT%%CC%036" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%037_R-%TT%%CC%03701" RefId="%AID%_UP-%TT%%CC%037" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%038_R-%TT%%CC%03801" RefId="%AID%_UP-%TT%%CC%038" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%039_R-%TT%%CC%03901" RefId="%AID%_UP-%TT%%CC%039" />
             </ParameterRefs>
+
             <ComObjectTable>
+              <!-- ===== Sensoreingaenge (Plan 0.6, Raum-Block 14..20) ===== -->
+              <ComObject Id="%AID%_O-%TT%%CC%014" Name="%C%HumIn"   Number="%K14%" ObjectSize="2 Bytes" Text="" FunctionText="" ReadFlag="Disabled" WriteFlag="Enabled" CommunicationFlag="Enabled" TransmitFlag="Disabled" UpdateFlag="Enabled" ReadOnInitFlag="Disabled" DatapointType="DPST-9-7" />
+              <ComObject Id="%AID%_O-%TT%%CC%015" Name="%C%TempIn"  Number="%K15%" ObjectSize="2 Bytes" Text="" FunctionText="" ReadFlag="Disabled" WriteFlag="Enabled" CommunicationFlag="Enabled" TransmitFlag="Disabled" UpdateFlag="Enabled" ReadOnInitFlag="Disabled" DatapointType="DPST-9-1" />
+              <ComObject Id="%AID%_O-%TT%%CC%016" Name="%C%HumOut"  Number="%K16%" ObjectSize="2 Bytes" Text="" FunctionText="" ReadFlag="Disabled" WriteFlag="Enabled" CommunicationFlag="Enabled" TransmitFlag="Disabled" UpdateFlag="Enabled" ReadOnInitFlag="Disabled" DatapointType="DPST-9-7" />
+              <ComObject Id="%AID%_O-%TT%%CC%017" Name="%C%TempOut" Number="%K17%" ObjectSize="2 Bytes" Text="" FunctionText="" ReadFlag="Disabled" WriteFlag="Enabled" CommunicationFlag="Enabled" TransmitFlag="Disabled" UpdateFlag="Enabled" ReadOnInitFlag="Disabled" DatapointType="DPST-9-1" />
+              <ComObject Id="%AID%_O-%TT%%CC%018" Name="%C%CO2"     Number="%K18%" ObjectSize="2 Bytes" Text="" FunctionText="" ReadFlag="Disabled" WriteFlag="Enabled" CommunicationFlag="Enabled" TransmitFlag="Disabled" UpdateFlag="Enabled" ReadOnInitFlag="Disabled" DatapointType="DPST-9-8" />
+              <!-- VOC: zwei Objekte statt eines, weil ein Kommunikationsobjekt genau eine
+                   Groesse hat. Index 0..255 ist 1 Byte (DPT 5.010), ppb und Index 0..65535
+                   sind 2 Byte. Das 1-Byte-Objekt liegt auf der Reserve 36 des Raumblocks;
+                   die KO-Tabelle in PLAN.md 0.6 ist entsprechend fortzuschreiben. Immer nur
+                   eines von beiden ist sichtbar. -->
+              <ComObject Id="%AID%_O-%TT%%CC%019" Name="%C%VOC"     Number="%K19%" ObjectSize="2 Bytes" Text="" FunctionText="" ReadFlag="Disabled" WriteFlag="Enabled" CommunicationFlag="Enabled" TransmitFlag="Disabled" UpdateFlag="Enabled" ReadOnInitFlag="Disabled" DatapointType="DPST-9-8" />
+              <ComObject Id="%AID%_O-%TT%%CC%036" Name="%C%VOCByte" Number="%K36%" ObjectSize="1 Byte"  Text="" FunctionText="" ReadFlag="Disabled" WriteFlag="Enabled" CommunicationFlag="Enabled" TransmitFlag="Disabled" UpdateFlag="Enabled" ReadOnInitFlag="Disabled" DatapointType="DPST-5-10" />
+              <ComObject Id="%AID%_O-%TT%%CC%020" Name="%C%TempSet" Number="%K20%" ObjectSize="2 Bytes" Text="" FunctionText="" ReadFlag="Disabled" WriteFlag="Enabled" CommunicationFlag="Enabled" TransmitFlag="Disabled" UpdateFlag="Enabled" ReadOnInitFlag="Disabled" DatapointType="DPST-9-1" />
+
+              <!-- ===== Fuehrungen ein/aus (21..24) =====
+                   21 ist je nach Parameter Eingang oder Ausgang; die Flags stehen deshalb
+                   beidseitig offen, die Richtung entscheidet die Firmware. -->
+              <ComObject Id="%AID%_O-%TT%%CC%021" Name="%C%TempLead" Number="%K21%" ObjectSize="1 Bit" Text="" FunctionText="" ReadFlag="Enabled"  WriteFlag="Enabled" CommunicationFlag="Enabled" TransmitFlag="Enabled"  UpdateFlag="Enabled" ReadOnInitFlag="Disabled" DatapointType="DPST-1-3" />
+              <ComObject Id="%AID%_O-%TT%%CC%022" Name="%C%HumLead"  Number="%K22%" ObjectSize="1 Bit" Text="" FunctionText="" ReadFlag="Disabled" WriteFlag="Enabled" CommunicationFlag="Enabled" TransmitFlag="Disabled" UpdateFlag="Enabled" ReadOnInitFlag="Disabled" DatapointType="DPST-1-3" />
+              <ComObject Id="%AID%_O-%TT%%CC%023" Name="%C%CO2Lead"  Number="%K23%" ObjectSize="1 Bit" Text="" FunctionText="" ReadFlag="Disabled" WriteFlag="Enabled" CommunicationFlag="Enabled" TransmitFlag="Disabled" UpdateFlag="Enabled" ReadOnInitFlag="Disabled" DatapointType="DPST-1-3" />
+              <ComObject Id="%AID%_O-%TT%%CC%024" Name="%C%VOCLead"  Number="%K24%" ObjectSize="1 Bit" Text="" FunctionText="" ReadFlag="Disabled" WriteFlag="Enabled" CommunicationFlag="Enabled" TransmitFlag="Disabled" UpdateFlag="Enabled" ReadOnInitFlag="Disabled" DatapointType="DPST-1-3" />
+
+              <!-- ===== Ausgaenge (25, 26, 30..33) ===== -->
+              <ComObject Id="%AID%_O-%TT%%CC%025" Name="%C%DemandStage" Number="%K25%" ObjectSize="1 Byte"  Text="" FunctionText="" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" DatapointType="DPST-5-100" />
+              <ComObject Id="%AID%_O-%TT%%CC%026" Name="%C%DemandPct"   Number="%K26%" ObjectSize="1 Byte"  Text="" FunctionText="" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" DatapointType="DPST-5-1" />
+              <ComObject Id="%AID%_O-%TT%%CC%030" Name="%C%ProtectAct"  Number="%K30%" ObjectSize="1 Bit"   Text="" FunctionText="" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" DatapointType="DPST-1-1" />
+              <ComObject Id="%AID%_O-%TT%%CC%031" Name="%C%DehumBlock"  Number="%K31%" ObjectSize="1 Bit"   Text="" FunctionText="" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" DatapointType="DPST-1-1" />
+              <ComObject Id="%AID%_O-%TT%%CC%032" Name="%C%AbsHumIn"    Number="%K32%" ObjectSize="2 Bytes" Text="" FunctionText="" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" DatapointType="DPST-9-29" />
+              <ComObject Id="%AID%_O-%TT%%CC%033" Name="%C%AbsHumOut"   Number="%K33%" ObjectSize="2 Bytes" Text="" FunctionText="" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" DatapointType="DPST-9-29" />
 
               <!-- ============================================================================
-                   BLOCKGROESSE 40 - EINGEFROREN (PLAN.md 0.6).
-
-                   Der OpenKNXproducer bildet die Blockgroesse eines Moduls ausschliesslich
-                   aus der hoechsten benutzten %Kn%-Nummer; ein Attribut dafuer gibt es nicht.
-                   Ohne ein Objekt auf %K39% waere der Block kleiner, und jedes spaeter
-                   hinzugefuegte KO wuerde die Nummern aller folgenden Raumkanaele
-                   verschieben - also die Gruppenadressen bereits parametrierter Anlagen.
-
-                   Dieses eine Objekt haelt den Block deshalb auf 40 (relativ 0..39), bis die
-                   echten KOs aus dem Raum-Block geschrieben sind. Es liegt auf Platz 39,
-                   dem obersten der geplanten Reserve 36..39, und ist genau so lange ein
-                   Platzhalter, wie dort nichts Echtes steht. Entfernt werden darf es nur,
-                   wenn dann wieder ein Objekt auf %K39% liegt.
-
+                   BLOCKGROESSE 40 - EINGEFROREN (PLAN.md 0.6). Der Producer bildet sie
+                   ausschliesslich aus der hoechsten benutzten %Kn%-Nummer. Dieses Objekt
+                   haelt sie auf 40, solange 37..39 leer sind.
                    ROOM: KoOffset 20, 8 Raeume x 40 = KO 20..339.
                    ============================================================================ -->
               <ComObject Id="%AID%_O-%TT%%CC%039" Name="%C%Reserve39" Number="%K39%" ObjectSize="1 Bit" Text="" FunctionText="" ReadFlag="Disabled" WriteFlag="Disabled" CommunicationFlag="Disabled" TransmitFlag="Disabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" DatapointType="DPST-1-1" />
-
             </ComObjectTable>
+
             <ComObjectRefs>
+              <ComObjectRef Id="%AID%_O-%TT%%CC%014_R-%TT%%CC%01401" RefId="%AID%_O-%TT%%CC%014" Text="{{0:Raum %C%}}: Relative Feuchte innen" FunctionText="Raum %C%: Eingang, %"   TextParameterRefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" />
+              <ComObjectRef Id="%AID%_O-%TT%%CC%015_R-%TT%%CC%01501" RefId="%AID%_O-%TT%%CC%015" Text="{{0:Raum %C%}}: Temperatur innen"      FunctionText="Raum %C%: Eingang, °C"  TextParameterRefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" />
+              <ComObjectRef Id="%AID%_O-%TT%%CC%016_R-%TT%%CC%01601" RefId="%AID%_O-%TT%%CC%016" Text="{{0:Raum %C%}}: Relative Feuchte außen" FunctionText="Raum %C%: Eingang, %"   TextParameterRefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" />
+              <ComObjectRef Id="%AID%_O-%TT%%CC%017_R-%TT%%CC%01701" RefId="%AID%_O-%TT%%CC%017" Text="{{0:Raum %C%}}: Temperatur außen"      FunctionText="Raum %C%: Eingang, °C"  TextParameterRefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" />
+              <ComObjectRef Id="%AID%_O-%TT%%CC%018_R-%TT%%CC%01801" RefId="%AID%_O-%TT%%CC%018" Text="{{0:Raum %C%}}: CO₂"                   FunctionText="Raum %C%: Eingang, ppm" TextParameterRefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" />
+              <ComObjectRef Id="%AID%_O-%TT%%CC%019_R-%TT%%CC%01901" RefId="%AID%_O-%TT%%CC%019" Text="{{0:Raum %C%}}: Luftgüte"              FunctionText="Raum %C%: Eingang, ppb"    TextParameterRefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" DatapointType="DPST-9-8" />
+              <ComObjectRef Id="%AID%_O-%TT%%CC%019_R-%TT%%CC%01902" RefId="%AID%_O-%TT%%CC%019" Text="{{0:Raum %C%}}: Luftgüte"              FunctionText="Raum %C%: Eingang, Index"  TextParameterRefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" DatapointType="DPST-7-1" />
+              <ComObjectRef Id="%AID%_O-%TT%%CC%036_R-%TT%%CC%03601" RefId="%AID%_O-%TT%%CC%036" Text="{{0:Raum %C%}}: Luftgüte"              FunctionText="Raum %C%: Eingang, Index"  TextParameterRefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" />
+              <ComObjectRef Id="%AID%_O-%TT%%CC%020_R-%TT%%CC%02001" RefId="%AID%_O-%TT%%CC%020" Text="{{0:Raum %C%}}: Solltemperatur"        FunctionText="Raum %C%: Eingang, °C"  TextParameterRefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" />
+
+              <ComObjectRef Id="%AID%_O-%TT%%CC%021_R-%TT%%CC%02101" RefId="%AID%_O-%TT%%CC%021" Text="{{0:Raum %C%}}: Temperaturführung aktiv" FunctionText="Raum %C%: Eingang, 0 sperrt"                TextParameterRefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" />
+              <ComObjectRef Id="%AID%_O-%TT%%CC%021_R-%TT%%CC%02102" RefId="%AID%_O-%TT%%CC%021" Text="{{0:Raum %C%}}: Freie Kühlung aktiv"     FunctionText="Raum %C%: Ausgang, 1 = Heizung sperren"     TextParameterRefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" />
+              <ComObjectRef Id="%AID%_O-%TT%%CC%022_R-%TT%%CC%02201" RefId="%AID%_O-%TT%%CC%022" Text="{{0:Raum %C%}}: Feuchteführung aktiv"    FunctionText="Raum %C%: Eingang, 0 sperrt"                TextParameterRefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" />
+              <ComObjectRef Id="%AID%_O-%TT%%CC%023_R-%TT%%CC%02301" RefId="%AID%_O-%TT%%CC%023" Text="{{0:Raum %C%}}: CO₂-Führung aktiv"       FunctionText="Raum %C%: Eingang, 0 sperrt"                TextParameterRefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" />
+              <ComObjectRef Id="%AID%_O-%TT%%CC%024_R-%TT%%CC%02401" RefId="%AID%_O-%TT%%CC%024" Text="{{0:Raum %C%}}: Luftgüteführung aktiv"   FunctionText="Raum %C%: Eingang, 0 sperrt"                TextParameterRefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" />
+
+              <ComObjectRef Id="%AID%_O-%TT%%CC%025_R-%TT%%CC%02501" RefId="%AID%_O-%TT%%CC%025" Text="{{0:Raum %C%}}: Raumanforderung Stufe" FunctionText="Raum %C%: Ausgang, Stufe 0…4" TextParameterRefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" />
+              <ComObjectRef Id="%AID%_O-%TT%%CC%026_R-%TT%%CC%02601" RefId="%AID%_O-%TT%%CC%026" Text="{{0:Raum %C%}}: Raumanforderung %"     FunctionText="Raum %C%: Ausgang, Prozent"   TextParameterRefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" />
+              <ComObjectRef Id="%AID%_O-%TT%%CC%030_R-%TT%%CC%03001" RefId="%AID%_O-%TT%%CC%030" Text="{{0:Raum %C%}}: Schutzbetrieb aktiv"   FunctionText="Raum %C%: Ausgang, Frost oder Hitze" TextParameterRefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" />
+              <ComObjectRef Id="%AID%_O-%TT%%CC%031_R-%TT%%CC%03101" RefId="%AID%_O-%TT%%CC%031" Text="{{0:Raum %C%}}: Feuchtevergleich sperrt" FunctionText="Raum %C%: Ausgang, außen feuchter als innen" TextParameterRefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" />
+              <ComObjectRef Id="%AID%_O-%TT%%CC%032_R-%TT%%CC%03201" RefId="%AID%_O-%TT%%CC%032" Text="{{0:Raum %C%}}: Absolute Feuchte innen" FunctionText="Raum %C%: Ausgang, g/kg" TextParameterRefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" />
+              <ComObjectRef Id="%AID%_O-%TT%%CC%033_R-%TT%%CC%03301" RefId="%AID%_O-%TT%%CC%033" Text="{{0:Raum %C%}}: Absolute Feuchte außen" FunctionText="Raum %C%: Ausgang, g/kg" TextParameterRefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" />
+
               <ComObjectRef Id="%AID%_O-%TT%%CC%039_R-%TT%%CC%03901" RefId="%AID%_O-%TT%%CC%039" Text="{{0:Raum %C%}}: Reserve" FunctionText="Raum %C%: Platzhalter, hält die Blockgröße auf 40" TextParameterRefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" />
             </ComObjectRefs>
           </Static>
+
           <Dynamic>
             <ChannelIndependentBlock>
 
+              <!-- ===================== Zeile in der Kanalauswahl ===================== -->
+              <ParameterBlock Id="%AID%_PB-nnn" Name="Settings">
+                <choose ParamRefId="%AID%_UP-%TT%00001_R-%TT%0000101">
+                  <when test="&gt;=%C%">
+                    <ParameterBlock Id="%AID%_PB-nnn" Inline="true" Layout="Grid">
+                      <Rows><Row Id="%AID%_PB-nnn_R-1" /></Rows>
+                      <Columns>
+                        <Column Id="%AID%_PB-nnn_C-1" Width="15%" />
+                        <Column Id="%AID%_PB-nnn_C-2" Width="35%" />
+                        <Column Id="%AID%_PB-nnn_C-3" Width="50%" />
+                      </Columns>
+                      <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,1" Text="Raum %C%" />
+                      <ParameterRefRef RefId="%AID%_UP-%TT%%CC%001_R-%TT%%CC%00101" Cell="1,2" />
+                      <ParameterRefRef RefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" Cell="1,3" HelpContext="BASE-ChannelName" />
+                    </ParameterBlock>
+                  </when>
+                  <when default="true" />
+                </choose>
+              </ParameterBlock>
+
               <!-- ===================== Kanalreiter ===================== -->
               <ParameterBlock Id="%AID%_PB-nnn" Name="Channel">
-                <ParameterBlock Id="%AID%_PB-nnn" Name="r%C%Page" Text="Raum %C%: {{0: ...}}" TextParameterRefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" Icon="thermometer" HelpContext="Empty" ShowInComObjectTree="true">
-                  <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
-                  <ParameterSeparator Id="%AID%_PS-nnn" Text="Kanaldefinition" UIHint="Headline" />
-                  <ParameterRefRef RefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" IndentLevel="1" HelpContext="BASE-ChannelName" />
-                  <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
-                  <ParameterSeparator Id="%AID%_PS-nnn" Text="Dieser Kanal ist noch leer. Parameter und Kommunikationsobjekte folgen; die KO-Nummern des Blocks sind bereits festgelegt." UIHint="Information" />
-                  <ComObjectRefRef RefId="%AID%_O-%TT%%CC%039_R-%TT%%CC%03901" />
-                </ParameterBlock>
+                <choose ParamRefId="%AID%_UP-%TT%00001_R-%TT%0000101">
+                  <when test="&gt;=%C%">
+                    <choose ParamRefId="%AID%_UP-%TT%%CC%001_R-%TT%%CC%00101">
+                      <when test="=1">
+                        <ParameterBlock Id="%AID%_PB-nnn" Name="r%C%Page" Text="Raum %C%: {{0: ...}}" TextParameterRefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" Icon="thermometer" HelpContext="Empty" ShowInComObjectTree="true">
+
+                          <!-- ===== Allgemein ===== -->
+                          <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
+                          <ParameterSeparator Id="%AID%_PS-nnn" Text="Raumdefinition" UIHint="Headline" />
+                          <ParameterRefRef RefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" IndentLevel="1" HelpContext="BASE-ChannelName" />
+                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%008_R-%TT%%CC%00801" IndentLevel="1" />
+                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%012_R-%TT%%CC%01201" IndentLevel="1" />
+                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%004_R-%TT%%CC%00401" IndentLevel="1" />
+                          <!-- Aussenwerte und Betriebsartvorgabe kann man nur ab Raum 2 von
+                               Raum 1 uebernehmen; auf Raum 1 selbst waere die Frage sinnlos. -->
+                          <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
+                          <ParameterSeparator Id="%AID%_PS-nnn" Text="Quellen" UIHint="Headline" />
+                          <!-- "1 < Kanalnummer" - siehe PT-RoomConstOne in Room.share.xml.
+                               Auf Raum 1 falsch, ab Raum 2 wahr. -->
+                          <choose ParamRefId="%AID%_P-%TT%00004_R-%TT%0000401">
+                            <when test="&lt;%C%">
+                              <ParameterRefRef RefId="%AID%_UP-%TT%%CC%002_R-%TT%%CC%00201" IndentLevel="1" />
+                              <ParameterRefRef RefId="%AID%_UP-%TT%%CC%003_R-%TT%%CC%00301" IndentLevel="1" />
+                            </when>
+                            <when default="true">
+                              <ParameterSeparator Id="%AID%_PS-nnn" Text="Raum 1 hat immer eigene Objekte; die übrigen Räume können seine Außenwerte und seine Betriebsartvorgabe übernehmen." UIHint="Information" />
+                            </when>
+                          </choose>
+                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%013_R-%TT%%CC%01301" IndentLevel="1" />
+                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%005_R-%TT%%CC%00501" IndentLevel="1" />
+
+                          <!-- ===== Feuchte ===== -->
+                          <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
+                          <ParameterSeparator Id="%AID%_PS-nnn" Text="Führung Feuchte" UIHint="Headline" />
+                          <ParameterSeparator Id="%AID%_PS-nnn" Text="Grenzwert-Treppe: Grenzwert n schaltet Stufe n ein, Grenzwert n−1 schaltet sie wieder aus. Die Werte müssen aufsteigend sein — die Firmware prüft das beim Start." UIHint="Information" />
+                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%020_R-%TT%%CC%02001" IndentLevel="1" />
+                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%021_R-%TT%%CC%02101" IndentLevel="1" />
+                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%022_R-%TT%%CC%02201" IndentLevel="1" />
+                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%023_R-%TT%%CC%02301" IndentLevel="1" />
+                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%024_R-%TT%%CC%02401" IndentLevel="1" />
+
+                          <ParameterSeparator Id="%AID%_PS-nnn" Text="Feuchtevergleich (Entfeuchtung)" UIHint="Headline" />
+                          <ParameterSeparator Id="%AID%_PS-nnn" Text="Verglichen wird der Wasserdampf-Partialdruck innen gegen außen, nicht die relative Feuchte. Nur so fördert das Lüften Feuchte heraus statt herein." UIHint="Information" />
+                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%025_R-%TT%%CC%02501" IndentLevel="1" />
+                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%026_R-%TT%%CC%02601" IndentLevel="1" />
+                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%009_R-%TT%%CC%00901" IndentLevel="1" />
+
+                          <!-- ===== CO2 und Luftguete ===== -->
+                          <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
+                          <ParameterSeparator Id="%AID%_PS-nnn" Text="Führung CO₂" UIHint="Headline" />
+                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%030_R-%TT%%CC%03001" IndentLevel="1" />
+                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%031_R-%TT%%CC%03101" IndentLevel="1" />
+                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%032_R-%TT%%CC%03201" IndentLevel="1" />
+                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%033_R-%TT%%CC%03301" IndentLevel="1" />
+                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%034_R-%TT%%CC%03401" IndentLevel="1" />
+
+                          <ParameterSeparator Id="%AID%_PS-nnn" Text="Führung Luftgüte (VOC)" UIHint="Headline" />
+                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%007_R-%TT%%CC%00701" IndentLevel="1" />
+                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%035_R-%TT%%CC%03501" IndentLevel="1" />
+                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%036_R-%TT%%CC%03601" IndentLevel="1" />
+                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%037_R-%TT%%CC%03701" IndentLevel="1" />
+                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%038_R-%TT%%CC%03801" IndentLevel="1" />
+                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%039_R-%TT%%CC%03901" IndentLevel="1" />
+
+                          <!-- ===== Temperatur ===== -->
+                          <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
+                          <ParameterSeparator Id="%AID%_PS-nnn" Text="Führung Temperatur und Gebäudeschutz" UIHint="Headline" />
+                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%027_R-%TT%%CC%02701" IndentLevel="1" />
+                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%028_R-%TT%%CC%02801" IndentLevel="1" />
+                          <ParameterSeparator Id="%AID%_PS-nnn" Text="Unterhalb der Frostgrenze und oberhalb der Hitzegrenze bei wärmerer Außenluft geht der Raum in den Schutzbetrieb. Rückkehr jeweils 2 K innerhalb der Grenze." UIHint="Information" />
+                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%029_R-%TT%%CC%02901" IndentLevel="1" />
+                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%010_R-%TT%%CC%01001" IndentLevel="1" />
+                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%011_R-%TT%%CC%01101" IndentLevel="1" />
+                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%006_R-%TT%%CC%00601" IndentLevel="1" />
+
+                          <!-- ===== Kommunikationsobjekte ===== -->
+                          <ComObjectRefRef RefId="%AID%_O-%TT%%CC%014_R-%TT%%CC%01401" />
+                          <ComObjectRefRef RefId="%AID%_O-%TT%%CC%015_R-%TT%%CC%01501" />
+                          <!-- Aussenwert-Objekte nur, wenn der Raum sie selbst empfaengt.
+                               Raum 1 hat sie immer. -->
+                          <choose ParamRefId="%AID%_P-%TT%00004_R-%TT%0000401">
+                            <when test="&lt;%C%">
+                              <choose ParamRefId="%AID%_UP-%TT%%CC%002_R-%TT%%CC%00201">
+                                <when test="0">
+                                  <ComObjectRefRef RefId="%AID%_O-%TT%%CC%016_R-%TT%%CC%01601" />
+                                  <ComObjectRefRef RefId="%AID%_O-%TT%%CC%017_R-%TT%%CC%01701" />
+                                </when>
+                                <when default="true" />
+                              </choose>
+                            </when>
+                            <when default="true">
+                              <ComObjectRefRef RefId="%AID%_O-%TT%%CC%016_R-%TT%%CC%01601" />
+                              <ComObjectRefRef RefId="%AID%_O-%TT%%CC%017_R-%TT%%CC%01701" />
+                            </when>
+                          </choose>
+                          <ComObjectRefRef RefId="%AID%_O-%TT%%CC%018_R-%TT%%CC%01801" />
+                          <!-- Genau ein Luftgueteobjekt, passend zum gewaehlten Format. -->
+                          <choose ParamRefId="%AID%_UP-%TT%%CC%007_R-%TT%%CC%00701">
+                            <when test="0">
+                              <ComObjectRefRef RefId="%AID%_O-%TT%%CC%019_R-%TT%%CC%01901" />
+                            </when>
+                            <when test="1">
+                              <ComObjectRefRef RefId="%AID%_O-%TT%%CC%036_R-%TT%%CC%03601" />
+                            </when>
+                            <when test="2">
+                              <ComObjectRefRef RefId="%AID%_O-%TT%%CC%019_R-%TT%%CC%01902" />
+                            </when>
+                            <when default="true" />
+                          </choose>
+                          <ComObjectRefRef RefId="%AID%_O-%TT%%CC%020_R-%TT%%CC%02001" />
+                          <!-- KO 21 ist Eingang oder Ausgang, je nach Parameter. -->
+                          <choose ParamRefId="%AID%_UP-%TT%%CC%006_R-%TT%%CC%00601">
+                            <when test="0">
+                              <ComObjectRefRef RefId="%AID%_O-%TT%%CC%021_R-%TT%%CC%02101" />
+                            </when>
+                            <when test="1">
+                              <ComObjectRefRef RefId="%AID%_O-%TT%%CC%021_R-%TT%%CC%02102" />
+                            </when>
+                            <when default="true" />
+                          </choose>
+                          <ComObjectRefRef RefId="%AID%_O-%TT%%CC%022_R-%TT%%CC%02201" />
+                          <ComObjectRefRef RefId="%AID%_O-%TT%%CC%023_R-%TT%%CC%02301" />
+                          <ComObjectRefRef RefId="%AID%_O-%TT%%CC%024_R-%TT%%CC%02401" />
+                          <ComObjectRefRef RefId="%AID%_O-%TT%%CC%025_R-%TT%%CC%02501" />
+                          <ComObjectRefRef RefId="%AID%_O-%TT%%CC%026_R-%TT%%CC%02601" />
+                          <ComObjectRefRef RefId="%AID%_O-%TT%%CC%030_R-%TT%%CC%03001" />
+                          <ComObjectRefRef RefId="%AID%_O-%TT%%CC%031_R-%TT%%CC%03101" />
+                          <ComObjectRefRef RefId="%AID%_O-%TT%%CC%032_R-%TT%%CC%03201" />
+                          <ComObjectRefRef RefId="%AID%_O-%TT%%CC%033_R-%TT%%CC%03301" />
+                          <ComObjectRefRef RefId="%AID%_O-%TT%%CC%039_R-%TT%%CC%03901" />
+
+                        </ParameterBlock>
+                      </when>
+                      <when default="true" />
+                    </choose>
+                  </when>
+                  <when default="true" />
+                </choose>
               </ParameterBlock>
 
             </ChannelIndependentBlock>
