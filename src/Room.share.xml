@@ -235,7 +235,7 @@
             <Parameters>
               <Union SizeInBit="32">
                 <Memory CodeSegment="%AID%_RS-04-00000" Offset="0" BitOffset="0" />
-                <Parameter Id="%AID%_UP-%TT%00001" Name="VisibleChannels" Offset="0" BitOffset="0" ParameterType="%AID%_PT-RoomVisibleChannels" Text="Anzahl der Räume" Value="8" />
+                <Parameter Id="%AID%_UP-%TT%00001" Name="VisibleChannels" Offset="0" BitOffset="0" ParameterType="%AID%_PT-RoomVisibleChannels" Text="Anzahl der Räume" Value="1" />
                 <Parameter Id="%AID%_UP-%TT%00002" Name="PercentHysteresis" Offset="1" BitOffset="0" ParameterType="%AID%_PT-RoomPctHyst" Text="Hysterese Prozent → Stufe" SuffixText=" %" Value="3" />
                 <Parameter Id="%AID%_UP-%TT%00003" Name="Altitude" Offset="2" BitOffset="0" ParameterType="%AID%_PT-RoomAltitude" Text="Höhe über Meer" SuffixText=" m" Value="500" />
               </Union>

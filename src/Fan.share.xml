@@ -265,7 +265,7 @@
                 <Memory CodeSegment="%AID%_RS-04-00000" Offset="0" BitOffset="0" />
                 <Parameter Id="%AID%_UP-%TT%00001" Name="Hardware" Offset="0" BitOffset="0" ParameterType="%AID%_PT-FanHardware" Text="Platine" Value="4" />
                 <Parameter Id="%AID%_UP-%TT%00002" Name="StartupDelay" Offset="1" BitOffset="0" ParameterType="%AID%_PT-FanStartupDelay" Text="Wartezeit nach Busspannungswiederkehr" SuffixText=" s" Value="3" />
-                <Parameter Id="%AID%_UP-%TT%00003" Name="GroupCount" Offset="2" BitOffset="0" ParameterType="%AID%_PT-FanGroupCount" Text="Anzahl der Verbünde" Value="2" />
+                <Parameter Id="%AID%_UP-%TT%00003" Name="GroupCount" Offset="2" BitOffset="0" ParameterType="%AID%_PT-FanGroupCount" Text="Anzahl der Verbünde" Value="1" />
               </Union>
               <Parameter Id="%AID%_P-%TT%00010" Name="BoardPic2" ParameterType="%AID%_PT-BoardPic2" Text="" Access="Read" Value="" />
               <Parameter Id="%AID%_P-%TT%00011" Name="BoardPic4" ParameterType="%AID%_PT-BoardPic4" Text="" Access="Read" Value="" />
@@ -367,25 +367,12 @@
               </ParameterBlock>
 
               <!-- ===== Anschluss =====
-                   Reine Hinweisseite, keine Parameter. Sie beantwortet die Frage, die am
-                   Klemmenblock gestellt wird: welcher Luefter kommt an welche Klemme.
-
-                   Die Zuordnung Luefter -> Kanal ist NICHT in der ETS berechenbar: ein ego
-                   belegt zwei Kanaele und verschiebt alle folgenden Luefter. Die ETS kann
-                   ueber Kanalgrenzen hinweg nicht rechnen. Deshalb steht hier die Regel,
-                   und die tatsaechliche Zuordnung zeigt die Konsole mit "kwl st". -->
+                   Nur das Klemmenbild. Alles Erklaerende gehoert in die Beschreibung der
+                   jeweiligen Parameter und in die Kontexthilfe (Baggages/Help_de), nicht
+                   als Informationsblock auf eine eigene Seite. -->
               <ParameterBlock Id="%AID%_PB-nnn" Name="Wiring" Text="Anschluss" Icon="meter-electric-outline" HelpContext="Empty">
-
-                <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
-                <ParameterSeparator Id="%AID%_PS-nnn" Text="Klemmenbelegung" UIHint="Headline" />
-                <ParameterSeparator Id="%AID%_PS-nnn" Text="Alle Lüfterklemmen sind gleich belegt:  1 = 12 V  ·  2 = S (Stellsignal)  ·  3 = GND. Die Reihenfolge steht auch im Bestückungsdruck der Platine." UIHint="Information" />
-
-                <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
-                <ParameterSeparator Id="%AID%_PS-nnn" Text="Kanal und Klemme" UIHint="Headline" />
                 <choose ParamRefId="%AID%_UP-%TT%00001_R-%TT%0000101">
                   <when test="2">
-                <ParameterSeparator Id="%AID%_PS-nnn" Text="Entwicklungsaufbau Pico + DFR1073: Kanal 1 = VOUT0, Kanal 2 = VOUT1 des Breakout-Moduls. I²C-Adresse 0x58." UIHint="Information" />
-
                     <ParameterBlock Id="%AID%_PB-nnn" Inline="true" Layout="Grid">
                       <Rows><Row Id="%AID%_PB-nnn_R-1" /></Rows>
                       <Columns><Column Id="%AID%_PB-nnn_C-1" Width="100%" /></Columns>
@@ -393,41 +380,16 @@
                     </ParameterBlock>
                   </when>
                   <when test="4">
-                <ParameterSeparator Id="%AID%_PS-nnn" Text="KNXFANDRV Rev 0.1 — vier dreipolige Klemmen, Kanal 1 liegt links außen:" UIHint="Information" />
-
                     <ParameterBlock Id="%AID%_PB-nnn" Inline="true" Layout="Grid">
                       <Rows><Row Id="%AID%_PB-nnn_R-1" /></Rows>
                       <Columns><Column Id="%AID%_PB-nnn_C-1" Width="100%" /></Columns>
                       <ParameterRefRef RefId="%AID%_P-%TT%00011_R-%TT%0001101" Cell="1,1" />
                     </ParameterBlock>
-                <ParameterSeparator Id="%AID%_PS-nnn" Text="Kanal 1  →  Klemme J3  ·  Netz S1  ·  U2 VOUT0 (0x58)" UIHint="Information" />
-                <ParameterSeparator Id="%AID%_PS-nnn" Text="Kanal 2  →  Klemme J4  ·  Netz S2  ·  U2 VOUT1 (0x58)" UIHint="Information" />
-                <ParameterSeparator Id="%AID%_PS-nnn" Text="Kanal 3  →  Klemme J5  ·  Netz S3  ·  U3 VOUT0 (0x59)" UIHint="Information" />
-                <ParameterSeparator Id="%AID%_PS-nnn" Text="Kanal 4  →  Klemme J6  ·  Netz S4  ·  U3 VOUT1 (0x59)" UIHint="Information" />
                   </when>
                   <when default="true">
-                <ParameterSeparator Id="%AID%_PS-nnn" Text="Für diese Platine steht die Klemmenbeschriftung noch nicht fest. Es gilt: Kanal n liegt auf dem n-ten Ausgang in aufsteigender Reihenfolge der I²C-Adressen, je Chip erst VOUT0, dann VOUT1." UIHint="Information" />
+                    <ParameterSeparator Id="%AID%_PS-nnn" Text="Für diese Platine liegt noch kein Klemmenbild vor." UIHint="Information" />
                   </when>
                 </choose>
-
-                <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
-                <ParameterSeparator Id="%AID%_PS-nnn" Text="Welcher Lüfter kommt an welchen Kanal" UIHint="Headline" />
-                <ParameterSeparator Id="%AID%_PS-nnn" Text="Jeder Lüfter nennt seinen Kanal selbst: auf der Lüfterseite unter „Zuordnung“ steht der Parameter „DAC-Kanal“. Vorgabe ist Lüfter n an Kanal n — wer anders verdrahtet hat, stellt es dort um." UIHint="Information" />
-                <ParameterSeparator Id="%AID%_PS-nnn" Text="Ein LUNOS ego belegt ZWEI aufeinanderfolgende Kanäle und verschiebt damit alle folgenden Lüfter. Beide Motoren müssen auf demselben DAC liegen, damit sie in einem einzigen I²C-Frame gestellt werden — sonst laufen sie beim Richtungswechsel auseinander. Ein ego beginnt deshalb immer auf einem ungeraden Kanal (1, 3, 5 …)." UIHint="Information" />
-                <ParameterSeparator Id="%AID%_PS-nnn" Text="Beispiel Rev 0.1: Lüfter 1 e²60 auf Kanal 1 (J3), Lüfter 2 e²60 auf Kanal 2 (J4), Lüfter 3 ego auf Kanal 3 — er belegt damit J5 und J6. Ein vierter Lüfter hätte keinen Kanal mehr." UIHint="Information" />
-                <ParameterSeparator Id="%AID%_PS-nnn" Text="Kein Kanal darf doppelt vergeben sein. Die Firmware prüft das beim Start: doppelt belegter Kanal, Kanal jenseits der gewählten Platine oder ein ego auf geradem Kanal ergeben Fehlercode 3 am betroffenen Lüfter, und sein Ausgang bleibt bei 5,00 V." UIHint="Information" />
-                <ParameterSeparator Id="%AID%_PS-nnn" Text="Die geltende Zuordnung zeigt das Gerät außerdem auf der Konsole mit dem Befehl „kwl st“." UIHint="Information" />
-
-                <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
-                <ParameterSeparator Id="%AID%_PS-nnn" Text="Leitung" UIHint="Headline" />
-                <ParameterSeparator Id="%AID%_PS-nnn" Text="Drei Adern genügen: 12 V, Stellsignal S und GND. Die Masse wird sternförmig von der Steuerung aus geführt und nicht von Lüfter zu Lüfter durchgeschleift — jeder Kanal hat dafür sein eigenes Massenetz auf der Platine." UIHint="Information" />
-                <ParameterSeparator Id="%AID%_PS-nnn" Text="Ohne vierte Ader fließt der Laststrom des Lüfters über dieselbe Masse wie das Stellsignal. Ab etwa 5 m Leitung bei 0,7 mm² verfälscht das die Stellspannung spürbar; dann die Leitungskompensation auf der Lüfterseite einschalten. Mit getrennter vierter Ader als Signalmasse ist sie entbehrlich." UIHint="Information" />
-
-                <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
-                <ParameterSeparator Id="%AID%_PS-nnn" Text="Vor dem ersten Einschalten" UIHint="Headline" />
-                <ParameterSeparator Id="%AID%_PS-nnn" Text="Das Stellsignal ist bipolar um 5 V: 5,00 V ist Stillstand, 0 V und 10,00 V sind Volllast in je einer Richtung. Ein Kanal ohne aktiven Lüfter gibt dauerhaft 5,00 V aus." UIHint="Information" />
-                <ParameterSeparator Id="%AID%_PS-nnn" Text="Die 12 V der Lüfterversorgung sind galvanisch vom KNX getrennt. Diese Trennung nicht durch eine gemeinsame Masse zwischen Bus- und Lüfterseite überbrücken." UIHint="Information" />
-
               </ParameterBlock>
 
               <!-- ===== Raumseiten aus dem ROOM-Template ===== -->
