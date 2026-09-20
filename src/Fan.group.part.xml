@@ -89,24 +89,25 @@
               <ParameterBlock Id="%AID%_PB-nnn" Name="OverviewGroup">
                 <choose ParamRefId="%AID%_UP-%TT%00%GGG+14%_R-%TT%00%GGG+14%01">
                   <when test="1">
+                    <!-- Eigenes Raster: der Verbundkopf traegt andere Inhalte als eine Luefterzeile.
+                         Dieselbe Summe 190 %, damit der Block gleich breit bleibt - so macht es das
+                         Logikmodul mit seiner Trennlinie auch. -->
                     <ParameterBlock Id="%AID%_PB-nnn" Inline="true" Layout="Grid">
                       <Rows><Row Id="%AID%_PB-nnn_R-1" /></Rows>
                       <Columns>
                         <Column Id="%AID%_PB-nnn_C-1" Width="10%" />
-                        <Column Id="%AID%_PB-nnn_C-2" Width="37%" />
+                        <Column Id="%AID%_PB-nnn_C-2" Width="30%" />
                         <Column Id="%AID%_PB-nnn_C-3" Width="30%" />
-                        <Column Id="%AID%_PB-nnn_C-4" Width="14%" />
-                        <Column Id="%AID%_PB-nnn_C-5" Width="22%" />
-                        <Column Id="%AID%_PB-nnn_C-6" Width="26%" />
-                        <Column Id="%AID%_PB-nnn_C-7" Width="22%" />
-                        <Column Id="%AID%_PB-nnn_C-8" Width="14%" />
-                        <Column Id="%AID%_PB-nnn_C-9" Width="15%" />
+                        <Column Id="%AID%_PB-nnn_C-4" Width="62%" />
+                        <Column Id="%AID%_PB-nnn_C-5" Width="30%" />
+                        <Column Id="%AID%_PB-nnn_C-6" Width="28%" />
                       </Columns>
                       <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,1" Text="V%Gn%" UIHint="Headline" />
                       <ParameterRefRef RefId="%AID%_P-%TT%00%GGG+0%_R-%TT%00%GGG+0%01" Cell="1,2" HelpContext="BASE-ChannelName" />
                       <ParameterRefRef RefId="%AID%_UP-%TT%00%GGG+1%_R-%TT%00%GGG+1%01" Cell="1,3" HelpContext="Empty" />
-                      <ParameterRefRef RefId="%AID%_UP-%TT%00%GGG+2%_R-%TT%00%GGG+2%01" Cell="1,5" HelpContext="Empty" />
-                      <ParameterRefRef RefId="%AID%_UP-%TT%00%GGG+7%_R-%TT%00%GGG+7%01" Cell="1,8" HelpContext="Empty" />
+                      <ParameterRefRef RefId="%AID%_UP-%TT%00%GGG+2%_R-%TT%00%GGG+2%01" Cell="1,4" HelpContext="Empty" />
+                      <ParameterRefRef RefId="%AID%_UP-%TT%00%GGG+7%_R-%TT%00%GGG+7%01" Cell="1,5" HelpContext="Empty" />
+                      <ParameterRefRef RefId="%AID%_UP-%TT%00%GGG+6%_R-%TT%00%GGG+6%01" Cell="1,6" HelpContext="Empty" />
                     </ParameterBlock>
                     <choose ParamRefId="%AID%_UP-3001004_R-300100401">
                       <when test="%Gn%">
@@ -116,13 +117,13 @@
                               <Rows><Row Id="%AID%_PB-nnn_R-1" /></Rows>
                               <Columns>
                                 <Column Id="%AID%_PB-nnn_C-1" Width="10%" />
-                                <Column Id="%AID%_PB-nnn_C-2" Width="37%" />
-                                <Column Id="%AID%_PB-nnn_C-3" Width="30%" />
-                                <Column Id="%AID%_PB-nnn_C-4" Width="14%" />
-                                <Column Id="%AID%_PB-nnn_C-5" Width="22%" />
-                                <Column Id="%AID%_PB-nnn_C-6" Width="26%" />
-                                <Column Id="%AID%_PB-nnn_C-7" Width="22%" />
-                                <Column Id="%AID%_PB-nnn_C-8" Width="14%" />
+                                <Column Id="%AID%_PB-nnn_C-2" Width="30%" />
+                                <Column Id="%AID%_PB-nnn_C-3" Width="26%" />
+                                <Column Id="%AID%_PB-nnn_C-4" Width="12%" />
+                                <Column Id="%AID%_PB-nnn_C-5" Width="20%" />
+                                <Column Id="%AID%_PB-nnn_C-6" Width="30%" />
+                                <Column Id="%AID%_PB-nnn_C-7" Width="35%" />
+                                <Column Id="%AID%_PB-nnn_C-8" Width="12%" />
                                 <Column Id="%AID%_PB-nnn_C-9" Width="15%" />
                               </Columns>
                               <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,1" Text="&#160;&#160;&#160;L1" />
@@ -153,13 +154,13 @@
                               <Rows><Row Id="%AID%_PB-nnn_R-1" /></Rows>
                               <Columns>
                                 <Column Id="%AID%_PB-nnn_C-1" Width="10%" />
-                                <Column Id="%AID%_PB-nnn_C-2" Width="37%" />
-                                <Column Id="%AID%_PB-nnn_C-3" Width="30%" />
-                                <Column Id="%AID%_PB-nnn_C-4" Width="14%" />
-                                <Column Id="%AID%_PB-nnn_C-5" Width="22%" />
-                                <Column Id="%AID%_PB-nnn_C-6" Width="26%" />
-                                <Column Id="%AID%_PB-nnn_C-7" Width="22%" />
-                                <Column Id="%AID%_PB-nnn_C-8" Width="14%" />
+                                <Column Id="%AID%_PB-nnn_C-2" Width="30%" />
+                                <Column Id="%AID%_PB-nnn_C-3" Width="26%" />
+                                <Column Id="%AID%_PB-nnn_C-4" Width="12%" />
+                                <Column Id="%AID%_PB-nnn_C-5" Width="20%" />
+                                <Column Id="%AID%_PB-nnn_C-6" Width="30%" />
+                                <Column Id="%AID%_PB-nnn_C-7" Width="35%" />
+                                <Column Id="%AID%_PB-nnn_C-8" Width="12%" />
                                 <Column Id="%AID%_PB-nnn_C-9" Width="15%" />
                               </Columns>
                               <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,1" Text="&#160;&#160;&#160;L2" />
@@ -190,13 +191,13 @@
                               <Rows><Row Id="%AID%_PB-nnn_R-1" /></Rows>
                               <Columns>
                                 <Column Id="%AID%_PB-nnn_C-1" Width="10%" />
-                                <Column Id="%AID%_PB-nnn_C-2" Width="37%" />
-                                <Column Id="%AID%_PB-nnn_C-3" Width="30%" />
-                                <Column Id="%AID%_PB-nnn_C-4" Width="14%" />
-                                <Column Id="%AID%_PB-nnn_C-5" Width="22%" />
-                                <Column Id="%AID%_PB-nnn_C-6" Width="26%" />
-                                <Column Id="%AID%_PB-nnn_C-7" Width="22%" />
-                                <Column Id="%AID%_PB-nnn_C-8" Width="14%" />
+                                <Column Id="%AID%_PB-nnn_C-2" Width="30%" />
+                                <Column Id="%AID%_PB-nnn_C-3" Width="26%" />
+                                <Column Id="%AID%_PB-nnn_C-4" Width="12%" />
+                                <Column Id="%AID%_PB-nnn_C-5" Width="20%" />
+                                <Column Id="%AID%_PB-nnn_C-6" Width="30%" />
+                                <Column Id="%AID%_PB-nnn_C-7" Width="35%" />
+                                <Column Id="%AID%_PB-nnn_C-8" Width="12%" />
                                 <Column Id="%AID%_PB-nnn_C-9" Width="15%" />
                               </Columns>
                               <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,1" Text="&#160;&#160;&#160;L3" />
@@ -227,13 +228,13 @@
                               <Rows><Row Id="%AID%_PB-nnn_R-1" /></Rows>
                               <Columns>
                                 <Column Id="%AID%_PB-nnn_C-1" Width="10%" />
-                                <Column Id="%AID%_PB-nnn_C-2" Width="37%" />
-                                <Column Id="%AID%_PB-nnn_C-3" Width="30%" />
-                                <Column Id="%AID%_PB-nnn_C-4" Width="14%" />
-                                <Column Id="%AID%_PB-nnn_C-5" Width="22%" />
-                                <Column Id="%AID%_PB-nnn_C-6" Width="26%" />
-                                <Column Id="%AID%_PB-nnn_C-7" Width="22%" />
-                                <Column Id="%AID%_PB-nnn_C-8" Width="14%" />
+                                <Column Id="%AID%_PB-nnn_C-2" Width="30%" />
+                                <Column Id="%AID%_PB-nnn_C-3" Width="26%" />
+                                <Column Id="%AID%_PB-nnn_C-4" Width="12%" />
+                                <Column Id="%AID%_PB-nnn_C-5" Width="20%" />
+                                <Column Id="%AID%_PB-nnn_C-6" Width="30%" />
+                                <Column Id="%AID%_PB-nnn_C-7" Width="35%" />
+                                <Column Id="%AID%_PB-nnn_C-8" Width="12%" />
                                 <Column Id="%AID%_PB-nnn_C-9" Width="15%" />
                               </Columns>
                               <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,1" Text="&#160;&#160;&#160;L4" />
@@ -264,13 +265,13 @@
                               <Rows><Row Id="%AID%_PB-nnn_R-1" /></Rows>
                               <Columns>
                                 <Column Id="%AID%_PB-nnn_C-1" Width="10%" />
-                                <Column Id="%AID%_PB-nnn_C-2" Width="37%" />
-                                <Column Id="%AID%_PB-nnn_C-3" Width="30%" />
-                                <Column Id="%AID%_PB-nnn_C-4" Width="14%" />
-                                <Column Id="%AID%_PB-nnn_C-5" Width="22%" />
-                                <Column Id="%AID%_PB-nnn_C-6" Width="26%" />
-                                <Column Id="%AID%_PB-nnn_C-7" Width="22%" />
-                                <Column Id="%AID%_PB-nnn_C-8" Width="14%" />
+                                <Column Id="%AID%_PB-nnn_C-2" Width="30%" />
+                                <Column Id="%AID%_PB-nnn_C-3" Width="26%" />
+                                <Column Id="%AID%_PB-nnn_C-4" Width="12%" />
+                                <Column Id="%AID%_PB-nnn_C-5" Width="20%" />
+                                <Column Id="%AID%_PB-nnn_C-6" Width="30%" />
+                                <Column Id="%AID%_PB-nnn_C-7" Width="35%" />
+                                <Column Id="%AID%_PB-nnn_C-8" Width="12%" />
                                 <Column Id="%AID%_PB-nnn_C-9" Width="15%" />
                               </Columns>
                               <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,1" Text="&#160;&#160;&#160;L5" />
@@ -301,13 +302,13 @@
                               <Rows><Row Id="%AID%_PB-nnn_R-1" /></Rows>
                               <Columns>
                                 <Column Id="%AID%_PB-nnn_C-1" Width="10%" />
-                                <Column Id="%AID%_PB-nnn_C-2" Width="37%" />
-                                <Column Id="%AID%_PB-nnn_C-3" Width="30%" />
-                                <Column Id="%AID%_PB-nnn_C-4" Width="14%" />
-                                <Column Id="%AID%_PB-nnn_C-5" Width="22%" />
-                                <Column Id="%AID%_PB-nnn_C-6" Width="26%" />
-                                <Column Id="%AID%_PB-nnn_C-7" Width="22%" />
-                                <Column Id="%AID%_PB-nnn_C-8" Width="14%" />
+                                <Column Id="%AID%_PB-nnn_C-2" Width="30%" />
+                                <Column Id="%AID%_PB-nnn_C-3" Width="26%" />
+                                <Column Id="%AID%_PB-nnn_C-4" Width="12%" />
+                                <Column Id="%AID%_PB-nnn_C-5" Width="20%" />
+                                <Column Id="%AID%_PB-nnn_C-6" Width="30%" />
+                                <Column Id="%AID%_PB-nnn_C-7" Width="35%" />
+                                <Column Id="%AID%_PB-nnn_C-8" Width="12%" />
                                 <Column Id="%AID%_PB-nnn_C-9" Width="15%" />
                               </Columns>
                               <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,1" Text="&#160;&#160;&#160;L6" />
@@ -338,13 +339,13 @@
                               <Rows><Row Id="%AID%_PB-nnn_R-1" /></Rows>
                               <Columns>
                                 <Column Id="%AID%_PB-nnn_C-1" Width="10%" />
-                                <Column Id="%AID%_PB-nnn_C-2" Width="37%" />
-                                <Column Id="%AID%_PB-nnn_C-3" Width="30%" />
-                                <Column Id="%AID%_PB-nnn_C-4" Width="14%" />
-                                <Column Id="%AID%_PB-nnn_C-5" Width="22%" />
-                                <Column Id="%AID%_PB-nnn_C-6" Width="26%" />
-                                <Column Id="%AID%_PB-nnn_C-7" Width="22%" />
-                                <Column Id="%AID%_PB-nnn_C-8" Width="14%" />
+                                <Column Id="%AID%_PB-nnn_C-2" Width="30%" />
+                                <Column Id="%AID%_PB-nnn_C-3" Width="26%" />
+                                <Column Id="%AID%_PB-nnn_C-4" Width="12%" />
+                                <Column Id="%AID%_PB-nnn_C-5" Width="20%" />
+                                <Column Id="%AID%_PB-nnn_C-6" Width="30%" />
+                                <Column Id="%AID%_PB-nnn_C-7" Width="35%" />
+                                <Column Id="%AID%_PB-nnn_C-8" Width="12%" />
                                 <Column Id="%AID%_PB-nnn_C-9" Width="15%" />
                               </Columns>
                               <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,1" Text="&#160;&#160;&#160;L7" />
@@ -375,13 +376,13 @@
                               <Rows><Row Id="%AID%_PB-nnn_R-1" /></Rows>
                               <Columns>
                                 <Column Id="%AID%_PB-nnn_C-1" Width="10%" />
-                                <Column Id="%AID%_PB-nnn_C-2" Width="37%" />
-                                <Column Id="%AID%_PB-nnn_C-3" Width="30%" />
-                                <Column Id="%AID%_PB-nnn_C-4" Width="14%" />
-                                <Column Id="%AID%_PB-nnn_C-5" Width="22%" />
-                                <Column Id="%AID%_PB-nnn_C-6" Width="26%" />
-                                <Column Id="%AID%_PB-nnn_C-7" Width="22%" />
-                                <Column Id="%AID%_PB-nnn_C-8" Width="14%" />
+                                <Column Id="%AID%_PB-nnn_C-2" Width="30%" />
+                                <Column Id="%AID%_PB-nnn_C-3" Width="26%" />
+                                <Column Id="%AID%_PB-nnn_C-4" Width="12%" />
+                                <Column Id="%AID%_PB-nnn_C-5" Width="20%" />
+                                <Column Id="%AID%_PB-nnn_C-6" Width="30%" />
+                                <Column Id="%AID%_PB-nnn_C-7" Width="35%" />
+                                <Column Id="%AID%_PB-nnn_C-8" Width="12%" />
                                 <Column Id="%AID%_PB-nnn_C-9" Width="15%" />
                               </Columns>
                               <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,1" Text="&#160;&#160;&#160;L8" />
@@ -412,13 +413,13 @@
                               <Rows><Row Id="%AID%_PB-nnn_R-1" /></Rows>
                               <Columns>
                                 <Column Id="%AID%_PB-nnn_C-1" Width="10%" />
-                                <Column Id="%AID%_PB-nnn_C-2" Width="37%" />
-                                <Column Id="%AID%_PB-nnn_C-3" Width="30%" />
-                                <Column Id="%AID%_PB-nnn_C-4" Width="14%" />
-                                <Column Id="%AID%_PB-nnn_C-5" Width="22%" />
-                                <Column Id="%AID%_PB-nnn_C-6" Width="26%" />
-                                <Column Id="%AID%_PB-nnn_C-7" Width="22%" />
-                                <Column Id="%AID%_PB-nnn_C-8" Width="14%" />
+                                <Column Id="%AID%_PB-nnn_C-2" Width="30%" />
+                                <Column Id="%AID%_PB-nnn_C-3" Width="26%" />
+                                <Column Id="%AID%_PB-nnn_C-4" Width="12%" />
+                                <Column Id="%AID%_PB-nnn_C-5" Width="20%" />
+                                <Column Id="%AID%_PB-nnn_C-6" Width="30%" />
+                                <Column Id="%AID%_PB-nnn_C-7" Width="35%" />
+                                <Column Id="%AID%_PB-nnn_C-8" Width="12%" />
                                 <Column Id="%AID%_PB-nnn_C-9" Width="15%" />
                               </Columns>
                               <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,1" Text="&#160;&#160;&#160;L9" />
@@ -449,13 +450,13 @@
                               <Rows><Row Id="%AID%_PB-nnn_R-1" /></Rows>
                               <Columns>
                                 <Column Id="%AID%_PB-nnn_C-1" Width="10%" />
-                                <Column Id="%AID%_PB-nnn_C-2" Width="37%" />
-                                <Column Id="%AID%_PB-nnn_C-3" Width="30%" />
-                                <Column Id="%AID%_PB-nnn_C-4" Width="14%" />
-                                <Column Id="%AID%_PB-nnn_C-5" Width="22%" />
-                                <Column Id="%AID%_PB-nnn_C-6" Width="26%" />
-                                <Column Id="%AID%_PB-nnn_C-7" Width="22%" />
-                                <Column Id="%AID%_PB-nnn_C-8" Width="14%" />
+                                <Column Id="%AID%_PB-nnn_C-2" Width="30%" />
+                                <Column Id="%AID%_PB-nnn_C-3" Width="26%" />
+                                <Column Id="%AID%_PB-nnn_C-4" Width="12%" />
+                                <Column Id="%AID%_PB-nnn_C-5" Width="20%" />
+                                <Column Id="%AID%_PB-nnn_C-6" Width="30%" />
+                                <Column Id="%AID%_PB-nnn_C-7" Width="35%" />
+                                <Column Id="%AID%_PB-nnn_C-8" Width="12%" />
                                 <Column Id="%AID%_PB-nnn_C-9" Width="15%" />
                               </Columns>
                               <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,1" Text="&#160;&#160;&#160;L10" />
@@ -486,13 +487,13 @@
                               <Rows><Row Id="%AID%_PB-nnn_R-1" /></Rows>
                               <Columns>
                                 <Column Id="%AID%_PB-nnn_C-1" Width="10%" />
-                                <Column Id="%AID%_PB-nnn_C-2" Width="37%" />
-                                <Column Id="%AID%_PB-nnn_C-3" Width="30%" />
-                                <Column Id="%AID%_PB-nnn_C-4" Width="14%" />
-                                <Column Id="%AID%_PB-nnn_C-5" Width="22%" />
-                                <Column Id="%AID%_PB-nnn_C-6" Width="26%" />
-                                <Column Id="%AID%_PB-nnn_C-7" Width="22%" />
-                                <Column Id="%AID%_PB-nnn_C-8" Width="14%" />
+                                <Column Id="%AID%_PB-nnn_C-2" Width="30%" />
+                                <Column Id="%AID%_PB-nnn_C-3" Width="26%" />
+                                <Column Id="%AID%_PB-nnn_C-4" Width="12%" />
+                                <Column Id="%AID%_PB-nnn_C-5" Width="20%" />
+                                <Column Id="%AID%_PB-nnn_C-6" Width="30%" />
+                                <Column Id="%AID%_PB-nnn_C-7" Width="35%" />
+                                <Column Id="%AID%_PB-nnn_C-8" Width="12%" />
                                 <Column Id="%AID%_PB-nnn_C-9" Width="15%" />
                               </Columns>
                               <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,1" Text="&#160;&#160;&#160;L11" />
@@ -523,13 +524,13 @@
                               <Rows><Row Id="%AID%_PB-nnn_R-1" /></Rows>
                               <Columns>
                                 <Column Id="%AID%_PB-nnn_C-1" Width="10%" />
-                                <Column Id="%AID%_PB-nnn_C-2" Width="37%" />
-                                <Column Id="%AID%_PB-nnn_C-3" Width="30%" />
-                                <Column Id="%AID%_PB-nnn_C-4" Width="14%" />
-                                <Column Id="%AID%_PB-nnn_C-5" Width="22%" />
-                                <Column Id="%AID%_PB-nnn_C-6" Width="26%" />
-                                <Column Id="%AID%_PB-nnn_C-7" Width="22%" />
-                                <Column Id="%AID%_PB-nnn_C-8" Width="14%" />
+                                <Column Id="%AID%_PB-nnn_C-2" Width="30%" />
+                                <Column Id="%AID%_PB-nnn_C-3" Width="26%" />
+                                <Column Id="%AID%_PB-nnn_C-4" Width="12%" />
+                                <Column Id="%AID%_PB-nnn_C-5" Width="20%" />
+                                <Column Id="%AID%_PB-nnn_C-6" Width="30%" />
+                                <Column Id="%AID%_PB-nnn_C-7" Width="35%" />
+                                <Column Id="%AID%_PB-nnn_C-8" Width="12%" />
                                 <Column Id="%AID%_PB-nnn_C-9" Width="15%" />
                               </Columns>
                               <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,1" Text="&#160;&#160;&#160;L12" />

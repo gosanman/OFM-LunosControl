@@ -424,13 +424,13 @@
                   <Rows><Row Id="%AID%_PB-nnn_R-1" /></Rows>
                   <Columns>
                     <Column Id="%AID%_PB-nnn_C-1" Width="10%" />
-                    <Column Id="%AID%_PB-nnn_C-2" Width="37%" />
-                    <Column Id="%AID%_PB-nnn_C-3" Width="30%" />
-                    <Column Id="%AID%_PB-nnn_C-4" Width="14%" />
-                    <Column Id="%AID%_PB-nnn_C-5" Width="22%" />
-                    <Column Id="%AID%_PB-nnn_C-6" Width="26%" />
-                    <Column Id="%AID%_PB-nnn_C-7" Width="22%" />
-                    <Column Id="%AID%_PB-nnn_C-8" Width="14%" />
+                    <Column Id="%AID%_PB-nnn_C-2" Width="30%" />
+                    <Column Id="%AID%_PB-nnn_C-3" Width="26%" />
+                    <Column Id="%AID%_PB-nnn_C-4" Width="12%" />
+                    <Column Id="%AID%_PB-nnn_C-5" Width="20%" />
+                    <Column Id="%AID%_PB-nnn_C-6" Width="30%" />
+                    <Column Id="%AID%_PB-nnn_C-7" Width="35%" />
+                    <Column Id="%AID%_PB-nnn_C-8" Width="12%" />
                     <Column Id="%AID%_PB-nnn_C-9" Width="15%" />
                   </Columns>
                   <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,1" Text="Lüfter" UIHint="Headline" />
