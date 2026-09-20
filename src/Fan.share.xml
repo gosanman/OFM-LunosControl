@@ -21,8 +21,7 @@
        Geraeteweites Speicherbild dieses Moduls:
          Offset 0     Hardware      (Enum, Wert = Kanalzahl)
          Offset 1     StartupDelay
-         Offset 2     GroupCount
-         Offset 3     Reserve
+         Offset 2..3  Reserve
          Offset 4..   8 Verbuende a 20 Byte (Fan.group.part.xml) -> 4..163
        =================================================================================== -->
 
@@ -83,9 +82,6 @@
 
               <ParameterType Id="%AID%_PT-FanDacChannel" Name="FanDacChannel">
                 <TypeNumber SizeInBit="4" Type="unsignedInt" minInclusive="1" maxInclusive="12" />
-              </ParameterType>
-              <ParameterType Id="%AID%_PT-FanGroupCount" Name="FanGroupCount">
-                <TypeNumber SizeInBit="8" Type="unsignedInt" minInclusive="1" maxInclusive="8" />
               </ParameterType>
 
               <!-- ===== Verbund ===== -->
@@ -261,11 +257,10 @@
 
             </ParameterTypes>
             <Parameters>
-              <Union SizeInBit="24">
+              <Union SizeInBit="16">
                 <Memory CodeSegment="%AID%_RS-04-00000" Offset="0" BitOffset="0" />
                 <Parameter Id="%AID%_UP-%TT%00001" Name="Hardware" Offset="0" BitOffset="0" ParameterType="%AID%_PT-FanHardware" Text="Platine" Value="4" />
                 <Parameter Id="%AID%_UP-%TT%00002" Name="StartupDelay" Offset="1" BitOffset="0" ParameterType="%AID%_PT-FanStartupDelay" Text="Wartezeit nach Busspannungswiederkehr" SuffixText=" s" Value="3" />
-                <Parameter Id="%AID%_UP-%TT%00003" Name="GroupCount" Offset="2" BitOffset="0" ParameterType="%AID%_PT-FanGroupCount" Text="Anzahl der Verbünde" Value="1" />
               </Union>
               <Parameter Id="%AID%_P-%TT%00010" Name="BoardPic2" ParameterType="%AID%_PT-BoardPic2" Text="" Access="Read" Value="" />
               <Parameter Id="%AID%_P-%TT%00011" Name="BoardPic4" ParameterType="%AID%_PT-BoardPic4" Text="" Access="Read" Value="" />
@@ -275,7 +270,6 @@
             <ParameterRefs>
               <ParameterRef Id="%AID%_UP-%TT%00001_R-%TT%0000101" RefId="%AID%_UP-%TT%00001" />
               <ParameterRef Id="%AID%_UP-%TT%00002_R-%TT%0000201" RefId="%AID%_UP-%TT%00002" />
-              <ParameterRef Id="%AID%_UP-%TT%00003_R-%TT%0000301" RefId="%AID%_UP-%TT%00003" />
               <ParameterRef Id="%AID%_P-%TT%00010_R-%TT%0001001" RefId="%AID%_P-%TT%00010" />
               <ParameterRef Id="%AID%_P-%TT%00011_R-%TT%0001101" RefId="%AID%_P-%TT%00011" />
               <op:usePart name="GROUP" xpath="//Static/ParameterRefs/*" />
@@ -300,23 +294,17 @@
                 <ParameterRefRef RefId="%AID%_UP-%TT%00002_R-%TT%0000201" IndentLevel="1" />
                 <ParameterRefRef RefId="%AID%_UP-2000003_R-200000301" IndentLevel="1" />
                 <ParameterRefRef RefId="%AID%_UP-2000002_R-200000201" IndentLevel="1" />
-                <ParameterSeparator Id="%AID%_PS-nnn" Text="Die Höhe über Meer geht nur in die Anzeige der absoluten Feuchte in g/kg ein. Der Feuchtevergleich selbst rechnet mit Dampfdrücken und ist höhenunabhängig." UIHint="Information" />
-                <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
-                <ParameterSeparator Id="%AID%_PS-nnn" Text="Hinweise" UIHint="Headline" />
-                <ParameterSeparator Id="%AID%_PS-nnn" Text="Wie viele Räume, Lüfter und Verbünde es gibt, steht auf der Seite „Kanalauswahl“." UIHint="Information" />
-                <ParameterSeparator Id="%AID%_PS-nnn" Text="Das Stellsignal ist bipolar um 5 V: 5,00 V ist Stillstand, 0 V und 10,00 V sind Volllast in je einer Richtung. Ein Kanal, der nicht belegt ist, gibt dauerhaft 5,00 V aus." UIHint="Information" />
-                <ParameterSeparator Id="%AID%_PS-nnn" Text="Ein Raum trägt Sensoren, Betriebsarten und Bedienung und liefert daraus eine Anforderung. Ein Verbund fasst Lüfter zusammen, die gemeinsam gegenläufig takten. Ein Lüfter gehört zu genau einem Raum und genau einem Verbund — ein Raum kann deshalb auch nur einen Lüfter haben, der mit dem Lüfter eines anderen Raums pendelt." UIHint="Information" />
               </ParameterBlock>
 
-              <!-- ===== Kanalauswahl: alle drei Ebenen auf einer Seite =====
-                   Hier wird festgelegt, wie viele Räume, Lüfter und Verbünde es gibt. Die
-                   Raum-Parameter stehen in Room.share.xml und tragen deshalb ausgeschriebene
-                   Ids (Modultyp 20); %TT% wäre in dieser Datei 30. -->
+              <!-- ===== Kanalauswahl =====
+                   Hier wird aktiviert - Raeume, Luefter und Verbuende. Was nicht aktiviert
+                   ist, erscheint links im Baum nicht. Je Kanal eine eigene Inline-Tabelle:
+                   die ETS rendert viele einzeilige Tabellen deutlich schneller als eine
+                   lange. Drei Abschnitte auf einer Seite, deshalb Zwischenueberschriften -
+                   ein Einzelmodul begaenne nach dem Beschluss direkt mit der Kopfzeile. -->
               <ParameterBlock Id="%AID%_PB-nnn" Name="Kanalauswahl" Text="Kanalauswahl" Icon="format-list-bulleted-type" HelpContext="BASE-ChannelSelect">
 
-                <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
                 <ParameterSeparator Id="%AID%_PS-nnn" Text="Räume" UIHint="Headline" />
-                <ParameterRefRef RefId="%AID%_UP-2000001_R-200000101" IndentLevel="1" />
                 <ParameterBlock Id="%AID%_PB-nnn" Inline="true" Layout="Grid">
                   <Rows><Row Id="%AID%_PB-nnn_R-1" /></Rows>
                   <Columns>
@@ -333,7 +321,6 @@
                 <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
                 <ParameterSeparator Id="%AID%_PS-nnn" Text="Lüfter" UIHint="Headline" />
                 <ParameterRefRef RefId="%AID%_UP-%TT%00001_R-%TT%0000101" IndentLevel="1" />
-                <ParameterSeparator Id="%AID%_PS-nnn" Text="Die Platine bestimmt, wie viele Lüfterkanäle es gibt. Die Firmware vergleicht die Auswahl beim Start mit der bestückten Platine; bei Abweichung gehen alle Lüfter auf Störung und 5,00 V." UIHint="Information" />
                 <ParameterBlock Id="%AID%_PB-nnn" Inline="true" Layout="Grid">
                   <Rows><Row Id="%AID%_PB-nnn_R-1" /></Rows>
                   <Columns>
@@ -349,7 +336,6 @@
 
                 <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
                 <ParameterSeparator Id="%AID%_PS-nnn" Text="Verbünde" UIHint="Headline" />
-                <ParameterRefRef RefId="%AID%_UP-%TT%00003_R-%TT%0000301" IndentLevel="1" />
                 <ParameterBlock Id="%AID%_PB-nnn" Inline="true" Layout="Grid">
                   <Rows><Row Id="%AID%_PB-nnn_R-1" /></Rows>
                   <Columns>
@@ -358,18 +344,14 @@
                     <Column Id="%AID%_PB-nnn_C-3" Width="50%" />
                   </Columns>
                   <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,1" UIHint="Headline" Text="Verbund" />
-                  <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,2" UIHint="Headline" Text="Rolle" />
+                  <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,2" UIHint="Headline" Text="Kanalaktivität" />
                   <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,3" UIHint="Headline" Text="Beschreibung" />
                 </ParameterBlock>
                 <op:usePart name="GROUP" xpath="//Dynamic/ChannelIndependentBlock/ParameterBlock[@Name='GroupSettings']/*" />
-                <ParameterSeparator Id="%AID%_PS-nnn" Text="Ein Verbund braucht mindestens einen Lüfter. Verbünde, denen kein Lüfter zugeordnet ist, bleiben wirkungslos." UIHint="Information" />
 
               </ParameterBlock>
 
-              <!-- ===== Anschluss =====
-                   Nur das Klemmenbild. Alles Erklaerende gehoert in die Beschreibung der
-                   jeweiligen Parameter und in die Kontexthilfe (Baggages/Help_de), nicht
-                   als Informationsblock auf eine eigene Seite. -->
+              <!-- ===== Anschluss ===== -->
               <ParameterBlock Id="%AID%_PB-nnn" Name="Wiring" Text="Anschluss" Icon="meter-electric-outline" HelpContext="Empty">
                 <choose ParamRefId="%AID%_UP-%TT%00001_R-%TT%0000101">
                   <when test="2">
@@ -392,20 +374,13 @@
                 </choose>
               </ParameterBlock>
 
-              <!-- ===== Raumseiten aus dem ROOM-Template ===== -->
-              <ParameterBlock Id="%AID%_PB-nnn" Name="Rooms" Text="Räume" Icon="thermometer">
+              <!-- ===== Kanalseiten =====
+                   Ohne Sammelmappe: Raum-, Luefter- und Verbundseiten haengen direkt unter
+                   dem Modulknoten. Eine Sammelmappe haette keinen eigenen Inhalt und waere
+                   beim Anklicken leer; der Beschluss sieht sie auch nicht vor. -->
                 <op:include href="Room.templ.xml" xpath="//Dynamic/ChannelIndependentBlock/ParameterBlock[@Name='Channel']/*" type="template" prefix="ROOM" IsInner="true" />
-              </ParameterBlock>
-
-              <!-- ===== Luefterseiten aus dem FAN-Template ===== -->
-              <ParameterBlock Id="%AID%_PB-nnn" Name="Fans" Text="Lüfter" Icon="windsock">
                 <op:include href="Fan.templ.xml" xpath="//Dynamic/ChannelIndependentBlock/ParameterBlock[@Name='Channel']/*" type="template" prefix="FAN" IsInner="true" />
-              </ParameterBlock>
-
-              <!-- ===== Verbundseiten ===== -->
-              <ParameterBlock Id="%AID%_PB-nnn" Name="GroupsPage" Text="Verbünde" Icon="repeat-variant">
                 <op:usePart name="GROUP" xpath="//Dynamic/ChannelIndependentBlock/ParameterBlock[@Name='Groups']/*" />
-              </ParameterBlock>
 
             </Channel>
           </Dynamic>

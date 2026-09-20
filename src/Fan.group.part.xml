@@ -26,7 +26,8 @@
                 <Parameter Id="%AID%_UP-%TT%00%GGG+1%" Name="Grp%Gn%Role"      Offset="0" BitOffset="0" ParameterType="%AID%_PT-FanGrpRole"      Text="Rolle" Value="0" />
                 <Parameter Id="%AID%_UP-%TT%00%GGG+2%" Name="Grp%Gn%StageRule" Offset="0" BitOffset="2" ParameterType="%AID%_PT-FanGrpStageRule" Text="Stufenregel" Value="0" />
                 <Parameter Id="%AID%_UP-%TT%00%GGG+3%" Name="Grp%Gn%CycleRule" Offset="0" BitOffset="4" ParameterType="%AID%_PT-FanGrpCycleRule" Text="Bei unterschiedlichem Zykluswunsch" Value="0" />
-                <!-- 3 Bit Reserve auf Offset 0 -->
+                <Parameter Id="%AID%_UP-%TT%00%GGG+14%" Name="Grp%Gn%Active" Offset="0" BitOffset="5" ParameterType="%AID%_PT-FanChannelActive" Text="Kanalaktivität" Value="0" />
+                <!-- 2 Bit Reserve auf Offset 0 -->
                 <Parameter Id="%AID%_UP-%TT%00%GGG+4%" Name="Grp%Gn%LeadRoom"  Offset="1" BitOffset="0" ParameterType="%AID%_PT-FanRoomNo"       Text="Führender Raum" Value="1" />
                 <Parameter Id="%AID%_UP-%TT%00%GGG+5%" Name="Grp%Gn%FollowSupply" Offset="1" BitOffset="4" ParameterType="%AID%_PT-FanRoomNo0"   Text="Folgt Zuluftanforderung von Raum" SuffixText="  (0 = aus)" Value="0" />
                 <Parameter Id="%AID%_UP-%TT%00%GGG+6%" Name="Grp%Gn%DeadTime"  Offset="2" BitOffset="0" ParameterType="%AID%_PT-FanDeadTime"     Text="Totzeit vor Richtungswechsel" SuffixText=" s" Value="2" />
@@ -57,6 +58,7 @@
               <ParameterRef Id="%AID%_UP-%TT%00%GGG+11%_R-%TT%00%GGG+11%01" RefId="%AID%_UP-%TT%00%GGG+11%" />
               <ParameterRef Id="%AID%_UP-%TT%00%GGG+12%_R-%TT%00%GGG+12%01" RefId="%AID%_UP-%TT%00%GGG+12%" />
               <ParameterRef Id="%AID%_UP-%TT%00%GGG+13%_R-%TT%00%GGG+13%01" RefId="%AID%_UP-%TT%00%GGG+13%" />
+              <ParameterRef Id="%AID%_UP-%TT%00%GGG+14%_R-%TT%00%GGG+14%01" RefId="%AID%_UP-%TT%00%GGG+14%" />
             </ParameterRefs>
           </Static>
 
@@ -65,8 +67,6 @@
 
               <!-- ===================== Zeile in der Kanalauswahl ===================== -->
               <ParameterBlock Id="%AID%_PB-nnn" Name="GroupSettings">
-                <choose ParamRefId="%AID%_UP-%TT%00003_R-%TT%0000301">
-                  <when test="&gt;=%Gn%">
                     <ParameterBlock Id="%AID%_PB-nnn" Inline="true" Layout="Grid">
                       <Rows><Row Id="%AID%_PB-nnn_R-1" /></Rows>
                       <Columns>
@@ -75,27 +75,22 @@
                         <Column Id="%AID%_PB-nnn_C-3" Width="50%" />
                       </Columns>
                       <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,1" Text="Verbund %Gn%" />
-                      <ParameterRefRef RefId="%AID%_UP-%TT%00%GGG+1%_R-%TT%00%GGG+1%01" Cell="1,2" />
+                      <ParameterRefRef RefId="%AID%_UP-%TT%00%GGG+14%_R-%TT%00%GGG+14%01" Cell="1,2" />
                       <ParameterRefRef RefId="%AID%_P-%TT%00%GGG+0%_R-%TT%00%GGG+0%01" Cell="1,3" HelpContext="BASE-ChannelName" />
                     </ParameterBlock>
-                  </when>
-                  <when default="true" />
-                </choose>
               </ParameterBlock>
 
               <!-- ===================== Verbundseite ===================== -->
               <ParameterBlock Id="%AID%_PB-nnn" Name="Groups">
 
-                <!-- Sichtbar nach der Anzahl auf der Seite "Kanalauswahl". PLAN 0.6 nannte
-                     ceil(Luefter/2)+2 als Formel; eine ausdrueckliche Anzahl ist besser als
-                     jede Formel - sie kann nichts verbergen, was der Anwender braucht, und
-                     steht neben den Anzahlen fuer Raeume und Luefter. -->
-                <choose ParamRefId="%AID%_UP-%TT%00003_R-%TT%0000301">
-                  <when test="&gt;=%Gn%">
+                <!-- Sichtbar, wenn der Verbund in der Kanalauswahl aktiviert ist - wie bei
+                     Raeumen und Lueftern (OpenKNX-Kanalauswahl-Pattern). -->
+                <choose ParamRefId="%AID%_UP-%TT%00%GGG+14%_R-%TT%00%GGG+14%01">
+                  <when test="=1">
                     <ParameterBlock Id="%AID%_PB-nnn" Name="Grp%Gn%Page" Text="Verbund %Gn%: {{0: ...}}" TextParameterRefId="%AID%_P-%TT%00%GGG+0%_R-%TT%00%GGG+0%01" Icon="repeat-variant" HelpContext="Empty">
 
                       <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
-                      <ParameterSeparator Id="%AID%_PS-nnn" Text="Verbund %Gn%" UIHint="Headline" />
+                      <ParameterSeparator Id="%AID%_PS-nnn" Text="Kanaldefinition" UIHint="Headline" />
                       <ParameterRefRef RefId="%AID%_P-%TT%00%GGG+0%_R-%TT%00%GGG+0%01"  IndentLevel="1" HelpContext="BASE-ChannelName" />
                       <ParameterRefRef RefId="%AID%_UP-%TT%00%GGG+1%_R-%TT%00%GGG+1%01" IndentLevel="1" />
 

@@ -471,8 +471,6 @@
 
               <!-- ===================== Zeile in der Kanalauswahl ===================== -->
               <ParameterBlock Id="%AID%_PB-nnn" Name="Settings">
-                <choose ParamRefId="%AID%_UP-%TT%00001_R-%TT%0000101">
-                  <when test="&gt;=%C%">
                     <ParameterBlock Id="%AID%_PB-nnn" Inline="true" Layout="Grid">
                       <Rows><Row Id="%AID%_PB-nnn_R-1" /></Rows>
                       <Columns>
@@ -484,24 +482,17 @@
                       <ParameterRefRef RefId="%AID%_UP-%TT%%CC%001_R-%TT%%CC%00101" Cell="1,2" />
                       <ParameterRefRef RefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" Cell="1,3" HelpContext="BASE-ChannelName" />
                     </ParameterBlock>
-                  </when>
-                  <when default="true" />
-                </choose>
               </ParameterBlock>
 
               <!-- ===================== Kanalreiter ===================== -->
               <ParameterBlock Id="%AID%_PB-nnn" Name="Channel">
-                <choose ParamRefId="%AID%_UP-%TT%00001_R-%TT%0000101">
-                  <when test="&gt;=%C%">
                     <choose ParamRefId="%AID%_UP-%TT%%CC%001_R-%TT%%CC%00101">
                       <when test="=1">
                         <ParameterBlock Id="%AID%_PB-nnn" Name="r%C%Page" Text="Raum %C%: {{0: ...}}" TextParameterRefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" Icon="thermometer" HelpContext="Empty" ShowInComObjectTree="true">
 
-                          <ParameterBlock Id="%AID%_PB-nnn" Name="r%C%Basic" Text="Allgemein" Icon="cog-outline" HelpContext="Empty">
-
-                          <!-- ===== Allgemein ===== -->
+                                                    <!-- ===== Allgemein ===== -->
                           <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
-                          <ParameterSeparator Id="%AID%_PS-nnn" Text="Raumdefinition" UIHint="Headline" />
+                          <ParameterSeparator Id="%AID%_PS-nnn" Text="Kanaldefinition" UIHint="Headline" />
                           <ParameterRefRef RefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" IndentLevel="1" HelpContext="BASE-ChannelName" />
                           <ParameterRefRef RefId="%AID%_UP-%TT%%CC%008_R-%TT%%CC%00801" IndentLevel="1" />
                           <ParameterRefRef RefId="%AID%_UP-%TT%%CC%012_R-%TT%%CC%01201" IndentLevel="1" />
@@ -525,7 +516,7 @@
                           <ParameterRefRef RefId="%AID%_UP-%TT%%CC%005_R-%TT%%CC%00501" IndentLevel="1" />
 
                           <!-- ===== Feuchte ===== -->
-                          </ParameterBlock>
+                          
 
                           <ParameterBlock Id="%AID%_PB-nnn" Name="r%C%Lead" Text="Führungen" Icon="gauge" HelpContext="Empty"><ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
                           <ParameterSeparator Id="%AID%_PS-nnn" Text="Führung Feuchte" UIHint="Headline" />
@@ -778,9 +769,6 @@
                       </when>
                       <when default="true" />
                     </choose>
-                  </when>
-                  <when default="true" />
-                </choose>
               </ParameterBlock>
 
             </ChannelIndependentBlock>
