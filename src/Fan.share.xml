@@ -317,29 +317,31 @@
                 <ParameterRefRef RefId="%AID%_UP-%TT%00002_R-%TT%0000201" IndentLevel="1" />
                 <ParameterRefRef RefId="%AID%_UP-2000003_R-200000301" IndentLevel="1" />
                 <ParameterRefRef RefId="%AID%_UP-2000002_R-200000201" IndentLevel="1" />
-              </ParameterBlock>
 
-              <!-- ===== Anschluss ===== -->
-              <ParameterBlock Id="%AID%_PB-nnn" Name="Wiring" Text="Anschluss" Icon="meter-electric-outline" HelpContext="Empty">
-                <choose ParamRefId="%AID%_UP-%TT%00001_R-%TT%0000101">
-                  <when test="2">
-                    <ParameterBlock Id="%AID%_PB-nnn" Inline="true" Layout="Grid">
-                      <Rows><Row Id="%AID%_PB-nnn_R-1" /></Rows>
-                      <Columns><Column Id="%AID%_PB-nnn_C-1" Width="100%" /></Columns>
-                      <ParameterRefRef RefId="%AID%_P-%TT%00010_R-%TT%0001001" Cell="1,1" />
-                    </ParameterBlock>
-                  </when>
-                  <when test="4">
-                    <ParameterBlock Id="%AID%_PB-nnn" Inline="true" Layout="Grid">
-                      <Rows><Row Id="%AID%_PB-nnn_R-1" /></Rows>
-                      <Columns><Column Id="%AID%_PB-nnn_C-1" Width="100%" /></Columns>
-                      <ParameterRefRef RefId="%AID%_P-%TT%00011_R-%TT%0001101" Cell="1,1" />
-                    </ParameterBlock>
-                  </when>
-                  <when default="true">
-                    <ParameterSeparator Id="%AID%_PS-nnn" Text="Für diese Platine liegt noch kein Klemmenbild vor." UIHint="Information" />
-                  </when>
-                </choose>
+                <!-- Klemmenbild der gewaehlten Platine. Frueher eine eigene Seite
+                     "Anschluss"; sie trug nach dem Streichen der Texte nur noch dieses
+                     Bild, und eine Seite fuer ein Bild ist ein Klick zu viel. -->
+                <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
+                <ParameterSeparator Id="%AID%_PS-nnn" Text="Anschluss" UIHint="Headline" />
+  <choose ParamRefId="%AID%_UP-%TT%00001_R-%TT%0000101">
+                    <when test="2">
+                      <ParameterBlock Id="%AID%_PB-nnn" Inline="true" Layout="Grid">
+                        <Rows><Row Id="%AID%_PB-nnn_R-1" /></Rows>
+                        <Columns><Column Id="%AID%_PB-nnn_C-1" Width="100%" /></Columns>
+                        <ParameterRefRef RefId="%AID%_P-%TT%00010_R-%TT%0001001" Cell="1,1" />
+                      </ParameterBlock>
+                    </when>
+                    <when test="4">
+                      <ParameterBlock Id="%AID%_PB-nnn" Inline="true" Layout="Grid">
+                        <Rows><Row Id="%AID%_PB-nnn_R-1" /></Rows>
+                        <Columns><Column Id="%AID%_PB-nnn_C-1" Width="100%" /></Columns>
+                        <ParameterRefRef RefId="%AID%_P-%TT%00011_R-%TT%0001101" Cell="1,1" />
+                      </ParameterBlock>
+                    </when>
+                    <when default="true">
+                      <ParameterSeparator Id="%AID%_PS-nnn" Text="Für diese Platine liegt noch kein Klemmenbild vor." UIHint="Information" />
+                    </when>
+                  </choose>
               </ParameterBlock>
 
               <!-- ===== Kanalauswahl =====
