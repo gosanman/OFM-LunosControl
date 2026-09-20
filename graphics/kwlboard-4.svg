@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="522" height="218" viewBox="0 0 522 218" font-family="Segoe UI, Arial, sans-serif">
+<rect width="100%%" height="100%%" fill="#fff"/>
+<text x="261" y="19" text-anchor="middle" font-size="13" font-weight="600" fill="#20262e">KNXFANDRV Rev 0.1</text>
+<rect x="14" y="56" width="494" height="98" rx="6" fill="#dee8e2" stroke="#789682" stroke-width="2"/>
+<rect x="392" y="100" width="104" height="54" rx="3" fill="#3c444e"/>
+<text x="444" y="118" text-anchor="middle" font-size="13" font-weight="600" fill="#fff">J3</text>
+<text x="444" y="50" text-anchor="middle" font-size="15" font-weight="600" fill="#20262e">Kanal 1 &#183; S1</text>
+<circle cx="409.3" cy="141" r="9" fill="#ce4c3c"/>
+<text x="409.3" y="145" text-anchor="middle" font-size="11" fill="#fff">1</text>
+<text x="409.3" y="172" text-anchor="middle" font-size="11" fill="#78828e">12 V</text>
+<circle cx="444.0" cy="141" r="9" fill="#ecaa36"/>
+<text x="444.0" y="145" text-anchor="middle" font-size="11" fill="#20262e">2</text>
+<text x="444.0" y="172" text-anchor="middle" font-size="11" fill="#78828e">S</text>
+<circle cx="478.7" cy="141" r="9" fill="#464e58"/>
+<text x="478.7" y="145" text-anchor="middle" font-size="11" fill="#fff">3</text>
+<text x="478.7" y="172" text-anchor="middle" font-size="11" fill="#78828e">GND</text>
+<rect x="270" y="100" width="104" height="54" rx="3" fill="#3c444e"/>
+<text x="322" y="118" text-anchor="middle" font-size="13" font-weight="600" fill="#fff">J4</text>
+<text x="322" y="50" text-anchor="middle" font-size="15" font-weight="600" fill="#20262e">Kanal 2 &#183; S2</text>
+<circle cx="287.3" cy="141" r="9" fill="#ce4c3c"/>
+<text x="287.3" y="145" text-anchor="middle" font-size="11" fill="#fff">1</text>
+<text x="287.3" y="172" text-anchor="middle" font-size="11" fill="#78828e">12 V</text>
+<circle cx="322.0" cy="141" r="9" fill="#ecaa36"/>
+<text x="322.0" y="145" text-anchor="middle" font-size="11" fill="#20262e">2</text>
+<text x="322.0" y="172" text-anchor="middle" font-size="11" fill="#78828e">S</text>
+<circle cx="356.7" cy="141" r="9" fill="#464e58"/>
+<text x="356.7" y="145" text-anchor="middle" font-size="11" fill="#fff">3</text>
+<text x="356.7" y="172" text-anchor="middle" font-size="11" fill="#78828e">GND</text>
+<rect x="148" y="100" width="104" height="54" rx="3" fill="#3c444e"/>
+<text x="200" y="118" text-anchor="middle" font-size="13" font-weight="600" fill="#fff">J5</text>
+<text x="200" y="50" text-anchor="middle" font-size="15" font-weight="600" fill="#20262e">Kanal 3 &#183; S3</text>
+<circle cx="165.3" cy="141" r="9" fill="#ce4c3c"/>
+<text x="165.3" y="145" text-anchor="middle" font-size="11" fill="#fff">1</text>
+<text x="165.3" y="172" text-anchor="middle" font-size="11" fill="#78828e">12 V</text>
+<circle cx="200.0" cy="141" r="9" fill="#ecaa36"/>
+<text x="200.0" y="145" text-anchor="middle" font-size="11" fill="#20262e">2</text>
+<text x="200.0" y="172" text-anchor="middle" font-size="11" fill="#78828e">S</text>
+<circle cx="234.7" cy="141" r="9" fill="#464e58"/>
+<text x="234.7" y="145" text-anchor="middle" font-size="11" fill="#fff">3</text>
+<text x="234.7" y="172" text-anchor="middle" font-size="11" fill="#78828e">GND</text>
+<rect x="26" y="100" width="104" height="54" rx="3" fill="#3c444e"/>
+<text x="78" y="118" text-anchor="middle" font-size="13" font-weight="600" fill="#fff">J6</text>
+<text x="78" y="50" text-anchor="middle" font-size="15" font-weight="600" fill="#20262e">Kanal 4 &#183; S4</text>
+<circle cx="43.3" cy="141" r="9" fill="#ce4c3c"/>
+<text x="43.3" y="145" text-anchor="middle" font-size="11" fill="#fff">1</text>
+<text x="43.3" y="172" text-anchor="middle" font-size="11" fill="#78828e">12 V</text>
+<circle cx="78.0" cy="141" r="9" fill="#ecaa36"/>
+<text x="78.0" y="145" text-anchor="middle" font-size="11" fill="#20262e">2</text>
+<text x="78.0" y="172" text-anchor="middle" font-size="11" fill="#78828e">S</text>
+<circle cx="112.7" cy="141" r="9" fill="#464e58"/>
+<text x="112.7" y="145" text-anchor="middle" font-size="11" fill="#fff">3</text>
+<text x="112.7" y="172" text-anchor="middle" font-size="11" fill="#78828e">GND</text>
+<text x="261" y="208" text-anchor="middle" font-size="11" fill="#78828e">Kanal 1 liegt rechts au&#223;en. 1 = 12 V &#183; 2 = Stellsignal S &#183; 3 = GND</text>
+</svg>

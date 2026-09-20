@@ -57,16 +57,22 @@
                    vergleicht ihn mit FANDRV_BOARD_CHANNELS aus dem Board-Header. -->
               <ParameterType Id="%AID%_PT-FanHardware" Name="FanHardware">
                 <TypeRestriction Base="Value" SizeInBit="8" UIHint="DropDown">
-                  <Enumeration Text="Entwicklungsaufbau Pico + DFR1073 (2 Kanäle)" Value="2" Id="%ENID%" />
-                  <Enumeration Text="KNXFANDRV Rev 0.1 (4 Kanäle)" Value="4" Id="%ENID%" />
-                  <Enumeration Text="KNXFANDRV 6 (6 Kanäle)" Value="6" Id="%ENID%" />
-                  <Enumeration Text="KNXFANDRV 8 (8 Kanäle)" Value="8" Id="%ENID%" />
-                  <Enumeration Text="KNXFANDRV 10 (10 Kanäle)" Value="10" Id="%ENID%" />
-                  <Enumeration Text="KNXFANDRV 12 (12 Kanäle)" Value="12" Id="%ENID%" />
+                  <Enumeration Text="Entwicklungsaufbau Pico + DFR1073 (2 Kanäle)" Value="2" Id="%ENID%" Icon="kwlhw-2" />
+                  <Enumeration Text="KNXFANDRV Rev 0.1 (4 Kanäle)" Value="4" Id="%ENID%" Icon="kwlhw-4" />
+                  <Enumeration Text="KNXFANDRV 6 (6 Kanäle)" Value="6" Id="%ENID%" Icon="kwlhw-6" />
+                  <Enumeration Text="KNXFANDRV 8 (8 Kanäle)" Value="8" Id="%ENID%" Icon="kwlhw-8" />
+                  <Enumeration Text="KNXFANDRV 10 (10 Kanäle)" Value="10" Id="%ENID%" Icon="kwlhw-10" />
+                  <Enumeration Text="KNXFANDRV 12 (12 Kanäle)" Value="12" Id="%ENID%" Icon="kwlhw-12" />
                 </TypeRestriction>
               </ParameterType>
               <ParameterType Id="%AID%_PT-FanStartupDelay" Name="FanStartupDelay">
                 <TypeNumber SizeInBit="8" Type="unsignedInt" minInclusive="0" maxInclusive="30" />
+              </ParameterType>
+              <!-- Klemme bzw. DAC-Ausgang, an dem dieser Luefter haengt. Vorgabe je Kanal
+                   ist die eigene Kanalnummer (Value="%C%" - der Producer setzt sie ein),
+                   also Luefter n an Kanal n. Wer anders verdrahtet hat, stellt es um. -->
+              <ParameterType Id="%AID%_PT-FanDacChannel" Name="FanDacChannel">
+                <TypeNumber SizeInBit="4" Type="unsignedInt" minInclusive="1" maxInclusive="12" />
               </ParameterType>
               <ParameterType Id="%AID%_PT-FanGroupCount" Name="FanGroupCount">
                 <TypeNumber SizeInBit="8" Type="unsignedInt" minInclusive="1" maxInclusive="8" />
@@ -364,10 +370,10 @@
                 <ParameterSeparator Id="%AID%_PS-nnn" Text="Kanal und Klemme" UIHint="Headline" />
                 <choose ParamRefId="%AID%_UP-%TT%00001_R-%TT%0000101">
                   <when test="2">
-                <ParameterSeparator Id="%AID%_PS-nnn" Text="Entwicklungsaufbau Pico + DFR1073: Kanal 1 = VOUT0, Kanal 2 = VOUT1 des Breakout-Moduls. I²C-Adresse 0x58." UIHint="Information" />
+                <ParameterSeparator Id="%AID%_PS-nnn" Text="Entwicklungsaufbau Pico + DFR1073: Kanal 1 = VOUT0, Kanal 2 = VOUT1 des Breakout-Moduls. I²C-Adresse 0x58." UIHint="Information" Icon="kwlboard-2" />
                   </when>
                   <when test="4">
-                <ParameterSeparator Id="%AID%_PS-nnn" Text="KNXFANDRV Rev 0.1 — vier dreipolige Klemmen:" UIHint="Information" />
+                <ParameterSeparator Id="%AID%_PS-nnn" Text="KNXFANDRV Rev 0.1 — vier dreipolige Klemmen, Kanal 1 liegt rechts außen:" UIHint="Information" Icon="kwlboard-4" />
                 <ParameterSeparator Id="%AID%_PS-nnn" Text="Kanal 1  →  Klemme J3  ·  Netz S1  ·  U2 VOUT0 (0x58)" UIHint="Information" />
                 <ParameterSeparator Id="%AID%_PS-nnn" Text="Kanal 2  →  Klemme J4  ·  Netz S2  ·  U2 VOUT1 (0x58)" UIHint="Information" />
                 <ParameterSeparator Id="%AID%_PS-nnn" Text="Kanal 3  →  Klemme J5  ·  Netz S3  ·  U3 VOUT0 (0x59)" UIHint="Information" />
@@ -380,10 +386,11 @@
 
                 <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
                 <ParameterSeparator Id="%AID%_PS-nnn" Text="Welcher Lüfter kommt an welchen Kanal" UIHint="Headline" />
-                <ParameterSeparator Id="%AID%_PS-nnn" Text="Die Lüfter belegen die Kanäle in der Reihenfolge der Kanalauswahl: der erste aktive Lüfter bekommt Kanal 1, der zweite Kanal 2 und so fort." UIHint="Information" />
+                <ParameterSeparator Id="%AID%_PS-nnn" Text="Jeder Lüfter nennt seinen Kanal selbst: auf der Lüfterseite unter „Zuordnung“ steht der Parameter „DAC-Kanal“. Vorgabe ist Lüfter n an Kanal n — wer anders verdrahtet hat, stellt es dort um." UIHint="Information" />
                 <ParameterSeparator Id="%AID%_PS-nnn" Text="Ein LUNOS ego belegt ZWEI aufeinanderfolgende Kanäle und verschiebt damit alle folgenden Lüfter. Beide Motoren müssen auf demselben DAC liegen, damit sie in einem einzigen I²C-Frame gestellt werden — sonst laufen sie beim Richtungswechsel auseinander. Ein ego beginnt deshalb immer auf einem ungeraden Kanal (1, 3, 5 …)." UIHint="Information" />
-                <ParameterSeparator Id="%AID%_PS-nnn" Text="Beispiel Rev 0.1: Lüfter 1 e²60 → J3, Lüfter 2 e²60 → J4, Lüfter 3 ego → J5 und J6. Ein vierter Lüfter hätte keinen Kanal mehr und meldet Fehlercode 3." UIHint="Information" />
-                <ParameterSeparator Id="%AID%_PS-nnn" Text="Die tatsächlich vergebene Zuordnung zeigt das Gerät auf der Konsole mit dem Befehl „kwl st“. Reicht die Platine nicht für alle aktiven Lüfter, geht der betroffene Lüfter auf Störung und sein Ausgang bleibt bei 5,00 V." UIHint="Information" />
+                <ParameterSeparator Id="%AID%_PS-nnn" Text="Beispiel Rev 0.1: Lüfter 1 e²60 auf Kanal 1 (J3), Lüfter 2 e²60 auf Kanal 2 (J4), Lüfter 3 ego auf Kanal 3 — er belegt damit J5 und J6. Ein vierter Lüfter hätte keinen Kanal mehr." UIHint="Information" />
+                <ParameterSeparator Id="%AID%_PS-nnn" Text="Kein Kanal darf doppelt vergeben sein. Die Firmware prüft das beim Start: doppelt belegter Kanal, Kanal jenseits der gewählten Platine oder ein ego auf geradem Kanal ergeben Fehlercode 3 am betroffenen Lüfter, und sein Ausgang bleibt bei 5,00 V." UIHint="Information" />
+                <ParameterSeparator Id="%AID%_PS-nnn" Text="Die geltende Zuordnung zeigt das Gerät außerdem auf der Konsole mit dem Befehl „kwl st“." UIHint="Information" />
 
                 <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
                 <ParameterSeparator Id="%AID%_PS-nnn" Text="Leitung" UIHint="Headline" />
