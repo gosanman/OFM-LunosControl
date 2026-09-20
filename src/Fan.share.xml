@@ -373,7 +373,7 @@
                 <ParameterSeparator Id="%AID%_PS-nnn" Text="Entwicklungsaufbau Pico + DFR1073: Kanal 1 = VOUT0, Kanal 2 = VOUT1 des Breakout-Moduls. I²C-Adresse 0x58." UIHint="Information" Icon="kwlboard-2" />
                   </when>
                   <when test="4">
-                <ParameterSeparator Id="%AID%_PS-nnn" Text="KNXFANDRV Rev 0.1 — vier dreipolige Klemmen, Kanal 1 liegt rechts außen:" UIHint="Information" Icon="kwlboard-4" />
+                <ParameterSeparator Id="%AID%_PS-nnn" Text="KNXFANDRV Rev 0.1 — vier dreipolige Klemmen, Kanal 1 liegt links außen:" UIHint="Information" Icon="kwlboard-4" />
                 <ParameterSeparator Id="%AID%_PS-nnn" Text="Kanal 1  →  Klemme J3  ·  Netz S1  ·  U2 VOUT0 (0x58)" UIHint="Information" />
                 <ParameterSeparator Id="%AID%_PS-nnn" Text="Kanal 2  →  Klemme J4  ·  Netz S2  ·  U2 VOUT1 (0x58)" UIHint="Information" />
                 <ParameterSeparator Id="%AID%_PS-nnn" Text="Kanal 3  →  Klemme J5  ·  Netz S3  ·  U3 VOUT0 (0x59)" UIHint="Information" />

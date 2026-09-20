@@ -5,7 +5,7 @@
   Baggages/Icons/kwlboard-N.png groesseres Klemmenbild fuer die Seite "Anschluss"
   graphics/kwlboard-N.svg      bearbeitbare Quelle desselben Bildes
 
-Die Klemmen sind von RECHTS nach LINKS angeordnet: Kanal 1 liegt rechts aussen.
+Die Klemmen sind von LINKS nach RECHTS angeordnet: Kanal 1 liegt links aussen.
 Aufruf aus dem OFM-Wurzelverzeichnis:  python graphics/make_images.py
 """
 import os
@@ -14,7 +14,7 @@ from PIL import Image, ImageDraw, ImageFont
 ICON_DIR = os.path.join('src', 'Baggages', 'Icons')
 SVG_DIR = 'graphics'
 
-# Klemmenbeschriftung je Platine. Kanal 1 steht vorn und liegt rechts aussen.
+# Klemmenbeschriftung je Platine. Kanal 1 steht vorn und liegt links aussen.
 BOARDS = {
     2: ['VOUT0', 'VOUT1'],
     4: ['J3', 'J4', 'J5', 'J6'],
@@ -63,14 +63,14 @@ def make_icon(n):
     d = ImageDraw.Draw(img)
     d.rounded_rectangle([3 * S, 7 * S, 29 * S, 25 * S], radius=2 * S,
                         fill=BOARD, outline=BOARD_EDGE, width=1 * S)
-    # Klemmen an der Unterkante, von rechts nach links gefuellt
+    # Klemmen an der Unterkante, von links nach rechts gefuellt
     slot_w = 2.0 * S
     gap = max(0.6 * S, (22.0 * S - n * slot_w) / max(n - 1, 1))
-    x = 27.0 * S
+    x = 5.0 * S
     for _ in range(n):
-        d.rectangle([x - slot_w, 19 * S, x, 24 * S], fill=TERM)
-        x -= slot_w + gap
-        if x < 4 * S:
+        d.rectangle([x, 19 * S, x + slot_w, 24 * S], fill=TERM)
+        x += slot_w + gap
+        if x > 27 * S:
             break
     # Kanalzahl als Ziffer in die freie Flaeche
     centred(d, 16 * S, 13 * S, str(n), font(9 * S, bold=True), INK)
@@ -90,8 +90,8 @@ def board_layout(n):
     height = 218
     y_board_top, y_board_bot = 56, 154
     y_term = y_board_bot - term_h
-    # Kanal 1 ganz rechts
-    xs = [width - margin - term_w - i * (term_w + gap) for i in range(n)]
+    # Kanal 1 ganz links
+    xs = [margin + i * (term_w + gap) for i in range(n)]
     return dict(w=width, h=height, tw=term_w, th=term_h, yt=y_term,
                 ybt=y_board_top, ybb=y_board_bot, xs=xs, m=margin)
 
@@ -124,7 +124,7 @@ def make_board_png(n):
                 'Kanal %d  ·  %s' % (i + 1, NETS[n][i]), f_big, INK)
 
     centred(d, L['w'] * S / 2, (L['h'] - 14) * S,
-            'Kanal 1 liegt rechts aussen.  1 = 12 V   2 = Stellsignal S   3 = GND',
+            'Kanal 1 liegt links aussen.  1 = 12 V   2 = Stellsignal S   3 = GND',
             f_small, MUTED)
     return img.resize((L['w'], L['h']), Image.LANCZOS)
 
@@ -157,7 +157,7 @@ def make_board_svg(n):
             o.append('<text x="%.1f" y="%d" text-anchor="middle" font-size="11" fill="#78828e">%s</text>'
                      % (cx, L['ybb'] + 18, lbl))
     o.append('<text x="%d" y="%d" text-anchor="middle" font-size="11" fill="#78828e">'
-             'Kanal 1 liegt rechts au&#223;en. 1 = 12 V &#183; 2 = Stellsignal S &#183; 3 = GND</text>'
+             'Kanal 1 liegt links au&#223;en. 1 = 12 V &#183; 2 = Stellsignal S &#183; 3 = GND</text>'
              % (L['w'] // 2, L['h'] - 10))
     o.append('</svg>')
     return '\n'.join(o)
