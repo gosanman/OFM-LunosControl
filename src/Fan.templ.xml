@@ -7,58 +7,404 @@
           <Static>
             <Parameters>
 
-              <!-- Beschreibung: nur ETS-seitig, kein Geraetespeicher. -->
+              <!-- Beschreibung: nur ETS-seitig, kein Geraetespeicher. Traegt den Seitentitel. -->
               <Parameter Id="%AID%_P-%TT%%CC%000" Name="f%C%Name" ParameterType="%AID%_PT-Text40Byte" Text="Beschreibung" Value="" />
 
-              <!-- Noch keine Kanalparameter. Es folgen (PLAN.md Woche 1 Tag 2,
-                   Spezifikation Abschnitt 2): Kanalaktivitaet, Typ, Raum, Verbund, Phase,
-                   Anteil, Kennlinie, Leitungskompensation, Kalibrierung, Filter.
-                   Der Parameterspeicher darf dabei frei wachsen - er verschiebt keine
-                   Gruppenadresse. Die KO-Nummern duerfen es nicht (siehe unten). -->
+              <!-- ============================================================================
+                   Speicherbild je Luefterkanal, 52 Byte:
+                     0      Typ(3) Raum(4) Phase(1)
+                     1      Verbund(4) Querschnitt(2) Filtermodus(2)
+                     2      Aktiv(1) Kennlinie(1) Kompensation(1) Freigabe(1)
+                            Suspend(1) Polaritaet(1) Einschaltstufe(2)
+                     3      Anteil            4  Leitungslaenge     5  Filter-Wiedervorlage
+                     6      Sendezyklus Std   7..10 Volumenstrom 1..4   11 Reserve
+                     12..27 Kennlinie A1..A4, B1..B4
+                     28..31 Abluftstoss M1/M2
+                     32..39 Strom Stufe 1..4
+                     40..41 Leiterwiderstand  42..43 Kalibrierfaktor
+                     44..45 Filter Stunden    46..47 Filter Luftmenge
+                     48..49 Sendezyklus Status                    50..51 Reserve
+                   Der Parameterspeicher darf wachsen - er verschiebt keine Gruppenadresse.
+                   Die KO-Nummern duerfen es nicht (siehe ComObjectTable).
+                   ============================================================================ -->
+
+              <Union SizeInBit="96">
+                <Memory CodeSegment="%AID%_RS-04-00000" Offset="0" BitOffset="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%001" Name="f%C%Type"        Offset="0" BitOffset="0" ParameterType="%AID%_PT-FanType"         Text="Lüftertyp" Value="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%002" Name="f%C%Room"        Offset="0" BitOffset="3" ParameterType="%AID%_PT-FanRoomNo"       Text="Raum" Value="1" />
+                <Parameter Id="%AID%_UP-%TT%%CC%003" Name="f%C%Phase"       Offset="0" BitOffset="7" ParameterType="%AID%_PT-FanPhase"        Text="Phase im Verbund" Value="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%004" Name="f%C%Group"       Offset="1" BitOffset="0" ParameterType="%AID%_PT-FanGroupNo"      Text="Verbund" Value="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%005" Name="f%C%CableSection" Offset="1" BitOffset="4" ParameterType="%AID%_PT-FanCableSection" Text="Aderquerschnitt" Value="1" />
+                <Parameter Id="%AID%_UP-%TT%%CC%006" Name="f%C%FilterMode"  Offset="1" BitOffset="6" ParameterType="%AID%_PT-FanFilterMode"   Text="Filterzähler" Value="2" />
+                <Parameter Id="%AID%_UP-%TT%%CC%010" Name="f%C%Active"      Offset="2" BitOffset="0" ParameterType="%AID%_PT-FanChannelActive" Text="Kanalaktivität" Value="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%011" Name="f%C%CurveCustom" Offset="2" BitOffset="1" ParameterType="%AID%_PT-FanYesNo"        Text="Kennlinie anpassen" Value="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%012" Name="f%C%CableComp"   Offset="2" BitOffset="2" ParameterType="%AID%_PT-FanYesNo"        Text="Leitungskompensation" Value="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%013" Name="f%C%UseEnable"   Offset="2" BitOffset="3" ParameterType="%AID%_PT-FanYesNo"        Text="Freigabe über Objekt" Value="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%014" Name="f%C%SuspendAllowed" Offset="2" BitOffset="4" ParameterType="%AID%_PT-FanYesNo"     Text="Suspendieren erlauben" Value="1" />
+                <Parameter Id="%AID%_UP-%TT%%CC%015" Name="f%C%Direction5V" Offset="2" BitOffset="5" ParameterType="%AID%_PT-FanDirection5V"  Text="Zuordnung der Spannungshälften" Value="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%016" Name="f%C%PowerOnStage" Offset="2" BitOffset="6" ParameterType="%AID%_PT-FanPowerOnStage" Text="Einschaltwert ohne Bus (EEPROM)" Value="1" />
+                <Parameter Id="%AID%_UP-%TT%%CC%020" Name="f%C%Share"       Offset="3" BitOffset="0" ParameterType="%AID%_PT-FanShare"        Text="Anteil an der Verbundstufe" SuffixText=" %" Value="100" />
+                <Parameter Id="%AID%_UP-%TT%%CC%021" Name="f%C%CableLength" Offset="4" BitOffset="0" ParameterType="%AID%_PT-FanCableLength"  Text="Einfache Leitungslänge" SuffixText=" m" Value="10" />
+                <Parameter Id="%AID%_UP-%TT%%CC%022" Name="f%C%FilterRemind" Offset="5" BitOffset="0" ParameterType="%AID%_PT-FanFilterRemind" Text="Meldung wiederholen nach" SuffixText=" h" Value="24" />
+                <Parameter Id="%AID%_UP-%TT%%CC%023" Name="f%C%SendCycleHours" Offset="6" BitOffset="0" ParameterType="%AID%_PT-FanSendCycleHour" Text="Betriebsstunden zyklisch senden" SuffixText=" h  (0 = aus)" Value="1" />
+                <Parameter Id="%AID%_UP-%TT%%CC%024" Name="f%C%FlowS1"      Offset="7"  BitOffset="0" ParameterType="%AID%_PT-FanFlow" Text="Volumenstrom Stufe 1" SuffixText=" m³/h" Value="5" />
+                <Parameter Id="%AID%_UP-%TT%%CC%025" Name="f%C%FlowS2"      Offset="8"  BitOffset="0" ParameterType="%AID%_PT-FanFlow" Text="Volumenstrom Stufe 2" SuffixText=" m³/h" Value="20" />
+                <Parameter Id="%AID%_UP-%TT%%CC%026" Name="f%C%FlowS3"      Offset="9"  BitOffset="0" ParameterType="%AID%_PT-FanFlow" Text="Volumenstrom Stufe 3" SuffixText=" m³/h" Value="40" />
+                <Parameter Id="%AID%_UP-%TT%%CC%027" Name="f%C%FlowS4"      Offset="10" BitOffset="0" ParameterType="%AID%_PT-FanFlow" Text="Volumenstrom Stufe 4" SuffixText=" m³/h" Value="60" />
+                <!-- 1 Byte Reserve auf Offset 11 -->
+              </Union>
+
+              <!-- Kennlinie. Vorgaben sind die gemessenen e²60-Werte (Referenzdesign §3.4);
+                   fuer ego und RA haelt die Firmware eigene Tabellen bereit. Diese Felder
+                   wirken nur bei "Kennlinie anpassen" oder generischem Typ. -->
+              <Union SizeInBit="160">
+                <Memory CodeSegment="%AID%_RS-04-00000" Offset="12" BitOffset="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%030" Name="f%C%CurveS1A" Offset="0"  BitOffset="0" ParameterType="%AID%_PT-FanMilliVolt" Text="Stufe 1" SuffixText=" mV" Value="4010" />
+                <Parameter Id="%AID%_UP-%TT%%CC%031" Name="f%C%CurveS2A" Offset="2"  BitOffset="0" ParameterType="%AID%_PT-FanMilliVolt" Text="Stufe 2" SuffixText=" mV" Value="3210" />
+                <Parameter Id="%AID%_UP-%TT%%CC%032" Name="f%C%CurveS3A" Offset="4"  BitOffset="0" ParameterType="%AID%_PT-FanMilliVolt" Text="Stufe 3" SuffixText=" mV" Value="1960" />
+                <Parameter Id="%AID%_UP-%TT%%CC%033" Name="f%C%CurveS4A" Offset="6"  BitOffset="0" ParameterType="%AID%_PT-FanMilliVolt" Text="Stufe 4" SuffixText=" mV" Value="10" />
+                <Parameter Id="%AID%_UP-%TT%%CC%034" Name="f%C%CurveS1B" Offset="8"  BitOffset="0" ParameterType="%AID%_PT-FanMilliVolt" Text="Stufe 1" SuffixText=" mV" Value="6010" />
+                <Parameter Id="%AID%_UP-%TT%%CC%035" Name="f%C%CurveS2B" Offset="10" BitOffset="0" ParameterType="%AID%_PT-FanMilliVolt" Text="Stufe 2" SuffixText=" mV" Value="6910" />
+                <Parameter Id="%AID%_UP-%TT%%CC%036" Name="f%C%CurveS3B" Offset="12" BitOffset="0" ParameterType="%AID%_PT-FanMilliVolt" Text="Stufe 3" SuffixText=" mV" Value="8150" />
+                <Parameter Id="%AID%_UP-%TT%%CC%037" Name="f%C%CurveS4B" Offset="14" BitOffset="0" ParameterType="%AID%_PT-FanMilliVolt" Text="Stufe 4" SuffixText=" mV" Value="10000" />
+                <Parameter Id="%AID%_UP-%TT%%CC%038" Name="f%C%BoostM1"  Offset="16" BitOffset="0" ParameterType="%AID%_PT-FanMilliVolt" Text="Abluftstoß Motor 1" SuffixText=" mV" Value="1110" />
+                <Parameter Id="%AID%_UP-%TT%%CC%039" Name="f%C%BoostM2"  Offset="18" BitOffset="0" ParameterType="%AID%_PT-FanMilliVolt" Text="Abluftstoß Motor 2" SuffixText=" mV" Value="1110" />
+              </Union>
+
+              <Union SizeInBit="160">
+                <Memory CodeSegment="%AID%_RS-04-00000" Offset="32" BitOffset="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%040" Name="f%C%CurrentS1" Offset="0"  BitOffset="0" ParameterType="%AID%_PT-FanCurrent" Text="Stromaufnahme Stufe 1" SuffixText=" mA" Value="33" />
+                <Parameter Id="%AID%_UP-%TT%%CC%041" Name="f%C%CurrentS2" Offset="2"  BitOffset="0" ParameterType="%AID%_PT-FanCurrent" Text="Stromaufnahme Stufe 2" SuffixText=" mA" Value="90" />
+                <Parameter Id="%AID%_UP-%TT%%CC%042" Name="f%C%CurrentS3" Offset="4"  BitOffset="0" ParameterType="%AID%_PT-FanCurrent" Text="Stromaufnahme Stufe 3" SuffixText=" mA" Value="170" />
+                <Parameter Id="%AID%_UP-%TT%%CC%043" Name="f%C%CurrentS4" Offset="6"  BitOffset="0" ParameterType="%AID%_PT-FanCurrent" Text="Stromaufnahme Stufe 4" SuffixText=" mA" Value="275" />
+                <Parameter Id="%AID%_UP-%TT%%CC%044" Name="f%C%CableResistance" Offset="8"  BitOffset="0" ParameterType="%AID%_PT-FanCableResistance" Text="Widerstand eines Leiters" SuffixText=" mΩ" Value="250" />
+                <Parameter Id="%AID%_UP-%TT%%CC%045" Name="f%C%CalibGain"  Offset="10" BitOffset="0" ParameterType="%AID%_PT-FanCalibGain" Text="Kalibrierfaktor" SuffixText="  (10000 = 1,0000)" Value="10000" />
+                <Parameter Id="%AID%_UP-%TT%%CC%046" Name="f%C%FilterHours" Offset="12" BitOffset="0" ParameterType="%AID%_PT-FanFilterHours" Text="Wechselintervall" SuffixText=" h" Value="2200" />
+                <Parameter Id="%AID%_UP-%TT%%CC%047" Name="f%C%FilterVolume" Offset="14" BitOffset="0" ParameterType="%AID%_PT-FanFilterVolume" Text="Wechselintervall" SuffixText=" × 1000 m³" Value="60" />
+                <Parameter Id="%AID%_UP-%TT%%CC%048" Name="f%C%SendCycleStatus" Offset="16" BitOffset="0" ParameterType="%AID%_PT-FanSendCycleMin" Text="Status zyklisch senden" SuffixText=" min  (0 = aus)" Value="0" />
+                <!-- 2 Byte Reserve auf Offset 18..19 -->
+              </Union>
 
             </Parameters>
             <ParameterRefs>
               <ParameterRef Id="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" RefId="%AID%_P-%TT%%CC%000" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%001_R-%TT%%CC%00101" RefId="%AID%_UP-%TT%%CC%001" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%002_R-%TT%%CC%00201" RefId="%AID%_UP-%TT%%CC%002" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%003_R-%TT%%CC%00301" RefId="%AID%_UP-%TT%%CC%003" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%004_R-%TT%%CC%00401" RefId="%AID%_UP-%TT%%CC%004" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%005_R-%TT%%CC%00501" RefId="%AID%_UP-%TT%%CC%005" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%006_R-%TT%%CC%00601" RefId="%AID%_UP-%TT%%CC%006" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%010_R-%TT%%CC%01001" RefId="%AID%_UP-%TT%%CC%010" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%011_R-%TT%%CC%01101" RefId="%AID%_UP-%TT%%CC%011" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%012_R-%TT%%CC%01201" RefId="%AID%_UP-%TT%%CC%012" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%013_R-%TT%%CC%01301" RefId="%AID%_UP-%TT%%CC%013" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%014_R-%TT%%CC%01401" RefId="%AID%_UP-%TT%%CC%014" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%015_R-%TT%%CC%01501" RefId="%AID%_UP-%TT%%CC%015" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%016_R-%TT%%CC%01601" RefId="%AID%_UP-%TT%%CC%016" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%020_R-%TT%%CC%02001" RefId="%AID%_UP-%TT%%CC%020" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%021_R-%TT%%CC%02101" RefId="%AID%_UP-%TT%%CC%021" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%022_R-%TT%%CC%02201" RefId="%AID%_UP-%TT%%CC%022" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%023_R-%TT%%CC%02301" RefId="%AID%_UP-%TT%%CC%023" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%024_R-%TT%%CC%02401" RefId="%AID%_UP-%TT%%CC%024" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%025_R-%TT%%CC%02501" RefId="%AID%_UP-%TT%%CC%025" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%026_R-%TT%%CC%02601" RefId="%AID%_UP-%TT%%CC%026" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%027_R-%TT%%CC%02701" RefId="%AID%_UP-%TT%%CC%027" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%030_R-%TT%%CC%03001" RefId="%AID%_UP-%TT%%CC%030" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%031_R-%TT%%CC%03101" RefId="%AID%_UP-%TT%%CC%031" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%032_R-%TT%%CC%03201" RefId="%AID%_UP-%TT%%CC%032" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%033_R-%TT%%CC%03301" RefId="%AID%_UP-%TT%%CC%033" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%034_R-%TT%%CC%03401" RefId="%AID%_UP-%TT%%CC%034" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%035_R-%TT%%CC%03501" RefId="%AID%_UP-%TT%%CC%035" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%036_R-%TT%%CC%03601" RefId="%AID%_UP-%TT%%CC%036" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%037_R-%TT%%CC%03701" RefId="%AID%_UP-%TT%%CC%037" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%038_R-%TT%%CC%03801" RefId="%AID%_UP-%TT%%CC%038" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%039_R-%TT%%CC%03901" RefId="%AID%_UP-%TT%%CC%039" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%040_R-%TT%%CC%04001" RefId="%AID%_UP-%TT%%CC%040" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%041_R-%TT%%CC%04101" RefId="%AID%_UP-%TT%%CC%041" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%042_R-%TT%%CC%04201" RefId="%AID%_UP-%TT%%CC%042" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%043_R-%TT%%CC%04301" RefId="%AID%_UP-%TT%%CC%043" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%044_R-%TT%%CC%04401" RefId="%AID%_UP-%TT%%CC%044" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%045_R-%TT%%CC%04501" RefId="%AID%_UP-%TT%%CC%045" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%046_R-%TT%%CC%04601" RefId="%AID%_UP-%TT%%CC%046" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%047_R-%TT%%CC%04701" RefId="%AID%_UP-%TT%%CC%047" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%048_R-%TT%%CC%04801" RefId="%AID%_UP-%TT%%CC%048" />
             </ParameterRefs>
+
             <ComObjectTable>
+              <!-- ===== Eingaenge ===== -->
+              <ComObject Id="%AID%_O-%TT%%CC%000" Name="%C%Enable"      Number="%K0%"  ObjectSize="1 Bit"   Text="" FunctionText="" ReadFlag="Disabled" WriteFlag="Enabled"  CommunicationFlag="Enabled" TransmitFlag="Disabled" UpdateFlag="Enabled"  ReadOnInitFlag="Disabled" DatapointType="DPST-1-3" />
+              <ComObject Id="%AID%_O-%TT%%CC%001" Name="%C%Suspend"     Number="%K1%"  ObjectSize="1 Bit"   Text="" FunctionText="" ReadFlag="Disabled" WriteFlag="Enabled"  CommunicationFlag="Enabled" TransmitFlag="Disabled" UpdateFlag="Enabled"  ReadOnInitFlag="Disabled" DatapointType="DPST-1-1" />
+
+              <!-- ===== Verbund ueber den Bus =====
+                   Je EIN Objekt, das sendet und empfaengt. Ob dieser Luefter Master oder
+                   Slave ist, steht in der Rolle SEINES Verbunds - und auf die kann die ETS
+                   nicht zugreifen, weil der Verbund ueber einen anderen Parameter
+                   ausgewaehlt wird und die ETS keine indizierten Verweise kennt. Die
+                   Richtung entscheidet deshalb die Firmware, nicht das Flag. -->
+              <ComObject Id="%AID%_O-%TT%%CC%002" Name="%C%GroupStage"  Number="%K2%"  ObjectSize="1 Byte"  Text="" FunctionText="" ReadFlag="Enabled"  WriteFlag="Enabled"  CommunicationFlag="Enabled" TransmitFlag="Enabled"  UpdateFlag="Enabled"  ReadOnInitFlag="Disabled" DatapointType="DPST-5-100" />
+              <ComObject Id="%AID%_O-%TT%%CC%003" Name="%C%GroupTact"   Number="%K3%"  ObjectSize="1 Bit"   Text="" FunctionText="" ReadFlag="Enabled"  WriteFlag="Enabled"  CommunicationFlag="Enabled" TransmitFlag="Enabled"  UpdateFlag="Enabled"  ReadOnInitFlag="Disabled" DatapointType="DPST-1-12" />
+              <ComObject Id="%AID%_O-%TT%%CC%004" Name="%C%GroupAlive"  Number="%K4%"  ObjectSize="1 Bit"   Text="" FunctionText="" ReadFlag="Enabled"  WriteFlag="Enabled"  CommunicationFlag="Enabled" TransmitFlag="Enabled"  UpdateFlag="Enabled"  ReadOnInitFlag="Disabled" DatapointType="DPST-1-1" />
+              <ComObject Id="%AID%_O-%TT%%CC%005" Name="%C%GroupMode"   Number="%K5%"  ObjectSize="1 Byte"  Text="" FunctionText="" ReadFlag="Enabled"  WriteFlag="Enabled"  CommunicationFlag="Enabled" TransmitFlag="Enabled"  UpdateFlag="Enabled"  ReadOnInitFlag="Disabled" DatapointType="DPST-5-10" />
+
+              <!-- ===== Ausgaenge ===== -->
+              <ComObject Id="%AID%_O-%TT%%CC%006" Name="%C%StageAct"    Number="%K6%"  ObjectSize="1 Byte"  Text="" FunctionText="" ReadFlag="Enabled"  WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled"  UpdateFlag="Disabled" ReadOnInitFlag="Disabled" DatapointType="DPST-5-100" />
+              <ComObject Id="%AID%_O-%TT%%CC%007" Name="%C%StageActPct" Number="%K7%"  ObjectSize="1 Byte"  Text="" FunctionText="" ReadFlag="Enabled"  WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled"  UpdateFlag="Disabled" ReadOnInitFlag="Disabled" DatapointType="DPST-5-1" />
+              <ComObject Id="%AID%_O-%TT%%CC%008" Name="%C%DirAct"      Number="%K8%"  ObjectSize="1 Bit"   Text="" FunctionText="" ReadFlag="Enabled"  WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled"  UpdateFlag="Disabled" ReadOnInitFlag="Disabled" DatapointType="DPST-1-1" />
+              <ComObject Id="%AID%_O-%TT%%CC%009" Name="%C%HrvActive"   Number="%K9%"  ObjectSize="1 Bit"   Text="" FunctionText="" ReadFlag="Enabled"  WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled"  UpdateFlag="Disabled" ReadOnInitFlag="Disabled" DatapointType="DPST-1-1" />
+              <ComObject Id="%AID%_O-%TT%%CC%010" Name="%C%OutVolt"     Number="%K10%" ObjectSize="2 Bytes" Text="" FunctionText="" ReadFlag="Enabled"  WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled"  UpdateFlag="Disabled" ReadOnInitFlag="Disabled" DatapointType="DPST-9-20" />
+              <ComObject Id="%AID%_O-%TT%%CC%011" Name="%C%Flow"        Number="%K11%" ObjectSize="2 Bytes" Text="" FunctionText="" ReadFlag="Enabled"  WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled"  UpdateFlag="Disabled" ReadOnInitFlag="Disabled" DatapointType="DPST-9-9" />
+              <ComObject Id="%AID%_O-%TT%%CC%012" Name="%C%RunHours"    Number="%K12%" ObjectSize="2 Bytes" Text="" FunctionText="" ReadFlag="Enabled"  WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled"  UpdateFlag="Disabled" ReadOnInitFlag="Disabled" DatapointType="DPST-7-7" />
+              <ComObject Id="%AID%_O-%TT%%CC%013" Name="%C%FilterDue"   Number="%K13%" ObjectSize="1 Bit"   Text="" FunctionText="" ReadFlag="Enabled"  WriteFlag="Enabled"  CommunicationFlag="Enabled" TransmitFlag="Enabled"  UpdateFlag="Enabled"  ReadOnInitFlag="Disabled" DatapointType="DPST-1-5" />
+              <ComObject Id="%AID%_O-%TT%%CC%014" Name="%C%FilterLeft"  Number="%K14%" ObjectSize="1 Byte"  Text="" FunctionText="" ReadFlag="Enabled"  WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled"  UpdateFlag="Disabled" ReadOnInitFlag="Disabled" DatapointType="DPST-5-1" />
+              <ComObject Id="%AID%_O-%TT%%CC%015" Name="%C%FilterAck"   Number="%K15%" ObjectSize="1 Bit"   Text="" FunctionText="" ReadFlag="Disabled" WriteFlag="Enabled"  CommunicationFlag="Enabled" TransmitFlag="Disabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" DatapointType="DPST-1-16" />
+              <ComObject Id="%AID%_O-%TT%%CC%016" Name="%C%Fault"       Number="%K16%" ObjectSize="1 Bit"   Text="" FunctionText="" ReadFlag="Enabled"  WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled"  UpdateFlag="Disabled" ReadOnInitFlag="Disabled" DatapointType="DPST-1-5" />
+              <ComObject Id="%AID%_O-%TT%%CC%017" Name="%C%FaultCode"   Number="%K17%" ObjectSize="1 Byte"  Text="" FunctionText="" ReadFlag="Enabled"  WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled"  UpdateFlag="Disabled" ReadOnInitFlag="Disabled" DatapointType="DPST-5-10" />
 
               <!-- ============================================================================
                    BLOCKGROESSE 24 - EINGEFROREN (PLAN.md 0.6).
-
-                   Der OpenKNXproducer bildet die Blockgroesse eines Moduls ausschliesslich
-                   aus der hoechsten benutzten %Kn%-Nummer; ein Attribut dafuer gibt es nicht.
-                   Ohne ein Objekt auf %K23% waere der Block kleiner, und jedes spaeter
-                   hinzugefuegte KO wuerde die Nummern aller folgenden Luefterkanaele
-                   verschieben - also die Gruppenadressen bereits parametrierter Anlagen.
-
-                   Dieses eine Objekt haelt den Block deshalb auf 24 (relativ 0..23), bis die
-                   echten KOs aus dem Luefter-Block geschrieben sind. Es liegt auf Platz 23,
-                   dem obersten der geplanten Reserve 18..23, und ist genau so lange ein
-                   Platzhalter, wie dort nichts Echtes steht. Entfernt werden darf es nur,
-                   wenn dann wieder ein Objekt auf %K23% liegt.
-
+                   Der Producer bildet die Blockgroesse ausschliesslich aus der hoechsten
+                   benutzten %Kn%-Nummer. Dieses Objekt haelt sie auf 24, solange die
+                   geplante Reserve 18..23 leer ist. Entfernt werden darf es nur, wenn dann
+                   wieder ein Objekt auf %K23% liegt.
                    FAN: KoOffset 340, 12 Luefter x 24 = KO 340..627.
                    ============================================================================ -->
               <ComObject Id="%AID%_O-%TT%%CC%023" Name="%C%Reserve23" Number="%K23%" ObjectSize="1 Bit" Text="" FunctionText="" ReadFlag="Disabled" WriteFlag="Disabled" CommunicationFlag="Disabled" TransmitFlag="Disabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" DatapointType="DPST-1-1" />
-
             </ComObjectTable>
+
             <ComObjectRefs>
-              <ComObjectRef Id="%AID%_O-%TT%%CC%023_R-%TT%%CC%02301" RefId="%AID%_O-%TT%%CC%023" Text="{{0:Lüfter %C%}}: Reserve" FunctionText="Lüfter %C%: Platzhalter, hält die Blockgröße auf 24" TextParameterRefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" />
+              <ComObjectRef Id="%AID%_O-%TT%%CC%000_R-%TT%%CC%00001" RefId="%AID%_O-%TT%%CC%000" Text="{{0:Lüfter %C%}}: Freigabe"            FunctionText="Lüfter %C%: Eingang, Freigabe=1 / Sperre=0"         TextParameterRefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" />
+              <ComObjectRef Id="%AID%_O-%TT%%CC%001_R-%TT%%CC%00101" RefId="%AID%_O-%TT%%CC%001" Text="{{0:Lüfter %C%}}: Suspendieren"        FunctionText="Lüfter %C%: Eingang, Wartung=1 / Betrieb=0"        TextParameterRefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" />
+              <ComObjectRef Id="%AID%_O-%TT%%CC%002_R-%TT%%CC%00201" RefId="%AID%_O-%TT%%CC%002" Text="{{0:Lüfter %C%}}: Verbund Stufe"       FunctionText="Lüfter %C%: Verbund, Stufe 0…4"                    TextParameterRefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" />
+              <ComObjectRef Id="%AID%_O-%TT%%CC%003_R-%TT%%CC%00301" RefId="%AID%_O-%TT%%CC%003" Text="{{0:Lüfter %C%}}: Verbund Takt"        FunctionText="Lüfter %C%: Verbund, Halbwelle"                    TextParameterRefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" />
+              <ComObjectRef Id="%AID%_O-%TT%%CC%004_R-%TT%%CC%00401" RefId="%AID%_O-%TT%%CC%004" Text="{{0:Lüfter %C%}}: Verbund Lebenszeichen" FunctionText="Lüfter %C%: Verbund, Zustand"                    TextParameterRefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" />
+              <ComObjectRef Id="%AID%_O-%TT%%CC%005_R-%TT%%CC%00501" RefId="%AID%_O-%TT%%CC%005" Text="{{0:Lüfter %C%}}: Verbund Betriebsweise" FunctionText="Lüfter %C%: Verbund, 0 auto / 1 WRG / 2 Zuluft / 3 Abluft" TextParameterRefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" />
+              <ComObjectRef Id="%AID%_O-%TT%%CC%006_R-%TT%%CC%00601" RefId="%AID%_O-%TT%%CC%006" Text="{{0:Lüfter %C%}}: Stufe Status"        FunctionText="Lüfter %C%: Ausgang, Stufe 0…4"                    TextParameterRefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" />
+              <ComObjectRef Id="%AID%_O-%TT%%CC%007_R-%TT%%CC%00701" RefId="%AID%_O-%TT%%CC%007" Text="{{0:Lüfter %C%}}: Stufe Status %"      FunctionText="Lüfter %C%: Ausgang, Prozent"                      TextParameterRefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" />
+              <ComObjectRef Id="%AID%_O-%TT%%CC%008_R-%TT%%CC%00801" RefId="%AID%_O-%TT%%CC%008" Text="{{0:Lüfter %C%}}: Richtung Status"     FunctionText="Lüfter %C%: Ausgang, 1 = Zuluft / 0 = Abluft"      TextParameterRefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" />
+              <ComObjectRef Id="%AID%_O-%TT%%CC%009_R-%TT%%CC%00901" RefId="%AID%_O-%TT%%CC%009" Text="{{0:Lüfter %C%}}: Wärmerückgewinnung aktiv" FunctionText="Lüfter %C%: Ausgang, kurzer Zyklus"           TextParameterRefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" />
+              <ComObjectRef Id="%AID%_O-%TT%%CC%010_R-%TT%%CC%01001" RefId="%AID%_O-%TT%%CC%010" Text="{{0:Lüfter %C%}}: Ausgangsspannung"    FunctionText="Lüfter %C%: Ausgang, mV"                           TextParameterRefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" />
+              <ComObjectRef Id="%AID%_O-%TT%%CC%011_R-%TT%%CC%01101" RefId="%AID%_O-%TT%%CC%011" Text="{{0:Lüfter %C%}}: Volumenstrom"        FunctionText="Lüfter %C%: Ausgang, m³/h, positiv = Zuluft"       TextParameterRefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" />
+              <ComObjectRef Id="%AID%_O-%TT%%CC%012_R-%TT%%CC%01201" RefId="%AID%_O-%TT%%CC%012" Text="{{0:Lüfter %C%}}: Betriebsstunden"     FunctionText="Lüfter %C%: Ausgang, Stunden"                      TextParameterRefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" />
+              <ComObjectRef Id="%AID%_O-%TT%%CC%013_R-%TT%%CC%01301" RefId="%AID%_O-%TT%%CC%013" Text="{{0:Lüfter %C%}}: Filterwechsel fällig" FunctionText="Lüfter %C%: Alarm, 0 quittiert für 24 h"          TextParameterRefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" />
+              <ComObjectRef Id="%AID%_O-%TT%%CC%014_R-%TT%%CC%01401" RefId="%AID%_O-%TT%%CC%014" Text="{{0:Lüfter %C%}}: Filter Restlaufzeit" FunctionText="Lüfter %C%: Ausgang, Prozent"                      TextParameterRefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" />
+              <ComObjectRef Id="%AID%_O-%TT%%CC%015_R-%TT%%CC%01501" RefId="%AID%_O-%TT%%CC%015" Text="{{0:Lüfter %C%}}: Filterwechsel quittieren" FunctionText="Lüfter %C%: Eingang, Zähler zurücksetzen"     TextParameterRefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" />
+              <ComObjectRef Id="%AID%_O-%TT%%CC%016_R-%TT%%CC%01601" RefId="%AID%_O-%TT%%CC%016" Text="{{0:Lüfter %C%}}: Störung"             FunctionText="Lüfter %C%: Ausgang, Alarm"                        TextParameterRefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" />
+              <ComObjectRef Id="%AID%_O-%TT%%CC%017_R-%TT%%CC%01701" RefId="%AID%_O-%TT%%CC%017" Text="{{0:Lüfter %C%}}: Fehlercode"          FunctionText="Lüfter %C%: Ausgang, Fehlercode 1…10"              TextParameterRefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" />
+              <ComObjectRef Id="%AID%_O-%TT%%CC%023_R-%TT%%CC%02301" RefId="%AID%_O-%TT%%CC%023" Text="{{0:Lüfter %C%}}: Reserve"             FunctionText="Lüfter %C%: Platzhalter, hält die Blockgröße auf 24" TextParameterRefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" />
             </ComObjectRefs>
           </Static>
+
           <Dynamic>
             <ChannelIndependentBlock>
 
+              <!-- ===================== Zeile in der Kanalauswahl ===================== -->
+              <ParameterBlock Id="%AID%_PB-nnn" Name="Settings">
+                <choose ParamRefId="%AID%_UP-%TT%00001_R-%TT%0000101">
+                  <when test="&gt;=%C%">
+                    <ParameterBlock Id="%AID%_PB-nnn" Inline="true" Layout="Grid">
+                      <Rows><Row Id="%AID%_PB-nnn_R-1" /></Rows>
+                      <Columns>
+                        <Column Id="%AID%_PB-nnn_C-1" Width="15%" />
+                        <Column Id="%AID%_PB-nnn_C-2" Width="35%" />
+                        <Column Id="%AID%_PB-nnn_C-3" Width="50%" />
+                      </Columns>
+                      <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,1" Text="Lüfter %C%" />
+                      <ParameterRefRef RefId="%AID%_UP-%TT%%CC%010_R-%TT%%CC%01001" Cell="1,2" />
+                      <ParameterRefRef RefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" Cell="1,3" HelpContext="BASE-ChannelName" />
+                    </ParameterBlock>
+                  </when>
+                  <when default="true" />
+                </choose>
+              </ParameterBlock>
+
               <!-- ===================== Kanalreiter ===================== -->
               <ParameterBlock Id="%AID%_PB-nnn" Name="Channel">
-                <ParameterBlock Id="%AID%_PB-nnn" Name="f%C%Page" Text="Lüfter %C%: {{0: ...}}" TextParameterRefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" Icon="windsock" HelpContext="Empty" ShowInComObjectTree="true">
-                  <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
-                  <ParameterSeparator Id="%AID%_PS-nnn" Text="Kanaldefinition" UIHint="Headline" />
-                  <ParameterRefRef RefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" IndentLevel="1" HelpContext="BASE-ChannelName" />
-                  <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
-                  <ParameterSeparator Id="%AID%_PS-nnn" Text="Dieser Kanal ist noch leer. Parameter und Kommunikationsobjekte folgen; die KO-Nummern des Blocks sind bereits festgelegt." UIHint="Information" />
-                  <ComObjectRefRef RefId="%AID%_O-%TT%%CC%023_R-%TT%%CC%02301" />
-                </ParameterBlock>
+                <!-- Aeussere Klammer: gibt die gewaehlte Platine diesen Kanal ueberhaupt her? -->
+                <choose ParamRefId="%AID%_UP-%TT%00001_R-%TT%0000101">
+                  <when test="&gt;=%C%">
+                    <choose ParamRefId="%AID%_UP-%TT%%CC%010_R-%TT%%CC%01001">
+                      <when test="=1">
+                        <ParameterBlock Id="%AID%_PB-nnn" Name="f%C%Page" Text="Lüfter %C%: {{0: ...}}" TextParameterRefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" Icon="windsock" HelpContext="Empty" ShowInComObjectTree="true">
+
+                          <!-- ===== Allgemein ===== -->
+                          <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
+                          <ParameterSeparator Id="%AID%_PS-nnn" Text="Kanaldefinition" UIHint="Headline" />
+                          <ParameterRefRef RefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" IndentLevel="1" HelpContext="BASE-ChannelName" />
+                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%001_R-%TT%%CC%00101" IndentLevel="1" />
+                          <choose ParamRefId="%AID%_UP-%TT%%CC%001_R-%TT%%CC%00101">
+                            <when test="1">
+                              <ParameterSeparator Id="%AID%_PS-nnn" Text="Der ego belegt zwei aufeinanderfolgende DAC-Kanäle. Der folgende Lüfterkanal steht dann nicht mehr zur Verfügung." UIHint="Information" />
+                            </when>
+                            <when default="true" />
+                          </choose>
+
+                          <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
+                          <ParameterSeparator Id="%AID%_PS-nnn" Text="Zuordnung" UIHint="Headline" />
+                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%002_R-%TT%%CC%00201" IndentLevel="1" />
+                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%004_R-%TT%%CC%00401" IndentLevel="1" />
+                          <!-- Phase und Anteil ergeben nur im Verbund einen Sinn; die Phase
+                               zusaetzlich nur, wenn der Luefter nicht ohnehin intern pendelt. -->
+                          <choose ParamRefId="%AID%_UP-%TT%%CC%004_R-%TT%%CC%00401">
+                            <when test="0" />
+                            <when default="true">
+                              <choose ParamRefId="%AID%_UP-%TT%%CC%001_R-%TT%%CC%00101">
+                                <when test="1" />
+                                <when default="true">
+                                  <ParameterRefRef RefId="%AID%_UP-%TT%%CC%003_R-%TT%%CC%00301" IndentLevel="2" />
+                                </when>
+                              </choose>
+                              <ParameterRefRef RefId="%AID%_UP-%TT%%CC%020_R-%TT%%CC%02001" IndentLevel="2" />
+                            </when>
+                          </choose>
+
+                          <!-- ===== Kennlinie ===== -->
+                          <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
+                          <ParameterSeparator Id="%AID%_PS-nnn" Text="Kennlinie" UIHint="Headline" />
+                          <!-- Bei den drei LUNOS-Typen liegen gemessene Tabellen in der
+                               Firmware; die Felder erscheinen erst auf ausdruecklichen Wunsch.
+                               Generische Typen haben nichts, dort sind sie immer sichtbar. -->
+                          <choose ParamRefId="%AID%_UP-%TT%%CC%001_R-%TT%%CC%00101">
+                            <when test="0 1 2">
+                              <ParameterRefRef RefId="%AID%_UP-%TT%%CC%011_R-%TT%%CC%01101" IndentLevel="1" />
+                              <choose ParamRefId="%AID%_UP-%TT%%CC%011_R-%TT%%CC%01101">
+                                <when test="1">
+                                  <ParameterSeparator Id="%AID%_PS-nnn" Text="Stellspannung Zuluftrichtung" UIHint="Headline" />
+                                  <ParameterRefRef RefId="%AID%_UP-%TT%%CC%030_R-%TT%%CC%03001" IndentLevel="2" />
+                                  <ParameterRefRef RefId="%AID%_UP-%TT%%CC%031_R-%TT%%CC%03101" IndentLevel="2" />
+                                  <ParameterRefRef RefId="%AID%_UP-%TT%%CC%032_R-%TT%%CC%03201" IndentLevel="2" />
+                                  <ParameterRefRef RefId="%AID%_UP-%TT%%CC%033_R-%TT%%CC%03301" IndentLevel="2" />
+                                  <!-- Die B-Haelfte gibt es nur bei bipolaren Geraeten. -->
+                                  <choose ParamRefId="%AID%_UP-%TT%%CC%001_R-%TT%%CC%00101">
+                                    <when test="0 1">
+                                      <ParameterSeparator Id="%AID%_PS-nnn" Text="Stellspannung Abluftrichtung" UIHint="Headline" />
+                                      <ParameterRefRef RefId="%AID%_UP-%TT%%CC%034_R-%TT%%CC%03401" IndentLevel="2" />
+                                      <ParameterRefRef RefId="%AID%_UP-%TT%%CC%035_R-%TT%%CC%03501" IndentLevel="2" />
+                                      <ParameterRefRef RefId="%AID%_UP-%TT%%CC%036_R-%TT%%CC%03601" IndentLevel="2" />
+                                      <ParameterRefRef RefId="%AID%_UP-%TT%%CC%037_R-%TT%%CC%03701" IndentLevel="2" />
+                                    </when>
+                                    <when default="true" />
+                                  </choose>
+                                </when>
+                                <when default="true" />
+                              </choose>
+                            </when>
+                            <when default="true">
+                              <ParameterSeparator Id="%AID%_PS-nnn" Text="Stellspannung Zuluftrichtung" UIHint="Headline" />
+                              <ParameterRefRef RefId="%AID%_UP-%TT%%CC%030_R-%TT%%CC%03001" IndentLevel="2" />
+                              <ParameterRefRef RefId="%AID%_UP-%TT%%CC%031_R-%TT%%CC%03101" IndentLevel="2" />
+                              <ParameterRefRef RefId="%AID%_UP-%TT%%CC%032_R-%TT%%CC%03201" IndentLevel="2" />
+                              <ParameterRefRef RefId="%AID%_UP-%TT%%CC%033_R-%TT%%CC%03301" IndentLevel="2" />
+                              <choose ParamRefId="%AID%_UP-%TT%%CC%001_R-%TT%%CC%00101">
+                                <when test="3">
+                                  <ParameterSeparator Id="%AID%_PS-nnn" Text="Stellspannung Abluftrichtung" UIHint="Headline" />
+                                  <ParameterRefRef RefId="%AID%_UP-%TT%%CC%034_R-%TT%%CC%03401" IndentLevel="2" />
+                                  <ParameterRefRef RefId="%AID%_UP-%TT%%CC%035_R-%TT%%CC%03501" IndentLevel="2" />
+                                  <ParameterRefRef RefId="%AID%_UP-%TT%%CC%036_R-%TT%%CC%03601" IndentLevel="2" />
+                                  <ParameterRefRef RefId="%AID%_UP-%TT%%CC%037_R-%TT%%CC%03701" IndentLevel="2" />
+                                </when>
+                                <when default="true" />
+                              </choose>
+                            </when>
+                          </choose>
+                          <!-- Abluftstoss: nur der ego kennt ihn. -->
+                          <choose ParamRefId="%AID%_UP-%TT%%CC%001_R-%TT%%CC%00101">
+                            <when test="1">
+                              <ParameterSeparator Id="%AID%_PS-nnn" Text="Abluftstoß (Stufe 4)" UIHint="Headline" />
+                              <ParameterRefRef RefId="%AID%_UP-%TT%%CC%038_R-%TT%%CC%03801" IndentLevel="2" />
+                              <ParameterRefRef RefId="%AID%_UP-%TT%%CC%039_R-%TT%%CC%03901" IndentLevel="2" />
+                              <ParameterSeparator Id="%AID%_PS-nnn" Text="In Stufe 4 laufen beide Motoren gleichsinnig nach außen. Es gibt dabei keine Wärmerückgewinnung." UIHint="Information" />
+                            </when>
+                            <when default="true" />
+                          </choose>
+                          <ParameterSeparator Id="%AID%_PS-nnn" Text="Nennvolumenstrom" UIHint="Headline" />
+                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%024_R-%TT%%CC%02401" IndentLevel="2" />
+                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%025_R-%TT%%CC%02501" IndentLevel="2" />
+                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%026_R-%TT%%CC%02601" IndentLevel="2" />
+                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%027_R-%TT%%CC%02701" IndentLevel="2" />
+
+                          <!-- ===== Leitung und Kalibrierung ===== -->
+                          <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
+                          <ParameterSeparator Id="%AID%_PS-nnn" Text="Leitung und Kalibrierung" UIHint="Headline" />
+                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%012_R-%TT%%CC%01201" IndentLevel="1" />
+                          <choose ParamRefId="%AID%_UP-%TT%%CC%012_R-%TT%%CC%01201">
+                            <when test="1">
+                              <ParameterRefRef RefId="%AID%_UP-%TT%%CC%021_R-%TT%%CC%02101" IndentLevel="2" />
+                              <ParameterRefRef RefId="%AID%_UP-%TT%%CC%005_R-%TT%%CC%00501" IndentLevel="2" />
+                              <ParameterSeparator Id="%AID%_PS-nnn" Text="Stromaufnahme des Lüfters — bestimmt den Spannungsabfall auf dem Rückleiter." UIHint="Information" />
+                              <ParameterRefRef RefId="%AID%_UP-%TT%%CC%040_R-%TT%%CC%04001" IndentLevel="2" />
+                              <ParameterRefRef RefId="%AID%_UP-%TT%%CC%041_R-%TT%%CC%04101" IndentLevel="2" />
+                              <ParameterRefRef RefId="%AID%_UP-%TT%%CC%042_R-%TT%%CC%04201" IndentLevel="2" />
+                              <ParameterRefRef RefId="%AID%_UP-%TT%%CC%043_R-%TT%%CC%04301" IndentLevel="2" />
+                            </when>
+                            <when default="true" />
+                          </choose>
+                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%045_R-%TT%%CC%04501" IndentLevel="1" />
+
+                          <!-- ===== Ueberwachung und Wartung ===== -->
+                          <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
+                          <ParameterSeparator Id="%AID%_PS-nnn" Text="Überwachung und Wartung" UIHint="Headline" />
+                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%013_R-%TT%%CC%01301" IndentLevel="1" />
+                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%014_R-%TT%%CC%01401" IndentLevel="1" />
+                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%006_R-%TT%%CC%00601" IndentLevel="1" />
+                          <choose ParamRefId="%AID%_UP-%TT%%CC%006_R-%TT%%CC%00601">
+                            <when test="1">
+                              <ParameterRefRef RefId="%AID%_UP-%TT%%CC%046_R-%TT%%CC%04601" IndentLevel="2" />
+                              <ParameterRefRef RefId="%AID%_UP-%TT%%CC%022_R-%TT%%CC%02201" IndentLevel="2" />
+                            </when>
+                            <when test="2">
+                              <ParameterRefRef RefId="%AID%_UP-%TT%%CC%047_R-%TT%%CC%04701" IndentLevel="2" />
+                              <ParameterRefRef RefId="%AID%_UP-%TT%%CC%022_R-%TT%%CC%02201" IndentLevel="2" />
+                              <ParameterSeparator Id="%AID%_PS-nnn" Text="Ein Filter setzt sich nach durchgesetzter Luftmenge zu, nicht nach Laufzeit. 60 000 m³ entsprechen beim e²60 etwa drei Monaten Dauerbetrieb in Stufe 2." UIHint="Information" />
+                            </when>
+                            <when default="true" />
+                          </choose>
+                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%016_R-%TT%%CC%01601" IndentLevel="1" />
+                          <ParameterSeparator Id="%AID%_PS-nnn" Text="Der Einschaltwert liegt im EEPROM des DAC und gilt nur, wenn die 12-V-Versorgung ohne Bus wiederkehrt. Geschrieben wird er ausschließlich von Hand über die Konsole (kwl store)." UIHint="Information" />
+
+                          <!-- ===== Senden ===== -->
+                          <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
+                          <ParameterSeparator Id="%AID%_PS-nnn" Text="Senden" UIHint="Headline" />
+                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%048_R-%TT%%CC%04801" IndentLevel="1" />
+                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%023_R-%TT%%CC%02301" IndentLevel="1" />
+
+                          <!-- ===== Kommunikationsobjekte ===== -->
+                          <ComObjectRefRef RefId="%AID%_O-%TT%%CC%000_R-%TT%%CC%00001" />
+                          <ComObjectRefRef RefId="%AID%_O-%TT%%CC%001_R-%TT%%CC%00101" />
+                          <choose ParamRefId="%AID%_UP-%TT%%CC%004_R-%TT%%CC%00401">
+                            <when test="0" />
+                            <when default="true">
+                              <ComObjectRefRef RefId="%AID%_O-%TT%%CC%002_R-%TT%%CC%00201" />
+                              <ComObjectRefRef RefId="%AID%_O-%TT%%CC%003_R-%TT%%CC%00301" />
+                              <ComObjectRefRef RefId="%AID%_O-%TT%%CC%004_R-%TT%%CC%00401" />
+                              <ComObjectRefRef RefId="%AID%_O-%TT%%CC%005_R-%TT%%CC%00501" />
+                            </when>
+                          </choose>
+                          <ComObjectRefRef RefId="%AID%_O-%TT%%CC%006_R-%TT%%CC%00601" />
+                          <ComObjectRefRef RefId="%AID%_O-%TT%%CC%007_R-%TT%%CC%00701" />
+                          <ComObjectRefRef RefId="%AID%_O-%TT%%CC%008_R-%TT%%CC%00801" />
+                          <ComObjectRefRef RefId="%AID%_O-%TT%%CC%009_R-%TT%%CC%00901" />
+                          <ComObjectRefRef RefId="%AID%_O-%TT%%CC%010_R-%TT%%CC%01001" />
+                          <ComObjectRefRef RefId="%AID%_O-%TT%%CC%011_R-%TT%%CC%01101" />
+                          <ComObjectRefRef RefId="%AID%_O-%TT%%CC%012_R-%TT%%CC%01201" />
+                          <choose ParamRefId="%AID%_UP-%TT%%CC%006_R-%TT%%CC%00601">
+                            <when test="0" />
+                            <when default="true">
+                              <ComObjectRefRef RefId="%AID%_O-%TT%%CC%013_R-%TT%%CC%01301" />
+                              <ComObjectRefRef RefId="%AID%_O-%TT%%CC%014_R-%TT%%CC%01401" />
+                              <ComObjectRefRef RefId="%AID%_O-%TT%%CC%015_R-%TT%%CC%01501" />
+                            </when>
+                          </choose>
+                          <ComObjectRefRef RefId="%AID%_O-%TT%%CC%016_R-%TT%%CC%01601" />
+                          <ComObjectRefRef RefId="%AID%_O-%TT%%CC%017_R-%TT%%CC%01701" />
+                          <ComObjectRefRef RefId="%AID%_O-%TT%%CC%023_R-%TT%%CC%02301" />
+
+                        </ParameterBlock>
+                      </when>
+                      <when default="true" />
+                    </choose>
+                  </when>
+                  <when default="true" />
+                </choose>
               </ParameterBlock>
 
             </ChannelIndependentBlock>

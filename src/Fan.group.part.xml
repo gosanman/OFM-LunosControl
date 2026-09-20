@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<KNX xmlns:op="http://github.com/OpenKNX/OpenKNXproducer" xmlns="http://knx.org/xml/project/20" CreatedBy="KNX MT" ToolVersion="5.1.255.16695">
+  <ManufacturerData>
+    <Manufacturer RefId="M-00FA">
+      <ApplicationPrograms>
+        <ApplicationProgram Id="%AID%" ProgramType="ApplicationProgram" MaskVersion="MV-07B0" Name="KwlControl" LoadProcedureStyle="MergedProcedure" PeiType="0" DefaultLanguage="de" DynamicTableManagement="false" Linkable="true" MinEtsVersion="5.0" ApplicationNumber="0" ApplicationVersion="0" ReplacesVersions="0">
+
+          <op:partParams name="GROUP">
+            <!-- Nur zur Dokumentation fuer den Aufrufer, siehe Fan.share.xml -->
+            <op:param name="%GrpOffset%" value="4" />
+            <op:param name="%GGG%" value="100" digits="3" />
+            <op:param name="%Gn%" value="1" />
+          </op:partParams>
+
+          <Static>
+            <Parameters>
+
+              <!-- Name: nur ETS-seitig, kein Geraetespeicher. Traegt den Seitentitel. -->
+              <Parameter Id="%AID%_P-%TT%00%GGG+0%" Name="Grp%Gn%Name" ParameterType="%AID%_PT-Text40Byte" Text="Beschreibung" Value="" />
+
+              <!-- 20 Byte je Verbund. Die Reserven sind Absicht: Verbund-Parameter kommen in
+                   Phase 4c dazu (Nachstroemzeit, Phasenversatz), und ein waschsender Block
+                   wuerde sonst alle folgenden Verbuende verschieben. -->
+              <Union SizeInBit="160">
+                <Memory CodeSegment="%AID%_RS-04-00000" Offset="%GrpOffset%" BitOffset="0" />
+                <Parameter Id="%AID%_UP-%TT%00%GGG+1%" Name="Grp%Gn%Role"      Offset="0" BitOffset="0" ParameterType="%AID%_PT-FanGrpRole"      Text="Rolle" Value="0" />
+                <Parameter Id="%AID%_UP-%TT%00%GGG+2%" Name="Grp%Gn%StageRule" Offset="0" BitOffset="2" ParameterType="%AID%_PT-FanGrpStageRule" Text="Stufenregel" Value="0" />
+                <Parameter Id="%AID%_UP-%TT%00%GGG+3%" Name="Grp%Gn%CycleRule" Offset="0" BitOffset="4" ParameterType="%AID%_PT-FanGrpCycleRule" Text="Bei unterschiedlichem Zykluswunsch" Value="0" />
+                <!-- 3 Bit Reserve auf Offset 0 -->
+                <Parameter Id="%AID%_UP-%TT%00%GGG+4%" Name="Grp%Gn%LeadRoom"  Offset="1" BitOffset="0" ParameterType="%AID%_PT-FanRoomNo"       Text="Führender Raum" Value="1" />
+                <Parameter Id="%AID%_UP-%TT%00%GGG+5%" Name="Grp%Gn%FollowSupply" Offset="1" BitOffset="4" ParameterType="%AID%_PT-FanRoomNo0"   Text="Folgt Zuluftanforderung von Raum" SuffixText="  (0 = aus)" Value="0" />
+                <Parameter Id="%AID%_UP-%TT%00%GGG+6%" Name="Grp%Gn%DeadTime"  Offset="2" BitOffset="0" ParameterType="%AID%_PT-FanDeadTime"     Text="Totzeit vor Richtungswechsel" SuffixText=" s" Value="2" />
+                <!-- 1 Byte Reserve auf Offset 3 -->
+                <Parameter Id="%AID%_UP-%TT%00%GGG+7%"  Name="Grp%Gn%CycleS1"     Offset="4"  BitOffset="0" ParameterType="%AID%_PT-FanCycleTime" Text="Zykluszeit Stufe 1" SuffixText=" s" Value="70" />
+                <Parameter Id="%AID%_UP-%TT%00%GGG+8%"  Name="Grp%Gn%CycleS2"     Offset="6"  BitOffset="0" ParameterType="%AID%_PT-FanCycleTime" Text="Zykluszeit Stufe 2" SuffixText=" s" Value="70" />
+                <Parameter Id="%AID%_UP-%TT%00%GGG+9%"  Name="Grp%Gn%CycleS3"     Offset="8"  BitOffset="0" ParameterType="%AID%_PT-FanCycleTime" Text="Zykluszeit Stufe 3" SuffixText=" s" Value="70" />
+                <Parameter Id="%AID%_UP-%TT%00%GGG+10%" Name="Grp%Gn%CycleS4"     Offset="10" BitOffset="0" ParameterType="%AID%_PT-FanCycleTime" Text="Zykluszeit Stufe 4" SuffixText=" s" Value="70" />
+                <Parameter Id="%AID%_UP-%TT%00%GGG+11%" Name="Grp%Gn%CycleSummer" Offset="12" BitOffset="0" ParameterType="%AID%_PT-FanCycleTime" Text="Zykluszeit Sommerbetrieb" SuffixText=" s" Value="3600" />
+                <Parameter Id="%AID%_UP-%TT%00%GGG+12%" Name="Grp%Gn%Heartbeat"   Offset="14" BitOffset="0" ParameterType="%AID%_PT-FanHeartbeat" Text="Sendezyklus Lebenszeichen" SuffixText=" s" Value="60" />
+                <Parameter Id="%AID%_UP-%TT%00%GGG+13%" Name="Grp%Gn%MasterTimeout" Offset="16" BitOffset="0" ParameterType="%AID%_PT-FanMasterTimeout" Text="Überwachungszeit Master" SuffixText=" s" Value="180" />
+                <!-- 2 Byte Reserve auf Offset 18..19 -->
+              </Union>
+
+            </Parameters>
+            <ParameterRefs>
+              <ParameterRef Id="%AID%_P-%TT%00%GGG+0%_R-%TT%00%GGG+0%01"  RefId="%AID%_P-%TT%00%GGG+0%" />
+              <ParameterRef Id="%AID%_UP-%TT%00%GGG+1%_R-%TT%00%GGG+1%01" RefId="%AID%_UP-%TT%00%GGG+1%" />
+              <ParameterRef Id="%AID%_UP-%TT%00%GGG+2%_R-%TT%00%GGG+2%01" RefId="%AID%_UP-%TT%00%GGG+2%" />
+              <ParameterRef Id="%AID%_UP-%TT%00%GGG+3%_R-%TT%00%GGG+3%01" RefId="%AID%_UP-%TT%00%GGG+3%" />
+              <ParameterRef Id="%AID%_UP-%TT%00%GGG+4%_R-%TT%00%GGG+4%01" RefId="%AID%_UP-%TT%00%GGG+4%" />
+              <ParameterRef Id="%AID%_UP-%TT%00%GGG+5%_R-%TT%00%GGG+5%01" RefId="%AID%_UP-%TT%00%GGG+5%" />
+              <ParameterRef Id="%AID%_UP-%TT%00%GGG+6%_R-%TT%00%GGG+6%01" RefId="%AID%_UP-%TT%00%GGG+6%" />
+              <ParameterRef Id="%AID%_UP-%TT%00%GGG+7%_R-%TT%00%GGG+7%01" RefId="%AID%_UP-%TT%00%GGG+7%" />
+              <ParameterRef Id="%AID%_UP-%TT%00%GGG+8%_R-%TT%00%GGG+8%01" RefId="%AID%_UP-%TT%00%GGG+8%" />
+              <ParameterRef Id="%AID%_UP-%TT%00%GGG+9%_R-%TT%00%GGG+9%01" RefId="%AID%_UP-%TT%00%GGG+9%" />
+              <ParameterRef Id="%AID%_UP-%TT%00%GGG+10%_R-%TT%00%GGG+10%01" RefId="%AID%_UP-%TT%00%GGG+10%" />
+              <ParameterRef Id="%AID%_UP-%TT%00%GGG+11%_R-%TT%00%GGG+11%01" RefId="%AID%_UP-%TT%00%GGG+11%" />
+              <ParameterRef Id="%AID%_UP-%TT%00%GGG+12%_R-%TT%00%GGG+12%01" RefId="%AID%_UP-%TT%00%GGG+12%" />
+              <ParameterRef Id="%AID%_UP-%TT%00%GGG+13%_R-%TT%00%GGG+13%01" RefId="%AID%_UP-%TT%00%GGG+13%" />
+            </ParameterRefs>
+          </Static>
+
+          <Dynamic>
+            <ChannelIndependentBlock>
+              <ParameterBlock Id="%AID%_PB-nnn" Name="Groups">
+
+                <!-- Ein Verbund braucht mindestens einen Luefter. Mehr Verbuende als Luefter
+                     kann es also nie sinnvoll geben - das ist die Sichtbarkeitsregel.
+                     (PLAN 0.6 nennt ceil(Luefter/2)+2; das laesst sich mit dem linearen
+                     Zaehler von op:param nicht abbilden und haette Verbund 8 dauerhaft
+                     verborgen. Diese Regel ist grosszuegiger und kann nichts verstecken,
+                     was man brauchen koennte.) -->
+                <choose ParamRefId="%AID%_UP-%TT%00001_R-%TT%0000101">
+                  <when test="&gt;=%Gn%">
+                    <ParameterBlock Id="%AID%_PB-nnn" Name="Grp%Gn%Page" Text="Verbund %Gn%: {{0: ...}}" TextParameterRefId="%AID%_P-%TT%00%GGG+0%_R-%TT%00%GGG+0%01" Icon="repeat-variant" HelpContext="Empty">
+
+                      <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
+                      <ParameterSeparator Id="%AID%_PS-nnn" Text="Verbund %Gn%" UIHint="Headline" />
+                      <ParameterRefRef RefId="%AID%_P-%TT%00%GGG+0%_R-%TT%00%GGG+0%01"  IndentLevel="1" HelpContext="BASE-ChannelName" />
+                      <ParameterRefRef RefId="%AID%_UP-%TT%00%GGG+1%_R-%TT%00%GGG+1%01" IndentLevel="1" />
+
+                      <!-- Stufenregel und Nachstroemung gibt es nur, wenn der Verbund seine
+                           Stufe selbst bildet. Ein Slave bekommt sie vom externen Master. -->
+                      <choose ParamRefId="%AID%_UP-%TT%00%GGG+1%_R-%TT%00%GGG+1%01">
+                        <when test="0 1">
+                          <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
+                          <ParameterSeparator Id="%AID%_PS-nnn" Text="Stufenbildung" UIHint="Headline" />
+                          <ParameterRefRef RefId="%AID%_UP-%TT%00%GGG+2%_R-%TT%00%GGG+2%01" IndentLevel="1" />
+                          <choose ParamRefId="%AID%_UP-%TT%00%GGG+2%_R-%TT%00%GGG+2%01">
+                            <when test="2">
+                              <ParameterRefRef RefId="%AID%_UP-%TT%00%GGG+4%_R-%TT%00%GGG+4%01" IndentLevel="2" />
+                            </when>
+                            <when default="true" />
+                          </choose>
+                          <ParameterRefRef RefId="%AID%_UP-%TT%00%GGG+3%_R-%TT%00%GGG+3%01" IndentLevel="1" />
+                          <ParameterRefRef RefId="%AID%_UP-%TT%00%GGG+5%_R-%TT%00%GGG+5%01" IndentLevel="1" />
+                        </when>
+                        <when default="true" />
+                      </choose>
+
+                      <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
+                      <ParameterSeparator Id="%AID%_PS-nnn" Text="Takt" UIHint="Headline" />
+                      <ParameterRefRef RefId="%AID%_UP-%TT%00%GGG+7%_R-%TT%00%GGG+7%01"  IndentLevel="1" />
+                      <ParameterRefRef RefId="%AID%_UP-%TT%00%GGG+8%_R-%TT%00%GGG+8%01"  IndentLevel="1" />
+                      <ParameterRefRef RefId="%AID%_UP-%TT%00%GGG+9%_R-%TT%00%GGG+9%01"  IndentLevel="1" />
+                      <ParameterRefRef RefId="%AID%_UP-%TT%00%GGG+10%_R-%TT%00%GGG+10%01" IndentLevel="1" />
+                      <ParameterRefRef RefId="%AID%_UP-%TT%00%GGG+11%_R-%TT%00%GGG+11%01" IndentLevel="1" />
+                      <ParameterRefRef RefId="%AID%_UP-%TT%00%GGG+6%_R-%TT%00%GGG+6%01"  IndentLevel="1" />
+                      <ParameterSeparator Id="%AID%_PS-nnn" Text="Der kurze Zyklus ist die Wärmerückgewinnung: der Regenerator gibt die gespeicherte Wärme wieder ab, bevor er auskühlt. Längere Zykluszeiten verringern die erreichbare Wärmerückgewinnung." UIHint="Information" />
+
+                      <!-- Master sendet, Slave ueberwacht - je eine Zeit, nie beide. -->
+                      <choose ParamRefId="%AID%_UP-%TT%00%GGG+1%_R-%TT%00%GGG+1%01">
+                        <when test="1">
+                          <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
+                          <ParameterSeparator Id="%AID%_PS-nnn" Text="Kopplung über den Bus" UIHint="Headline" />
+                          <ParameterRefRef RefId="%AID%_UP-%TT%00%GGG+12%_R-%TT%00%GGG+12%01" IndentLevel="1" />
+                        </when>
+                        <when test="2">
+                          <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
+                          <ParameterSeparator Id="%AID%_PS-nnn" Text="Kopplung über den Bus" UIHint="Headline" />
+                          <ParameterRefRef RefId="%AID%_UP-%TT%00%GGG+13%_R-%TT%00%GGG+13%01" IndentLevel="1" />
+                          <ParameterSeparator Id="%AID%_PS-nnn" Text="Bleibt das Lebenszeichen des Masters aus, gehen die Lüfter dieses Verbunds auf Stillstand (5,00 V) und melden Fehlercode 2." UIHint="Information" />
+                        </when>
+                        <when default="true" />
+                      </choose>
+
+                    </ParameterBlock>
+                  </when>
+                  <when default="true" />
+                </choose>
+
+              </ParameterBlock>
+            </ChannelIndependentBlock>
+          </Dynamic>
+        </ApplicationProgram>
+      </ApplicationPrograms>
+    </Manufacturer>
+  </ManufacturerData>
+</KNX>

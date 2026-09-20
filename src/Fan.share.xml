@@ -4,7 +4,7 @@
   <op:minOpenKNXproducerVersion value="4.3.9" />
 
   <!-- ===================================================================================
-       Modul FAN - geraeteweite Parameter.
+       Modul FAN - geraeteweite Parameter (Hardwareauswahl, Verbuende, Status-LEDs).
 
        Dieses share.xml traegt zusaetzlich das Geruest des Produkts (Catalog, Code-Segment,
        Hardware) UND den einzigen Wurzelknoten der Applikation. Beide eigenen Module haengen
@@ -18,10 +18,11 @@
        roh "ROOM" statt "Raeume" (der Klartext kaeme aus einem eigenen <Channel Text=...>),
        und auf der BASE-Seite "Module" gibt es nur noch einen Schalter fuer beide.
 
-       Noch leer. Es folgen (PLAN.md Woche 1 Tag 2, Spezifikation Abschnitt 1):
-         Seite "Hardware":   FAN_Hardware (Enum = Kanalzahl), FAN_StartupDelay
-         Seite "Verbuende":  8 Unterseiten mit Stufenregel, Zykluszeiten, Totzeit, Rolle
-         Seite "Status-LEDs": PT-SLEDFunc, Basis 110 = Luefter 1..12
+       Geraeteweites Speicherbild dieses Moduls:
+         Offset 0     Hardware      (Enum, Wert = Kanalzahl)
+         Offset 1     StartupDelay
+         Offset 2..3  Reserve
+         Offset 4..   8 Verbuende a 20 Byte (Fan.group.part.xml) -> 4..163
        =================================================================================== -->
 
   <ManufacturerData>
@@ -33,17 +34,225 @@
       </Catalog>
       <ApplicationPrograms>
         <ApplicationProgram Id="%AID%" ApplicationNumber="1" ApplicationVersion="1" ReplacesVersions="0" ProgramType="ApplicationProgram" MaskVersion="MV-07B0" Name="KwlControl" LoadProcedureStyle="MergedProcedure" PeiType="0" DefaultLanguage="de" DynamicTableManagement="false" Linkable="true" MinEtsVersion="5.0">
+
+          <!-- Acht Verbuende aus einem Baustein. GrpOffset springt um die Blockgroesse 20,
+               GGG um 20 Id-Plaetze (100..253), Gn zaehlt die Verbundnummer. -->
+          <op:part name="GROUP" href="Fan.group.part.xml" instances="8">
+            <op:param name="%GrpOffset%" value="4" increment="20" />
+            <op:param name="%GGG%" value="100" digits="3" increment="20" />
+            <op:param name="%Gn%" value="1" increment="1" />
+          </op:part>
+
           <Static>
             <Code>
               <RelativeSegment Id="%AID%_RS-04-00000" Name="Parameters" Offset="0" Size="%MemorySize%" LoadStateMachine="4" />
             </Code>
             <ParameterTypes>
-              <!-- noch keine eigenen Parametertypen -->
+
+              <!-- ===== Hardwareauswahl =====
+                   Der Enum-WERT ist die Kanalzahl. Damit wird die Sichtbarkeit einer
+                   Luefterseite zu einem schlichten Zahlenvergleich (Kanalnummer <=
+                   Hardware), und die Firmware liest denselben Parameter als Zahl und
+                   vergleicht ihn mit FANDRV_BOARD_CHANNELS aus dem Board-Header. -->
+              <ParameterType Id="%AID%_PT-FanHardware" Name="FanHardware">
+                <TypeRestriction Base="Value" SizeInBit="8" UIHint="DropDown">
+                  <Enumeration Text="Entwicklungsaufbau Pico + DFR1073 (2 Kanäle)" Value="2" Id="%ENID%" />
+                  <Enumeration Text="KNXFANDRV Rev 0.1 (4 Kanäle)" Value="4" Id="%ENID%" />
+                  <Enumeration Text="KNXFANDRV 6 (6 Kanäle)" Value="6" Id="%ENID%" />
+                  <Enumeration Text="KNXFANDRV 8 (8 Kanäle)" Value="8" Id="%ENID%" />
+                  <Enumeration Text="KNXFANDRV 10 (10 Kanäle)" Value="10" Id="%ENID%" />
+                  <Enumeration Text="KNXFANDRV 12 (12 Kanäle)" Value="12" Id="%ENID%" />
+                </TypeRestriction>
+              </ParameterType>
+              <ParameterType Id="%AID%_PT-FanStartupDelay" Name="FanStartupDelay">
+                <TypeNumber SizeInBit="8" Type="unsignedInt" minInclusive="0" maxInclusive="30" />
+              </ParameterType>
+
+              <!-- ===== Verbund ===== -->
+              <ParameterType Id="%AID%_PT-FanGrpRole" Name="FanGrpRole">
+                <TypeRestriction Base="Value" SizeInBit="2">
+                  <Enumeration Text="intern (nur Lüfter dieses Geräts)" Value="0" Id="%ENID%" />
+                  <Enumeration Text="Master — sendet auf den Bus" Value="1" Id="%ENID%" />
+                  <Enumeration Text="Slave — folgt externem Master" Value="2" Id="%ENID%" />
+                </TypeRestriction>
+              </ParameterType>
+              <ParameterType Id="%AID%_PT-FanGrpStageRule" Name="FanGrpStageRule">
+                <TypeRestriction Base="Value" SizeInBit="2">
+                  <Enumeration Text="Maximum, begrenzt durch kleinsten Raumdeckel" Value="0" Id="%ENID%" />
+                  <Enumeration Text="Minimum" Value="1" Id="%ENID%" />
+                  <Enumeration Text="ein Raum führt" Value="2" Id="%ENID%" />
+                </TypeRestriction>
+              </ParameterType>
+              <ParameterType Id="%AID%_PT-FanGrpCycleRule" Name="FanGrpCycleRule">
+                <TypeRestriction Base="Value" SizeInBit="1">
+                  <Enumeration Text="Wärmerückgewinnung gewinnt (kürzester Zyklus)" Value="0" Id="%ENID%" />
+                  <Enumeration Text="der führende Raum entscheidet" Value="1" Id="%ENID%" />
+                </TypeRestriction>
+              </ParameterType>
+              <ParameterType Id="%AID%_PT-FanRoomNo" Name="FanRoomNo">
+                <TypeNumber SizeInBit="4" Type="unsignedInt" minInclusive="1" maxInclusive="8" />
+              </ParameterType>
+              <ParameterType Id="%AID%_PT-FanRoomNo0" Name="FanRoomNo0">
+                <TypeNumber SizeInBit="4" Type="unsignedInt" minInclusive="0" maxInclusive="8" />
+              </ParameterType>
+              <ParameterType Id="%AID%_PT-FanDeadTime" Name="FanDeadTime">
+                <TypeNumber SizeInBit="8" Type="unsignedInt" minInclusive="1" maxInclusive="10" />
+              </ParameterType>
+              <!-- 40 s .. 2 h in Sekunden. Eine Einheit statt Wert+Einheit-Paar: der ganze
+                   interessante Bereich liegt zwischen 40 und 3600, und ein zweites
+                   Auswahlfeld je Stufe waeren vier Klicks fuer nichts. -->
+              <ParameterType Id="%AID%_PT-FanCycleTime" Name="FanCycleTime">
+                <TypeNumber SizeInBit="16" Type="unsignedInt" minInclusive="40" maxInclusive="7200" />
+              </ParameterType>
+              <ParameterType Id="%AID%_PT-FanHeartbeat" Name="FanHeartbeat">
+                <TypeNumber SizeInBit="16" Type="unsignedInt" minInclusive="10" maxInclusive="600" />
+              </ParameterType>
+              <ParameterType Id="%AID%_PT-FanMasterTimeout" Name="FanMasterTimeout">
+                <TypeNumber SizeInBit="16" Type="unsignedInt" minInclusive="30" maxInclusive="1800" />
+              </ParameterType>
+
+              <!-- ===== Luefterkanal (Fan.templ.xml) ===== -->
+              <ParameterType Id="%AID%_PT-FanChannelActive" Name="FanChannelActive">
+                <TypeRestriction Base="Value" SizeInBit="1">
+                  <Enumeration Text="Deaktiviert" Value="0" Id="%ENID%" />
+                  <Enumeration Text="Aktiviert" Value="1" Id="%ENID%" />
+                </TypeRestriction>
+              </ParameterType>
+              <ParameterType Id="%AID%_PT-FanType" Name="FanType">
+                <TypeRestriction Base="Value" SizeInBit="3">
+                  <Enumeration Text="LUNOS e²60" Value="0" Id="%ENID%" />
+                  <Enumeration Text="LUNOS ego (belegt 2 Kanäle)" Value="1" Id="%ENID%" />
+                  <Enumeration Text="LUNOS RA 15-60 (unipolar)" Value="2" Id="%ENID%" />
+                  <Enumeration Text="generisch bipolar (um 5 V)" Value="3" Id="%ENID%" />
+                  <Enumeration Text="generisch unipolar (0–10 V)" Value="4" Id="%ENID%" />
+                </TypeRestriction>
+              </ParameterType>
+              <ParameterType Id="%AID%_PT-FanGroupNo" Name="FanGroupNo">
+                <TypeRestriction Base="Value" SizeInBit="4">
+                  <Enumeration Text="eigenständig (eigener Takt)" Value="0" Id="%ENID%" />
+                  <Enumeration Text="Verbund 1" Value="1" Id="%ENID%" />
+                  <Enumeration Text="Verbund 2" Value="2" Id="%ENID%" />
+                  <Enumeration Text="Verbund 3" Value="3" Id="%ENID%" />
+                  <Enumeration Text="Verbund 4" Value="4" Id="%ENID%" />
+                  <Enumeration Text="Verbund 5" Value="5" Id="%ENID%" />
+                  <Enumeration Text="Verbund 6" Value="6" Id="%ENID%" />
+                  <Enumeration Text="Verbund 7" Value="7" Id="%ENID%" />
+                  <Enumeration Text="Verbund 8" Value="8" Id="%ENID%" />
+                </TypeRestriction>
+              </ParameterType>
+              <ParameterType Id="%AID%_PT-FanPhase" Name="FanPhase">
+                <TypeRestriction Base="Value" SizeInBit="1">
+                  <Enumeration Text="Phase A" Value="0" Id="%ENID%" />
+                  <Enumeration Text="Phase B (gegenläufig)" Value="1" Id="%ENID%" />
+                </TypeRestriction>
+              </ParameterType>
+              <ParameterType Id="%AID%_PT-FanShare" Name="FanShare">
+                <TypeNumber SizeInBit="8" Type="unsignedInt" minInclusive="25" maxInclusive="100" />
+              </ParameterType>
+              <ParameterType Id="%AID%_PT-FanDirection5V" Name="FanDirection5V">
+                <TypeRestriction Base="Value" SizeInBit="1">
+                  <Enumeration Text="unter 5 V = Zuluft" Value="0" Id="%ENID%" />
+                  <Enumeration Text="unter 5 V = Abluft" Value="1" Id="%ENID%" />
+                </TypeRestriction>
+              </ParameterType>
+              <ParameterType Id="%AID%_PT-FanMilliVolt" Name="FanMilliVolt">
+                <TypeNumber SizeInBit="16" Type="unsignedInt" minInclusive="0" maxInclusive="10000" />
+              </ParameterType>
+              <ParameterType Id="%AID%_PT-FanFlow" Name="FanFlow">
+                <TypeNumber SizeInBit="8" Type="unsignedInt" minInclusive="0" maxInclusive="100" />
+              </ParameterType>
+              <ParameterType Id="%AID%_PT-FanCurrent" Name="FanCurrent">
+                <TypeNumber SizeInBit="16" Type="unsignedInt" minInclusive="0" maxInclusive="1000" />
+              </ParameterType>
+              <ParameterType Id="%AID%_PT-FanCableLength" Name="FanCableLength">
+                <TypeNumber SizeInBit="8" Type="unsignedInt" minInclusive="1" maxInclusive="30" />
+              </ParameterType>
+              <ParameterType Id="%AID%_PT-FanCableSection" Name="FanCableSection">
+                <TypeRestriction Base="Value" SizeInBit="2">
+                  <Enumeration Text="0,5 mm²" Value="0" Id="%ENID%" />
+                  <Enumeration Text="0,7 mm²" Value="1" Id="%ENID%" />
+                  <Enumeration Text="1,0 mm²" Value="2" Id="%ENID%" />
+                  <Enumeration Text="1,5 mm²" Value="3" Id="%ENID%" />
+                </TypeRestriction>
+              </ParameterType>
+              <ParameterType Id="%AID%_PT-FanCableResistance" Name="FanCableResistance">
+                <TypeNumber SizeInBit="16" Type="unsignedInt" minInclusive="0" maxInclusive="2000" />
+              </ParameterType>
+              <ParameterType Id="%AID%_PT-FanCalibGain" Name="FanCalibGain">
+                <TypeNumber SizeInBit="16" Type="unsignedInt" minInclusive="9800" maxInclusive="10200" />
+              </ParameterType>
+              <ParameterType Id="%AID%_PT-FanFilterMode" Name="FanFilterMode">
+                <TypeRestriction Base="Value" SizeInBit="2">
+                  <Enumeration Text="aus" Value="0" Id="%ENID%" />
+                  <Enumeration Text="nach Laufzeit" Value="1" Id="%ENID%" />
+                  <Enumeration Text="nach durchgesetzter Luftmenge" Value="2" Id="%ENID%" />
+                </TypeRestriction>
+              </ParameterType>
+              <ParameterType Id="%AID%_PT-FanFilterHours" Name="FanFilterHours">
+                <TypeNumber SizeInBit="16" Type="unsignedInt" minInclusive="500" maxInclusive="8760" />
+              </ParameterType>
+              <ParameterType Id="%AID%_PT-FanFilterVolume" Name="FanFilterVolume">
+                <TypeNumber SizeInBit="16" Type="unsignedInt" minInclusive="10" maxInclusive="500" />
+              </ParameterType>
+              <ParameterType Id="%AID%_PT-FanFilterRemind" Name="FanFilterRemind">
+                <TypeNumber SizeInBit="8" Type="unsignedInt" minInclusive="1" maxInclusive="72" />
+              </ParameterType>
+              <ParameterType Id="%AID%_PT-FanPowerOnStage" Name="FanPowerOnStage">
+                <TypeRestriction Base="Value" SizeInBit="2">
+                  <Enumeration Text="Stillstand" Value="0" Id="%ENID%" />
+                  <Enumeration Text="Stufe 1 (Feuchteschutz)" Value="1" Id="%ENID%" />
+                  <Enumeration Text="Stufe 2" Value="2" Id="%ENID%" />
+                </TypeRestriction>
+              </ParameterType>
+              <ParameterType Id="%AID%_PT-FanSendCycleMin" Name="FanSendCycleMin">
+                <TypeNumber SizeInBit="16" Type="unsignedInt" minInclusive="0" maxInclusive="1440" />
+              </ParameterType>
+              <ParameterType Id="%AID%_PT-FanSendCycleHour" Name="FanSendCycleHour">
+                <TypeNumber SizeInBit="8" Type="unsignedInt" minInclusive="0" maxInclusive="24" />
+              </ParameterType>
+              <ParameterType Id="%AID%_PT-FanYesNo" Name="FanYesNo">
+                <TypeRestriction Base="Value" SizeInBit="1">
+                  <Enumeration Text="Nein" Value="0" Id="%ENID%" />
+                  <Enumeration Text="Ja" Value="1" Id="%ENID%" />
+                </TypeRestriction>
+              </ParameterType>
+
+              <!-- Status-LEDs. Gleiche Id wie der Typ in Common.share.xml: der Producer
+                   fuehrt die Enumerationen zusammen, sodass unsere Kanaele zusaetzlich zu
+                   den Eintraegen von BASE in den Info-LED-Dropdowns erscheinen. Deshalb hier
+                   nur die eigenen Werte und op:headerExport="none" - der Typ gehoert BASE.
+                   Die Werte muessen zur Basis 110 in KwlTypes.h passen. -->
+              <ParameterType Id="%AID%_PT-SLEDFunc" Name="SLEDFunc" op:headerExport="none">
+                <TypeRestriction Base="Value" SizeInBit="16" UIHint="DropDown">
+                  <Enumeration Text="Lüfter 1" Value="110" Id="%ENID%" />
+                  <Enumeration Text="Lüfter 2" Value="111" Id="%ENID%" />
+                  <Enumeration Text="Lüfter 3" Value="112" Id="%ENID%" />
+                  <Enumeration Text="Lüfter 4" Value="113" Id="%ENID%" />
+                  <Enumeration Text="Lüfter 5" Value="114" Id="%ENID%" />
+                  <Enumeration Text="Lüfter 6" Value="115" Id="%ENID%" />
+                  <Enumeration Text="Lüfter 7" Value="116" Id="%ENID%" />
+                  <Enumeration Text="Lüfter 8" Value="117" Id="%ENID%" />
+                  <Enumeration Text="Lüfter 9" Value="118" Id="%ENID%" />
+                  <Enumeration Text="Lüfter 10" Value="119" Id="%ENID%" />
+                  <Enumeration Text="Lüfter 11" Value="120" Id="%ENID%" />
+                  <Enumeration Text="Lüfter 12" Value="121" Id="%ENID%" />
+                </TypeRestriction>
+              </ParameterType>
+
             </ParameterTypes>
             <Parameters>
-              <!-- noch keine geraeteweiten Luefterparameter -->
+              <Union SizeInBit="16">
+                <Memory CodeSegment="%AID%_RS-04-00000" Offset="0" BitOffset="0" />
+                <Parameter Id="%AID%_UP-%TT%00001" Name="Hardware" Offset="0" BitOffset="0" ParameterType="%AID%_PT-FanHardware" Text="Platine" Value="4" />
+                <Parameter Id="%AID%_UP-%TT%00002" Name="StartupDelay" Offset="1" BitOffset="0" ParameterType="%AID%_PT-FanStartupDelay" Text="Wartezeit nach Busspannungswiederkehr" SuffixText=" s" Value="3" />
+              </Union>
+              <!-- Offset 2..3 Reserve, ab Offset 4 die Verbuende -->
+              <op:usePart name="GROUP" xpath="//Static/Parameters/*" />
             </Parameters>
             <ParameterRefs>
+              <ParameterRef Id="%AID%_UP-%TT%00001_R-%TT%0000101" RefId="%AID%_UP-%TT%00001" />
+              <ParameterRef Id="%AID%_UP-%TT%00002_R-%TT%0000201" RefId="%AID%_UP-%TT%00002" />
+              <op:usePart name="GROUP" xpath="//Static/ParameterRefs/*" />
             </ParameterRefs>
             <ComObjectTable>
               <!-- Keine geraeteweiten Kommunikationsobjekte: alles haengt am Kanal
@@ -51,25 +260,56 @@
                    mit der Rolle Master bzw. Slave, nicht am Verbund. -->
             </ComObjectTable>
           </Static>
+
           <Dynamic>
             <Channel Id="%AID%_CH-%PREFIX%" Name="Ventilation" Number="%PREFIX%" Icon="windsock" Text="Lüftung">
 
+              <!-- ===== Allgemein / Hardware ===== -->
               <ParameterBlock Id="%AID%_PB-nnn" Name="Basic" Text="Allgemein" Icon="cog-outline">
                 <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
                 <ParameterSeparator Id="%AID%_PS-nnn" Text="Lüftersteuerung" UIHint="Headline" />
                 <ParameterSeparator Id="%AID%_PS-nnn" Text="Version: %ModuleVersion%" />
                 <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
+                <ParameterSeparator Id="%AID%_PS-nnn" Text="Hardware" UIHint="Headline" />
+                <ParameterRefRef RefId="%AID%_UP-%TT%00001_R-%TT%0000101" IndentLevel="1" />
+                <ParameterRefRef RefId="%AID%_UP-%TT%00002_R-%TT%0000201" IndentLevel="1" />
+                <ParameterSeparator Id="%AID%_PS-nnn" Text="Die Auswahl bestimmt, wie viele Lüfterseiten erscheinen. Die Firmware vergleicht sie beim Start mit der bestückten Platine; bei Abweichung gehen alle Lüfter auf Störung und 5,00 V." UIHint="Information" />
+                <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
+                <ParameterSeparator Id="%AID%_PS-nnn" Text="Hinweise" UIHint="Headline" />
                 <ParameterSeparator Id="%AID%_PS-nnn" Text="Das Stellsignal ist bipolar um 5 V: 5,00 V ist Stillstand, 0 V und 10,00 V sind Volllast in je einer Richtung. Ein Kanal, der nicht belegt ist, gibt dauerhaft 5,00 V aus." UIHint="Information" />
+                <ParameterSeparator Id="%AID%_PS-nnn" Text="Ein Raum trägt Sensoren, Betriebsarten und Bedienung und liefert daraus eine Anforderung. Ein Verbund fasst Lüfter zusammen, die gemeinsam takten. Ein Lüfter gehört zu genau einem Raum und genau einem Verbund." UIHint="Information" />
               </ParameterBlock>
 
-              <!-- Raumseiten aus dem ROOM-Template -->
+              <!-- ===== Kanalauswahl ===== -->
+              <ParameterBlock Id="%AID%_PB-nnn" Name="Kanalauswahl" Text="Kanalauswahl" Icon="format-list-bulleted-type" HelpContext="BASE-ChannelSelect">
+                <ParameterBlock Id="%AID%_PB-nnn" Inline="true" Layout="Grid">
+                  <Rows><Row Id="%AID%_PB-nnn_R-1" /></Rows>
+                  <Columns>
+                    <Column Id="%AID%_PB-nnn_C-1" Width="15%" />
+                    <Column Id="%AID%_PB-nnn_C-2" Width="35%" />
+                    <Column Id="%AID%_PB-nnn_C-3" Width="50%" />
+                  </Columns>
+                  <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,1" UIHint="Headline" Text="Lüfter" />
+                  <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,2" UIHint="Headline" Text="Kanalaktivität" />
+                  <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,3" UIHint="Headline" Text="Beschreibung" />
+                </ParameterBlock>
+                <op:include href="Fan.templ.xml" xpath="//Dynamic/ChannelIndependentBlock/ParameterBlock[@Name='Settings']/*" type="template" prefix="FAN" IsInner="true" />
+              </ParameterBlock>
+
+              <!-- ===== Raumseiten aus dem ROOM-Template ===== -->
               <ParameterBlock Id="%AID%_PB-nnn" Name="Rooms" Text="Räume" Icon="thermometer">
                 <op:include href="Room.templ.xml" xpath="//Dynamic/ChannelIndependentBlock/ParameterBlock[@Name='Channel']/*" type="template" prefix="ROOM" IsInner="true" />
               </ParameterBlock>
 
-              <!-- Luefterseiten aus dem FAN-Template -->
+              <!-- ===== Luefterseiten aus dem FAN-Template ===== -->
               <ParameterBlock Id="%AID%_PB-nnn" Name="Fans" Text="Lüfter" Icon="windsock">
                 <op:include href="Fan.templ.xml" xpath="//Dynamic/ChannelIndependentBlock/ParameterBlock[@Name='Channel']/*" type="template" prefix="FAN" IsInner="true" />
+              </ParameterBlock>
+
+              <!-- ===== Verbuende ===== -->
+              <ParameterBlock Id="%AID%_PB-nnn" Name="GroupsPage" Text="Verbünde" Icon="repeat-variant">
+                <ParameterSeparator Id="%AID%_PS-nnn" Text="Ein Verbund taktet seine Lüfter gemeinsam: gleiche Stufe, gegenläufige Richtung. Die Räume eines Verbunds sind die Räume seiner Lüfter." UIHint="Information" />
+                <op:usePart name="GROUP" xpath="//Dynamic/ChannelIndependentBlock/ParameterBlock/*" />
               </ParameterBlock>
 
             </Channel>
