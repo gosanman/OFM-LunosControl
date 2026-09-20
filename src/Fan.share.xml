@@ -64,6 +64,12 @@
                   <Enumeration Text="KNXFANDRV 12 (12 Kanäle)" Value="12" Id="%ENID%" Icon="kwlhw-12" />
                 </TypeRestriction>
               </ParameterType>
+              <ParameterType Id="%AID%_PT-FanOverviewFilter" Name="FanOverviewFilter">
+                <TypeRestriction Base="Value" SizeInBit="1">
+                  <Enumeration Text="nur aktivierte" Value="0" Id="%ENID%" />
+                  <Enumeration Text="alle Kanäle" Value="1" Id="%ENID%" />
+                </TypeRestriction>
+              </ParameterType>
               <ParameterType Id="%AID%_PT-FanStartupDelay" Name="FanStartupDelay">
                 <TypeNumber SizeInBit="8" Type="unsignedInt" minInclusive="0" maxInclusive="30" />
               </ParameterType>
@@ -284,6 +290,7 @@
                 <Parameter Id="%AID%_UP-%TT%00001" Name="Hardware" Offset="0" BitOffset="0" ParameterType="%AID%_PT-FanHardware" Text="Platine" Value="4" />
                 <Parameter Id="%AID%_UP-%TT%00002" Name="StartupDelay" Offset="1" BitOffset="0" ParameterType="%AID%_PT-FanStartupDelay" Text="Wartezeit nach Busspannungswiederkehr" SuffixText=" s" Value="3" />
               </Union>
+              <Parameter Id="%AID%_P-%TT%00020" Name="OverviewFilter" ParameterType="%AID%_PT-FanOverviewFilter" Text="Anzeigen" Value="0" />
               <Parameter Id="%AID%_P-%TT%00010" Name="BoardPic2" ParameterType="%AID%_PT-BoardPic2" Text="" Access="Read" Value="" />
               <Parameter Id="%AID%_P-%TT%00011" Name="BoardPic4" ParameterType="%AID%_PT-BoardPic4" Text="" Access="Read" Value="" />
               <!-- Offset 3 Reserve, ab Offset 4 die Verbuende -->
@@ -292,6 +299,7 @@
             <ParameterRefs>
               <ParameterRef Id="%AID%_UP-%TT%00001_R-%TT%0000101" RefId="%AID%_UP-%TT%00001" />
               <ParameterRef Id="%AID%_UP-%TT%00002_R-%TT%0000201" RefId="%AID%_UP-%TT%00002" />
+              <ParameterRef Id="%AID%_P-%TT%00020_R-%TT%0002001" RefId="%AID%_P-%TT%00020" />
               <ParameterRef Id="%AID%_P-%TT%00010_R-%TT%0001001" RefId="%AID%_P-%TT%00010" />
               <ParameterRef Id="%AID%_P-%TT%00011_R-%TT%0001101" RefId="%AID%_P-%TT%00011" />
               <op:usePart name="GROUP" xpath="//Static/ParameterRefs/*" />
@@ -397,6 +405,50 @@
                 </ParameterBlock>
                 <op:include href="Fan.templ.xml" xpath="//Dynamic/ChannelIndependentBlock/ParameterBlock[@Name='Settings']/*" type="template" prefix="FAN" IsInner="true" />
 
+              </ParameterBlock>
+
+              <!-- ===== Uebersicht =====
+                   Abschnitt 1: eine Zeile je Luefter. Abschnitt 2: dieselben Luefter, nach
+                   Verbuenden gruppiert - dort sieht man, ob ein Pendelpaar wirklich zwei
+                   Luefter hat und ob die Phasen gegenlaeufig stehen.
+                   Die Zellen sind dieselben Parameter wie auf den Kanalseiten, die Seite ist
+                   also zugleich eine schnelle Bearbeitungstabelle.
+                   Abschnitt 1 muss vor Abschnitt 2 stehen: dort werden die internen Merker
+                   je Luefter gesetzt, die Abschnitt 2 wieder auswertet. -->
+              <ParameterBlock Id="%AID%_PB-nnn" Name="Overview" Text="Übersicht" Icon="view-list-outline" HelpContext="Empty">
+                <ParameterRefRef RefId="%AID%_P-%TT%00020_R-%TT%0002001" HelpContext="Empty" />
+                <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
+
+                <ParameterSeparator Id="%AID%_PS-nnn" Text="Lüfter" UIHint="Headline" />
+                <ParameterBlock Id="%AID%_PB-nnn" Inline="true" Layout="Grid">
+                  <Rows><Row Id="%AID%_PB-nnn_R-1" /></Rows>
+                  <Columns>
+                    <Column Id="%AID%_PB-nnn_C-1" Width="7%" />
+                    <Column Id="%AID%_PB-nnn_C-2" Width="17%" />
+                    <Column Id="%AID%_PB-nnn_C-3" Width="14%" />
+                    <Column Id="%AID%_PB-nnn_C-4" Width="8%" />
+                    <Column Id="%AID%_PB-nnn_C-5" Width="12%" />
+                    <Column Id="%AID%_PB-nnn_C-6" Width="14%" />
+                    <Column Id="%AID%_PB-nnn_C-7" Width="10%" />
+                    <Column Id="%AID%_PB-nnn_C-8" Width="8%" />
+                    <Column Id="%AID%_PB-nnn_C-9" Width="10%" />
+                  </Columns>
+                  <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,1" Text="Lüfter" UIHint="Headline" />
+                  <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,2" Text="Beschreibung" UIHint="Headline" />
+                  <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,3" Text="Typ" UIHint="Headline" />
+                  <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,4" Text="Kanal" UIHint="Headline" />
+                  <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,5" Text="Raum" UIHint="Headline" />
+                  <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,6" Text="Verbund" UIHint="Headline" />
+                  <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,7" Text="Phase" UIHint="Headline" />
+                  <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,8" Text="Anteil" UIHint="Headline" />
+                  <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,9" Text="Störung" UIHint="Headline" />
+                </ParameterBlock>
+                <op:include href="Fan.templ.xml" xpath="//Dynamic/ChannelIndependentBlock/ParameterBlock[@Name='Overview']/*" type="template" prefix="FAN" IsInner="true" />
+
+                <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
+                <ParameterSeparator Id="%AID%_PS-nnn" Text="Nach Verbünden" UIHint="Headline" />
+                <op:usePart name="GROUP" xpath="//Dynamic/ChannelIndependentBlock/ParameterBlock[@Name='OverviewGroup']/*" />
+                <ParameterSeparator Id="%AID%_PS-nnn" Text="⛔ bedeutet: der zugeordnete Raum oder Verbund ist nicht aktiviert." UIHint="Information" />
               </ParameterBlock>
 
               <!-- ===== Kanalseiten =====

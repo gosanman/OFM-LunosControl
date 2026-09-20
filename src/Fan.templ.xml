@@ -10,6 +10,12 @@
               <!-- Beschreibung: nur ETS-seitig, kein Geraetespeicher. Traegt den Seitentitel. -->
               <Parameter Id="%AID%_P-%TT%%CC%000" Name="f%C%Name" ParameterType="%AID%_PT-Text40Byte" Text="Beschreibung" Value="" />
 
+              <!-- Interne Merker der Uebersichtsseite. Access="None": unsichtbar, nicht
+                   editierbar, kein Geraetespeicher. Gesetzt werden sie ueber <Assign> in
+                   der Dynamic - Muster f%C%OverviewDisplay aus dem Logikmodul. -->
+              <Parameter Id="%AID%_P-%TT%%CC%090" Name="f%C%OvShow"  ParameterType="%AID%_PT-FanYesNo" Text="Zeile anzeigen (interner Wert)" Access="None" Value="0" />
+              <Parameter Id="%AID%_P-%TT%%CC%091" Name="f%C%OvFault" ParameterType="%AID%_PT-FanYesNo" Text="Zuordnung ungültig (interner Wert)" Access="None" Value="0" />
+
               <!-- ============================================================================
                    Speicherbild je Luefterkanal, 52 Byte:
                      0      Typ(3) Raum(4) Phase(1)
@@ -89,6 +95,8 @@
             </Parameters>
             <ParameterRefs>
               <ParameterRef Id="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" RefId="%AID%_P-%TT%%CC%000" />
+              <ParameterRef Id="%AID%_P-%TT%%CC%090_R-%TT%%CC%09001" RefId="%AID%_P-%TT%%CC%090" />
+              <ParameterRef Id="%AID%_P-%TT%%CC%091_R-%TT%%CC%09101" RefId="%AID%_P-%TT%%CC%091" />
               <ParameterRef Id="%AID%_UP-%TT%%CC%001_R-%TT%%CC%00101" RefId="%AID%_UP-%TT%%CC%001" />
               <ParameterRef Id="%AID%_UP-%TT%%CC%002_R-%TT%%CC%00201" RefId="%AID%_UP-%TT%%CC%002" />
               <ParameterRef Id="%AID%_UP-%TT%%CC%003_R-%TT%%CC%00301" RefId="%AID%_UP-%TT%%CC%003" />
@@ -213,6 +221,158 @@
                       <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,1" Text="Lüfter %C%" />
                       <ParameterRefRef RefId="%AID%_UP-%TT%%CC%010_R-%TT%%CC%01001" Cell="1,2" />
                       <ParameterRefRef RefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" Cell="1,3" HelpContext="BASE-ChannelName" />
+                    </ParameterBlock>
+                  </when>
+                  <when default="true" />
+                </choose>
+              </ParameterBlock>
+
+              <!-- ===================== Zeile der Uebersicht ===================== -->
+              <ParameterBlock Id="%AID%_PB-nnn" Name="Overview">
+                <!-- Zeile zeigen: wenn aktiviert, oder wenn der Filter "alle" verlangt -->
+                <choose ParamRefId="%AID%_UP-%TT%%CC%010_R-%TT%%CC%01001">
+                  <when test="1"><Assign TargetParamRefRef="%AID%_P-%TT%%CC%090_R-%TT%%CC%09001" Value="1" /></when>
+                  <when default="true" />
+                </choose>
+                <choose ParamRefId="%AID%_P-%TT%00020_R-%TT%0002001">
+                  <when test="1"><Assign TargetParamRefRef="%AID%_P-%TT%%CC%090_R-%TT%%CC%09001" Value="1" /></when>
+                  <when default="true" />
+                </choose>
+
+                <!-- Stoerung: der gewaehlte Raum oder Verbund ist nicht aktiviert -->
+                <choose ParamRefId="%AID%_UP-%TT%%CC%002_R-%TT%%CC%00201">
+                  <when test="1">
+                    <choose ParamRefId="%AID%_UP-2001001_R-200100101">
+                      <when test="0"><Assign TargetParamRefRef="%AID%_P-%TT%%CC%091_R-%TT%%CC%09101" Value="1" /></when>
+                      <when default="true" />
+                    </choose>
+                  </when>
+                  <when test="2">
+                    <choose ParamRefId="%AID%_UP-2002001_R-200200101">
+                      <when test="0"><Assign TargetParamRefRef="%AID%_P-%TT%%CC%091_R-%TT%%CC%09101" Value="1" /></when>
+                      <when default="true" />
+                    </choose>
+                  </when>
+                  <when test="3">
+                    <choose ParamRefId="%AID%_UP-2003001_R-200300101">
+                      <when test="0"><Assign TargetParamRefRef="%AID%_P-%TT%%CC%091_R-%TT%%CC%09101" Value="1" /></when>
+                      <when default="true" />
+                    </choose>
+                  </when>
+                  <when test="4">
+                    <choose ParamRefId="%AID%_UP-2004001_R-200400101">
+                      <when test="0"><Assign TargetParamRefRef="%AID%_P-%TT%%CC%091_R-%TT%%CC%09101" Value="1" /></when>
+                      <when default="true" />
+                    </choose>
+                  </when>
+                  <when test="5">
+                    <choose ParamRefId="%AID%_UP-2005001_R-200500101">
+                      <when test="0"><Assign TargetParamRefRef="%AID%_P-%TT%%CC%091_R-%TT%%CC%09101" Value="1" /></when>
+                      <when default="true" />
+                    </choose>
+                  </when>
+                  <when test="6">
+                    <choose ParamRefId="%AID%_UP-2006001_R-200600101">
+                      <when test="0"><Assign TargetParamRefRef="%AID%_P-%TT%%CC%091_R-%TT%%CC%09101" Value="1" /></when>
+                      <when default="true" />
+                    </choose>
+                  </when>
+                  <when test="7">
+                    <choose ParamRefId="%AID%_UP-2007001_R-200700101">
+                      <when test="0"><Assign TargetParamRefRef="%AID%_P-%TT%%CC%091_R-%TT%%CC%09101" Value="1" /></when>
+                      <when default="true" />
+                    </choose>
+                  </when>
+                  <when test="8">
+                    <choose ParamRefId="%AID%_UP-2008001_R-200800101">
+                      <when test="0"><Assign TargetParamRefRef="%AID%_P-%TT%%CC%091_R-%TT%%CC%09101" Value="1" /></when>
+                      <when default="true" />
+                    </choose>
+                  </when>
+                  <when default="true" />
+                </choose>
+                <choose ParamRefId="%AID%_UP-%TT%%CC%004_R-%TT%%CC%00401">
+                  <when test="0" />
+                  <when test="1">
+                    <choose ParamRefId="%AID%_UP-3000114_R-300011401">
+                      <when test="0"><Assign TargetParamRefRef="%AID%_P-%TT%%CC%091_R-%TT%%CC%09101" Value="1" /></when>
+                      <when default="true" />
+                    </choose>
+                  </when>
+                  <when test="2">
+                    <choose ParamRefId="%AID%_UP-3000134_R-300013401">
+                      <when test="0"><Assign TargetParamRefRef="%AID%_P-%TT%%CC%091_R-%TT%%CC%09101" Value="1" /></when>
+                      <when default="true" />
+                    </choose>
+                  </when>
+                  <when test="3">
+                    <choose ParamRefId="%AID%_UP-3000154_R-300015401">
+                      <when test="0"><Assign TargetParamRefRef="%AID%_P-%TT%%CC%091_R-%TT%%CC%09101" Value="1" /></when>
+                      <when default="true" />
+                    </choose>
+                  </when>
+                  <when test="4">
+                    <choose ParamRefId="%AID%_UP-3000174_R-300017401">
+                      <when test="0"><Assign TargetParamRefRef="%AID%_P-%TT%%CC%091_R-%TT%%CC%09101" Value="1" /></when>
+                      <when default="true" />
+                    </choose>
+                  </when>
+                  <when test="5">
+                    <choose ParamRefId="%AID%_UP-3000194_R-300019401">
+                      <when test="0"><Assign TargetParamRefRef="%AID%_P-%TT%%CC%091_R-%TT%%CC%09101" Value="1" /></when>
+                      <when default="true" />
+                    </choose>
+                  </when>
+                  <when test="6">
+                    <choose ParamRefId="%AID%_UP-3000214_R-300021401">
+                      <when test="0"><Assign TargetParamRefRef="%AID%_P-%TT%%CC%091_R-%TT%%CC%09101" Value="1" /></when>
+                      <when default="true" />
+                    </choose>
+                  </when>
+                  <when test="7">
+                    <choose ParamRefId="%AID%_UP-3000234_R-300023401">
+                      <when test="0"><Assign TargetParamRefRef="%AID%_P-%TT%%CC%091_R-%TT%%CC%09101" Value="1" /></when>
+                      <when default="true" />
+                    </choose>
+                  </when>
+                  <when test="8">
+                    <choose ParamRefId="%AID%_UP-3000254_R-300025401">
+                      <when test="0"><Assign TargetParamRefRef="%AID%_P-%TT%%CC%091_R-%TT%%CC%09101" Value="1" /></when>
+                      <when default="true" />
+                    </choose>
+                  </when>
+                  <when default="true" />
+                </choose>
+
+                <choose ParamRefId="%AID%_P-%TT%%CC%090_R-%TT%%CC%09001">
+                  <when test="1">
+                    <ParameterBlock Id="%AID%_PB-nnn" Inline="true" Layout="Grid">
+                      <Rows><Row Id="%AID%_PB-nnn_R-1" /></Rows>
+                      <Columns>
+                        <Column Id="%AID%_PB-nnn_C-1" Width="7%" />
+                        <Column Id="%AID%_PB-nnn_C-2" Width="17%" />
+                        <Column Id="%AID%_PB-nnn_C-3" Width="14%" />
+                        <Column Id="%AID%_PB-nnn_C-4" Width="8%" />
+                        <Column Id="%AID%_PB-nnn_C-5" Width="12%" />
+                        <Column Id="%AID%_PB-nnn_C-6" Width="14%" />
+                        <Column Id="%AID%_PB-nnn_C-7" Width="10%" />
+                        <Column Id="%AID%_PB-nnn_C-8" Width="8%" />
+                        <Column Id="%AID%_PB-nnn_C-9" Width="10%" />
+                      </Columns>
+                      <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,1" Text="L%C%" UIHint="Headline" />
+                      <ParameterRefRef RefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" Cell="1,2" HelpContext="BASE-ChannelName" />
+                      <ParameterRefRef RefId="%AID%_UP-%TT%%CC%001_R-%TT%%CC%00101" Cell="1,3" HelpContext="Empty" />
+                      <ParameterRefRef RefId="%AID%_UP-%TT%%CC%028_R-%TT%%CC%02801" Cell="1,4" HelpContext="Empty" />
+                      <ParameterRefRef RefId="%AID%_UP-%TT%%CC%002_R-%TT%%CC%00201" Cell="1,5" HelpContext="Empty" />
+                      <ParameterRefRef RefId="%AID%_UP-%TT%%CC%004_R-%TT%%CC%00401" Cell="1,6" HelpContext="Empty" />
+                      <ParameterRefRef RefId="%AID%_UP-%TT%%CC%003_R-%TT%%CC%00301" Cell="1,7" HelpContext="Empty" />
+                      <ParameterRefRef RefId="%AID%_UP-%TT%%CC%020_R-%TT%%CC%02001" Cell="1,8" HelpContext="Empty" />
+                      <choose ParamRefId="%AID%_P-%TT%%CC%091_R-%TT%%CC%09101">
+                        <when test="1">
+                          <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,9" Text="⛔ fehlt" />
+                        </when>
+                        <when default="true" />
+                      </choose>
                     </ParameterBlock>
                   </when>
                   <when default="true" />
