@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<KNX xmlns:op="http://github.com/OpenKNX/OpenKNXproducer" xmlns="http://knx.org/xml/project/20" CreatedBy="KNX MT" ToolVersion="5.1.255.16695">
+
+  <op:minOpenKNXproducerVersion value="4.3.9" />
+
+  <!-- ===================================================================================
+       Modul FAN - geraeteweite Parameter.
+
+       Dieses share.xml traegt zusaetzlich das Geruest des Produkts (Catalog, Code-Segment,
+       Hardware) UND den einzigen Wurzelknoten der Applikation. Beide eigenen Module haengen
+       darin: Raum- und Luefterseiten sollen in der ETS als eine Einheit erscheinen, und
+       Channel-in-Channel verbietet der Producer. Deshalb spannt nur FAN einen <Channel> auf
+       und holt die Raumseiten per op:include mit prefix="ROOM" herein; Room.share.xml
+       liefert nur <Static>. Die KO-Nummern bleiben davon unberuehrt - sie kommen aus dem
+       op:define des jeweiligen Moduls, nicht aus dem Baum.
+
+       Preis dieser Loesung: im Auswahlfeld des Konfigurationstransfers heisst das Raummodul
+       roh "ROOM" statt "Raeume" (der Klartext kaeme aus einem eigenen <Channel Text=...>),
+       und auf der BASE-Seite "Module" gibt es nur noch einen Schalter fuer beide.
+
+       Noch leer. Es folgen (PLAN.md Woche 1 Tag 2, Spezifikation Abschnitt 1):
+         Seite "Hardware":   FAN_Hardware (Enum = Kanalzahl), FAN_StartupDelay
+         Seite "Verbuende":  8 Unterseiten mit Stufenregel, Zykluszeiten, Totzeit, Rolle
+         Seite "Status-LEDs": PT-SLEDFunc, Basis 110 = Luefter 1..12
+       =================================================================================== -->
+
+  <ManufacturerData>
+    <Manufacturer RefId="M-00FA">
+      <Catalog>
+        <CatalogSection Id="M-00FA_CS-1" Name="Geräte" Number="1" DefaultLanguage="de">
+          <CatalogItem Id="%CatalogItemId%" Name="KwlControl" Number="1" ProductRefId="%ProductId%" Hardware2ProgramRefId="%Hardware2ProgramId%" DefaultLanguage="de" />
+        </CatalogSection>
+      </Catalog>
+      <ApplicationPrograms>
+        <ApplicationProgram Id="%AID%" ApplicationNumber="1" ApplicationVersion="1" ReplacesVersions="0" ProgramType="ApplicationProgram" MaskVersion="MV-07B0" Name="KwlControl" LoadProcedureStyle="MergedProcedure" PeiType="0" DefaultLanguage="de" DynamicTableManagement="false" Linkable="true" MinEtsVersion="5.0">
+          <Static>
+            <Code>
+              <RelativeSegment Id="%AID%_RS-04-00000" Name="Parameters" Offset="0" Size="%MemorySize%" LoadStateMachine="4" />
+            </Code>
+            <ParameterTypes>
+              <!-- noch keine eigenen Parametertypen -->
+            </ParameterTypes>
+            <Parameters>
+              <!-- noch keine geraeteweiten Luefterparameter -->
+            </Parameters>
+            <ParameterRefs>
+            </ParameterRefs>
+            <ComObjectTable>
+              <!-- Keine geraeteweiten Kommunikationsobjekte: alles haengt am Kanal
+                   (Fan.templ.xml). Auch die Gruppen-KOs eines Verbunds liegen am Luefter
+                   mit der Rolle Master bzw. Slave, nicht am Verbund. -->
+            </ComObjectTable>
+          </Static>
+          <Dynamic>
+            <Channel Id="%AID%_CH-%PREFIX%" Name="Ventilation" Number="%PREFIX%" Icon="windsock" Text="Lüftung">
+
+              <ParameterBlock Id="%AID%_PB-nnn" Name="Basic" Text="Allgemein" Icon="cog-outline">
+                <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
+                <ParameterSeparator Id="%AID%_PS-nnn" Text="Lüftersteuerung" UIHint="Headline" />
+                <ParameterSeparator Id="%AID%_PS-nnn" Text="Version: %ModuleVersion%" />
+                <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
+                <ParameterSeparator Id="%AID%_PS-nnn" Text="Das Stellsignal ist bipolar um 5 V: 5,00 V ist Stillstand, 0 V und 10,00 V sind Volllast in je einer Richtung. Ein Kanal, der nicht belegt ist, gibt dauerhaft 5,00 V aus." UIHint="Information" />
+              </ParameterBlock>
+
+              <!-- Raumseiten aus dem ROOM-Template -->
+              <ParameterBlock Id="%AID%_PB-nnn" Name="Rooms" Text="Räume" Icon="thermometer">
+                <op:include href="Room.templ.xml" xpath="//Dynamic/ChannelIndependentBlock/ParameterBlock[@Name='Channel']/*" type="template" prefix="ROOM" IsInner="true" />
+              </ParameterBlock>
+
+              <!-- Luefterseiten aus dem FAN-Template -->
+              <ParameterBlock Id="%AID%_PB-nnn" Name="Fans" Text="Lüfter" Icon="windsock">
+                <op:include href="Fan.templ.xml" xpath="//Dynamic/ChannelIndependentBlock/ParameterBlock[@Name='Channel']/*" type="template" prefix="FAN" IsInner="true" />
+              </ParameterBlock>
+
+            </Channel>
+          </Dynamic>
+        </ApplicationProgram>
+      </ApplicationPrograms>
+      <Baggages>
+        <Baggage TargetPath="" Name="Help_de.zip" Id="%FILE-HELP-de%">
+          <FileInfo TimeInfo="%DATETIME%" />
+        </Baggage>
+        <Baggage Id="%FILE-ICONS%" Name="Icons.zip" TargetPath="">
+          <FileInfo TimeInfo="%DATETIME%" />
+        </Baggage>
+      </Baggages>
+      <Hardware>
+        <Hardware Id="%HardwareId%" Name="KNXFANDRV" SerialNumber="1" VersionNumber="1" BusCurrent="10" HasIndividualAddress="true" HasApplicationProgram="true">
+          <Products>
+            <Product Id="%ProductId%" Text="KNX Lüftersteuerung 0–10 V" OrderNumber="1" IsRailMounted="true" DefaultLanguage="de">
+              <RegistrationInfo RegistrationStatus="Registered" />
+            </Product>
+          </Products>
+          <Hardware2Programs>
+            <Hardware2Program Id="%Hardware2ProgramId%" MediumTypes="MT-0">
+              <ApplicationProgramRef RefId="%AID%" />
+              <RegistrationInfo RegistrationStatus="Registered" RegistrationNumber="0001/%HardwareVersionEncoded%1" />
+            </Hardware2Program>
+          </Hardware2Programs>
+        </Hardware>
+      </Hardware>
+    </Manufacturer>
+  </ManufacturerData>
+</KNX>

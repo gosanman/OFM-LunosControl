@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<KNX xmlns:op="http://github.com/OpenKNX/OpenKNXproducer" xmlns="http://knx.org/xml/project/20" CreatedBy="KNX MT" ToolVersion="5.1.255.16695">
+
+  <op:minOpenKNXproducerVersion value="4.3.9" />
+
+  <!-- ===================================================================================
+       Modul ROOM - geraeteweite Parameter.
+
+       Catalog, Code-Segment und Hardware stehen in Fan.share.xml; beide Module teilen sich
+       dieselbe ApplicationProgram-Id und duerfen das Geruest nicht doppelt aufspannen.
+
+       Dieses Modul hat bewusst KEINEN eigenen <Channel>: seine Kanalseiten haengt
+       Fan.share.xml per op:include mit prefix="ROOM" in den gemeinsamen Wurzelknoten
+       "Lueftung", damit Raeume und Luefter in der ETS als ein Modul erscheinen. Alles
+       Weitere dazu steht im Kopf von Fan.share.xml.
+
+       Noch leer. Es folgen (PLAN.md Woche 1 Tag 3, Spezifikation Abschnitt 3):
+         ROOM_VisibleChannels (1..8, Vorgabe 8) - blendet die Raumseiten ein
+         ROOM_Altitude        (Hoehe ueber Meer, nur fuer die Anzeige in g/kg)
+         ROOM_PercentHysteresis
+       =================================================================================== -->
+
+  <ManufacturerData>
+    <Manufacturer RefId="M-00FA">
+      <ApplicationPrograms>
+        <ApplicationProgram Id="%AID%" ApplicationNumber="1" ApplicationVersion="1" ReplacesVersions="0" ProgramType="ApplicationProgram" MaskVersion="MV-07B0" Name="KwlControl" LoadProcedureStyle="MergedProcedure" PeiType="0" DefaultLanguage="de" DynamicTableManagement="false" Linkable="true" MinEtsVersion="5.0">
+          <Static>
+            <ParameterTypes>
+              <!-- noch keine eigenen Parametertypen -->
+            </ParameterTypes>
+            <Parameters>
+              <!-- noch keine geraeteweiten Raumparameter -->
+            </Parameters>
+            <ParameterRefs>
+            </ParameterRefs>
+            <ComObjectTable>
+              <!-- Keine geraeteweiten Kommunikationsobjekte: alles haengt am Raumkanal
+                   (Room.templ.xml). -->
+            </ComObjectTable>
+          </Static>
+          <Dynamic>
+            <!-- Kein eigener Channel - siehe Kopfkommentar. Die Raumseiten haengt
+                 Fan.share.xml in den Knoten "Lueftung" ein. -->
+          </Dynamic>
+        </ApplicationProgram>
+      </ApplicationPrograms>
+      <Baggages>
+        <Baggage TargetPath="" Name="Help_de.zip" Id="%FILE-HELP-de%">
+          <FileInfo TimeInfo="%DATETIME%" />
+        </Baggage>
+        <Baggage Id="%FILE-ICONS%" Name="Icons.zip" TargetPath="">
+          <FileInfo TimeInfo="%DATETIME%" />
+        </Baggage>
+      </Baggages>
+    </Manufacturer>
+  </ManufacturerData>
+</KNX>

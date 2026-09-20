@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<KNX xmlns:op="http://github.com/OpenKNX/OpenKNXproducer" xmlns="http://knx.org/xml/project/20" CreatedBy="KNX MT" ToolVersion="5.1.255.16695">
+  <ManufacturerData>
+    <Manufacturer RefId="M-00FA">
+      <ApplicationPrograms>
+        <ApplicationProgram Id="%AID%" ProgramType="ApplicationProgram" MaskVersion="MV-07B0" Name="KwlControl" LoadProcedureStyle="MergedProcedure" PeiType="0" DefaultLanguage="de" DynamicTableManagement="false" Linkable="true" MinEtsVersion="5.0" ApplicationNumber="0" ApplicationVersion="0" ReplacesVersions="0">
+          <Static>
+            <Parameters>
+
+              <!-- Beschreibung: nur ETS-seitig, kein Geraetespeicher. -->
+              <Parameter Id="%AID%_P-%TT%%CC%000" Name="f%C%Name" ParameterType="%AID%_PT-Text40Byte" Text="Beschreibung" Value="" />
+
+              <!-- Noch keine Kanalparameter. Es folgen (PLAN.md Woche 1 Tag 2,
+                   Spezifikation Abschnitt 2): Kanalaktivitaet, Typ, Raum, Verbund, Phase,
+                   Anteil, Kennlinie, Leitungskompensation, Kalibrierung, Filter.
+                   Der Parameterspeicher darf dabei frei wachsen - er verschiebt keine
+                   Gruppenadresse. Die KO-Nummern duerfen es nicht (siehe unten). -->
+
+            </Parameters>
+            <ParameterRefs>
+              <ParameterRef Id="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" RefId="%AID%_P-%TT%%CC%000" />
+            </ParameterRefs>
+            <ComObjectTable>
+
+              <!-- ============================================================================
+                   BLOCKGROESSE 24 - EINGEFROREN (PLAN.md 0.6).
+
+                   Der OpenKNXproducer bildet die Blockgroesse eines Moduls ausschliesslich
+                   aus der hoechsten benutzten %Kn%-Nummer; ein Attribut dafuer gibt es nicht.
+                   Ohne ein Objekt auf %K23% waere der Block kleiner, und jedes spaeter
+                   hinzugefuegte KO wuerde die Nummern aller folgenden Luefterkanaele
+                   verschieben - also die Gruppenadressen bereits parametrierter Anlagen.
+
+                   Dieses eine Objekt haelt den Block deshalb auf 24 (relativ 0..23), bis die
+                   echten KOs aus dem Luefter-Block geschrieben sind. Es liegt auf Platz 23,
+                   dem obersten der geplanten Reserve 18..23, und ist genau so lange ein
+                   Platzhalter, wie dort nichts Echtes steht. Entfernt werden darf es nur,
+                   wenn dann wieder ein Objekt auf %K23% liegt.
+
+                   FAN: KoOffset 340, 12 Luefter x 24 = KO 340..627.
+                   ============================================================================ -->
+              <ComObject Id="%AID%_O-%TT%%CC%023" Name="%C%Reserve23" Number="%K23%" ObjectSize="1 Bit" Text="" FunctionText="" ReadFlag="Disabled" WriteFlag="Disabled" CommunicationFlag="Disabled" TransmitFlag="Disabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" DatapointType="DPST-1-1" />
+
+            </ComObjectTable>
+            <ComObjectRefs>
+              <ComObjectRef Id="%AID%_O-%TT%%CC%023_R-%TT%%CC%02301" RefId="%AID%_O-%TT%%CC%023" Text="{{0:Lüfter %C%}}: Reserve" FunctionText="Lüfter %C%: Platzhalter, hält die Blockgröße auf 24" TextParameterRefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" />
+            </ComObjectRefs>
+          </Static>
+          <Dynamic>
+            <ChannelIndependentBlock>
+
+              <!-- ===================== Kanalreiter ===================== -->
+              <ParameterBlock Id="%AID%_PB-nnn" Name="Channel">
+                <ParameterBlock Id="%AID%_PB-nnn" Name="f%C%Page" Text="Lüfter %C%: {{0: ...}}" TextParameterRefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" Icon="windsock" HelpContext="Empty" ShowInComObjectTree="true">
+                  <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
+                  <ParameterSeparator Id="%AID%_PS-nnn" Text="Kanaldefinition" UIHint="Headline" />
+                  <ParameterRefRef RefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" IndentLevel="1" HelpContext="BASE-ChannelName" />
+                  <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
+                  <ParameterSeparator Id="%AID%_PS-nnn" Text="Dieser Kanal ist noch leer. Parameter und Kommunikationsobjekte folgen; die KO-Nummern des Blocks sind bereits festgelegt." UIHint="Information" />
+                  <ComObjectRefRef RefId="%AID%_O-%TT%%CC%023_R-%TT%%CC%02301" />
+                </ParameterBlock>
+              </ParameterBlock>
+
+            </ChannelIndependentBlock>
+          </Dynamic>
+        </ApplicationProgram>
+      </ApplicationPrograms>
+    </Manufacturer>
+  </ManufacturerData>
+</KNX>
