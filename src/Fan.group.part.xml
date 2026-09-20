@@ -92,15 +92,15 @@
                     <ParameterBlock Id="%AID%_PB-nnn" Inline="true" Layout="Grid">
                       <Rows><Row Id="%AID%_PB-nnn_R-1" /></Rows>
                       <Columns>
-                        <Column Id="%AID%_PB-nnn_C-1" Width="7%" />
-                        <Column Id="%AID%_PB-nnn_C-2" Width="17%" />
-                        <Column Id="%AID%_PB-nnn_C-3" Width="14%" />
-                        <Column Id="%AID%_PB-nnn_C-4" Width="8%" />
-                        <Column Id="%AID%_PB-nnn_C-5" Width="12%" />
-                        <Column Id="%AID%_PB-nnn_C-6" Width="14%" />
-                        <Column Id="%AID%_PB-nnn_C-7" Width="10%" />
-                        <Column Id="%AID%_PB-nnn_C-8" Width="8%" />
-                        <Column Id="%AID%_PB-nnn_C-9" Width="10%" />
+                        <Column Id="%AID%_PB-nnn_C-1" Width="10%" />
+                        <Column Id="%AID%_PB-nnn_C-2" Width="37%" />
+                        <Column Id="%AID%_PB-nnn_C-3" Width="30%" />
+                        <Column Id="%AID%_PB-nnn_C-4" Width="14%" />
+                        <Column Id="%AID%_PB-nnn_C-5" Width="22%" />
+                        <Column Id="%AID%_PB-nnn_C-6" Width="26%" />
+                        <Column Id="%AID%_PB-nnn_C-7" Width="22%" />
+                        <Column Id="%AID%_PB-nnn_C-8" Width="14%" />
+                        <Column Id="%AID%_PB-nnn_C-9" Width="15%" />
                       </Columns>
                       <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,1" Text="V%Gn%" UIHint="Headline" />
                       <ParameterRefRef RefId="%AID%_P-%TT%00%GGG+0%_R-%TT%00%GGG+0%01" Cell="1,2" HelpContext="BASE-ChannelName" />
@@ -115,15 +115,15 @@
                             <ParameterBlock Id="%AID%_PB-nnn" Inline="true" Layout="Grid">
                               <Rows><Row Id="%AID%_PB-nnn_R-1" /></Rows>
                               <Columns>
-                                <Column Id="%AID%_PB-nnn_C-1" Width="7%" />
-                                <Column Id="%AID%_PB-nnn_C-2" Width="17%" />
-                                <Column Id="%AID%_PB-nnn_C-3" Width="14%" />
-                                <Column Id="%AID%_PB-nnn_C-4" Width="8%" />
-                                <Column Id="%AID%_PB-nnn_C-5" Width="12%" />
-                                <Column Id="%AID%_PB-nnn_C-6" Width="14%" />
-                                <Column Id="%AID%_PB-nnn_C-7" Width="10%" />
-                                <Column Id="%AID%_PB-nnn_C-8" Width="8%" />
-                                <Column Id="%AID%_PB-nnn_C-9" Width="10%" />
+                                <Column Id="%AID%_PB-nnn_C-1" Width="10%" />
+                                <Column Id="%AID%_PB-nnn_C-2" Width="37%" />
+                                <Column Id="%AID%_PB-nnn_C-3" Width="30%" />
+                                <Column Id="%AID%_PB-nnn_C-4" Width="14%" />
+                                <Column Id="%AID%_PB-nnn_C-5" Width="22%" />
+                                <Column Id="%AID%_PB-nnn_C-6" Width="26%" />
+                                <Column Id="%AID%_PB-nnn_C-7" Width="22%" />
+                                <Column Id="%AID%_PB-nnn_C-8" Width="14%" />
+                                <Column Id="%AID%_PB-nnn_C-9" Width="15%" />
                               </Columns>
                               <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,1" Text="&#160;&#160;&#160;L1" />
                               <ParameterRefRef RefId="%AID%_P-3001000_R-300100001" Cell="1,2" HelpContext="BASE-ChannelName" />
@@ -152,15 +152,15 @@
                             <ParameterBlock Id="%AID%_PB-nnn" Inline="true" Layout="Grid">
                               <Rows><Row Id="%AID%_PB-nnn_R-1" /></Rows>
                               <Columns>
-                                <Column Id="%AID%_PB-nnn_C-1" Width="7%" />
-                                <Column Id="%AID%_PB-nnn_C-2" Width="17%" />
-                                <Column Id="%AID%_PB-nnn_C-3" Width="14%" />
-                                <Column Id="%AID%_PB-nnn_C-4" Width="8%" />
-                                <Column Id="%AID%_PB-nnn_C-5" Width="12%" />
-                                <Column Id="%AID%_PB-nnn_C-6" Width="14%" />
-                                <Column Id="%AID%_PB-nnn_C-7" Width="10%" />
-                                <Column Id="%AID%_PB-nnn_C-8" Width="8%" />
-                                <Column Id="%AID%_PB-nnn_C-9" Width="10%" />
+                                <Column Id="%AID%_PB-nnn_C-1" Width="10%" />
+                                <Column Id="%AID%_PB-nnn_C-2" Width="37%" />
+                                <Column Id="%AID%_PB-nnn_C-3" Width="30%" />
+                                <Column Id="%AID%_PB-nnn_C-4" Width="14%" />
+                                <Column Id="%AID%_PB-nnn_C-5" Width="22%" />
+                                <Column Id="%AID%_PB-nnn_C-6" Width="26%" />
+                                <Column Id="%AID%_PB-nnn_C-7" Width="22%" />
+                                <Column Id="%AID%_PB-nnn_C-8" Width="14%" />
+                                <Column Id="%AID%_PB-nnn_C-9" Width="15%" />
                               </Columns>
                               <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,1" Text="&#160;&#160;&#160;L2" />
                               <ParameterRefRef RefId="%AID%_P-3002000_R-300200001" Cell="1,2" HelpContext="BASE-ChannelName" />
@@ -189,15 +189,15 @@
                             <ParameterBlock Id="%AID%_PB-nnn" Inline="true" Layout="Grid">
                               <Rows><Row Id="%AID%_PB-nnn_R-1" /></Rows>
                               <Columns>
-                                <Column Id="%AID%_PB-nnn_C-1" Width="7%" />
-                                <Column Id="%AID%_PB-nnn_C-2" Width="17%" />
-                                <Column Id="%AID%_PB-nnn_C-3" Width="14%" />
-                                <Column Id="%AID%_PB-nnn_C-4" Width="8%" />
-                                <Column Id="%AID%_PB-nnn_C-5" Width="12%" />
-                                <Column Id="%AID%_PB-nnn_C-6" Width="14%" />
-                                <Column Id="%AID%_PB-nnn_C-7" Width="10%" />
-                                <Column Id="%AID%_PB-nnn_C-8" Width="8%" />
-                                <Column Id="%AID%_PB-nnn_C-9" Width="10%" />
+                                <Column Id="%AID%_PB-nnn_C-1" Width="10%" />
+                                <Column Id="%AID%_PB-nnn_C-2" Width="37%" />
+                                <Column Id="%AID%_PB-nnn_C-3" Width="30%" />
+                                <Column Id="%AID%_PB-nnn_C-4" Width="14%" />
+                                <Column Id="%AID%_PB-nnn_C-5" Width="22%" />
+                                <Column Id="%AID%_PB-nnn_C-6" Width="26%" />
+                                <Column Id="%AID%_PB-nnn_C-7" Width="22%" />
+                                <Column Id="%AID%_PB-nnn_C-8" Width="14%" />
+                                <Column Id="%AID%_PB-nnn_C-9" Width="15%" />
                               </Columns>
                               <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,1" Text="&#160;&#160;&#160;L3" />
                               <ParameterRefRef RefId="%AID%_P-3003000_R-300300001" Cell="1,2" HelpContext="BASE-ChannelName" />
@@ -226,15 +226,15 @@
                             <ParameterBlock Id="%AID%_PB-nnn" Inline="true" Layout="Grid">
                               <Rows><Row Id="%AID%_PB-nnn_R-1" /></Rows>
                               <Columns>
-                                <Column Id="%AID%_PB-nnn_C-1" Width="7%" />
-                                <Column Id="%AID%_PB-nnn_C-2" Width="17%" />
-                                <Column Id="%AID%_PB-nnn_C-3" Width="14%" />
-                                <Column Id="%AID%_PB-nnn_C-4" Width="8%" />
-                                <Column Id="%AID%_PB-nnn_C-5" Width="12%" />
-                                <Column Id="%AID%_PB-nnn_C-6" Width="14%" />
-                                <Column Id="%AID%_PB-nnn_C-7" Width="10%" />
-                                <Column Id="%AID%_PB-nnn_C-8" Width="8%" />
-                                <Column Id="%AID%_PB-nnn_C-9" Width="10%" />
+                                <Column Id="%AID%_PB-nnn_C-1" Width="10%" />
+                                <Column Id="%AID%_PB-nnn_C-2" Width="37%" />
+                                <Column Id="%AID%_PB-nnn_C-3" Width="30%" />
+                                <Column Id="%AID%_PB-nnn_C-4" Width="14%" />
+                                <Column Id="%AID%_PB-nnn_C-5" Width="22%" />
+                                <Column Id="%AID%_PB-nnn_C-6" Width="26%" />
+                                <Column Id="%AID%_PB-nnn_C-7" Width="22%" />
+                                <Column Id="%AID%_PB-nnn_C-8" Width="14%" />
+                                <Column Id="%AID%_PB-nnn_C-9" Width="15%" />
                               </Columns>
                               <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,1" Text="&#160;&#160;&#160;L4" />
                               <ParameterRefRef RefId="%AID%_P-3004000_R-300400001" Cell="1,2" HelpContext="BASE-ChannelName" />
@@ -263,15 +263,15 @@
                             <ParameterBlock Id="%AID%_PB-nnn" Inline="true" Layout="Grid">
                               <Rows><Row Id="%AID%_PB-nnn_R-1" /></Rows>
                               <Columns>
-                                <Column Id="%AID%_PB-nnn_C-1" Width="7%" />
-                                <Column Id="%AID%_PB-nnn_C-2" Width="17%" />
-                                <Column Id="%AID%_PB-nnn_C-3" Width="14%" />
-                                <Column Id="%AID%_PB-nnn_C-4" Width="8%" />
-                                <Column Id="%AID%_PB-nnn_C-5" Width="12%" />
-                                <Column Id="%AID%_PB-nnn_C-6" Width="14%" />
-                                <Column Id="%AID%_PB-nnn_C-7" Width="10%" />
-                                <Column Id="%AID%_PB-nnn_C-8" Width="8%" />
-                                <Column Id="%AID%_PB-nnn_C-9" Width="10%" />
+                                <Column Id="%AID%_PB-nnn_C-1" Width="10%" />
+                                <Column Id="%AID%_PB-nnn_C-2" Width="37%" />
+                                <Column Id="%AID%_PB-nnn_C-3" Width="30%" />
+                                <Column Id="%AID%_PB-nnn_C-4" Width="14%" />
+                                <Column Id="%AID%_PB-nnn_C-5" Width="22%" />
+                                <Column Id="%AID%_PB-nnn_C-6" Width="26%" />
+                                <Column Id="%AID%_PB-nnn_C-7" Width="22%" />
+                                <Column Id="%AID%_PB-nnn_C-8" Width="14%" />
+                                <Column Id="%AID%_PB-nnn_C-9" Width="15%" />
                               </Columns>
                               <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,1" Text="&#160;&#160;&#160;L5" />
                               <ParameterRefRef RefId="%AID%_P-3005000_R-300500001" Cell="1,2" HelpContext="BASE-ChannelName" />
@@ -300,15 +300,15 @@
                             <ParameterBlock Id="%AID%_PB-nnn" Inline="true" Layout="Grid">
                               <Rows><Row Id="%AID%_PB-nnn_R-1" /></Rows>
                               <Columns>
-                                <Column Id="%AID%_PB-nnn_C-1" Width="7%" />
-                                <Column Id="%AID%_PB-nnn_C-2" Width="17%" />
-                                <Column Id="%AID%_PB-nnn_C-3" Width="14%" />
-                                <Column Id="%AID%_PB-nnn_C-4" Width="8%" />
-                                <Column Id="%AID%_PB-nnn_C-5" Width="12%" />
-                                <Column Id="%AID%_PB-nnn_C-6" Width="14%" />
-                                <Column Id="%AID%_PB-nnn_C-7" Width="10%" />
-                                <Column Id="%AID%_PB-nnn_C-8" Width="8%" />
-                                <Column Id="%AID%_PB-nnn_C-9" Width="10%" />
+                                <Column Id="%AID%_PB-nnn_C-1" Width="10%" />
+                                <Column Id="%AID%_PB-nnn_C-2" Width="37%" />
+                                <Column Id="%AID%_PB-nnn_C-3" Width="30%" />
+                                <Column Id="%AID%_PB-nnn_C-4" Width="14%" />
+                                <Column Id="%AID%_PB-nnn_C-5" Width="22%" />
+                                <Column Id="%AID%_PB-nnn_C-6" Width="26%" />
+                                <Column Id="%AID%_PB-nnn_C-7" Width="22%" />
+                                <Column Id="%AID%_PB-nnn_C-8" Width="14%" />
+                                <Column Id="%AID%_PB-nnn_C-9" Width="15%" />
                               </Columns>
                               <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,1" Text="&#160;&#160;&#160;L6" />
                               <ParameterRefRef RefId="%AID%_P-3006000_R-300600001" Cell="1,2" HelpContext="BASE-ChannelName" />
@@ -337,15 +337,15 @@
                             <ParameterBlock Id="%AID%_PB-nnn" Inline="true" Layout="Grid">
                               <Rows><Row Id="%AID%_PB-nnn_R-1" /></Rows>
                               <Columns>
-                                <Column Id="%AID%_PB-nnn_C-1" Width="7%" />
-                                <Column Id="%AID%_PB-nnn_C-2" Width="17%" />
-                                <Column Id="%AID%_PB-nnn_C-3" Width="14%" />
-                                <Column Id="%AID%_PB-nnn_C-4" Width="8%" />
-                                <Column Id="%AID%_PB-nnn_C-5" Width="12%" />
-                                <Column Id="%AID%_PB-nnn_C-6" Width="14%" />
-                                <Column Id="%AID%_PB-nnn_C-7" Width="10%" />
-                                <Column Id="%AID%_PB-nnn_C-8" Width="8%" />
-                                <Column Id="%AID%_PB-nnn_C-9" Width="10%" />
+                                <Column Id="%AID%_PB-nnn_C-1" Width="10%" />
+                                <Column Id="%AID%_PB-nnn_C-2" Width="37%" />
+                                <Column Id="%AID%_PB-nnn_C-3" Width="30%" />
+                                <Column Id="%AID%_PB-nnn_C-4" Width="14%" />
+                                <Column Id="%AID%_PB-nnn_C-5" Width="22%" />
+                                <Column Id="%AID%_PB-nnn_C-6" Width="26%" />
+                                <Column Id="%AID%_PB-nnn_C-7" Width="22%" />
+                                <Column Id="%AID%_PB-nnn_C-8" Width="14%" />
+                                <Column Id="%AID%_PB-nnn_C-9" Width="15%" />
                               </Columns>
                               <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,1" Text="&#160;&#160;&#160;L7" />
                               <ParameterRefRef RefId="%AID%_P-3007000_R-300700001" Cell="1,2" HelpContext="BASE-ChannelName" />
@@ -374,15 +374,15 @@
                             <ParameterBlock Id="%AID%_PB-nnn" Inline="true" Layout="Grid">
                               <Rows><Row Id="%AID%_PB-nnn_R-1" /></Rows>
                               <Columns>
-                                <Column Id="%AID%_PB-nnn_C-1" Width="7%" />
-                                <Column Id="%AID%_PB-nnn_C-2" Width="17%" />
-                                <Column Id="%AID%_PB-nnn_C-3" Width="14%" />
-                                <Column Id="%AID%_PB-nnn_C-4" Width="8%" />
-                                <Column Id="%AID%_PB-nnn_C-5" Width="12%" />
-                                <Column Id="%AID%_PB-nnn_C-6" Width="14%" />
-                                <Column Id="%AID%_PB-nnn_C-7" Width="10%" />
-                                <Column Id="%AID%_PB-nnn_C-8" Width="8%" />
-                                <Column Id="%AID%_PB-nnn_C-9" Width="10%" />
+                                <Column Id="%AID%_PB-nnn_C-1" Width="10%" />
+                                <Column Id="%AID%_PB-nnn_C-2" Width="37%" />
+                                <Column Id="%AID%_PB-nnn_C-3" Width="30%" />
+                                <Column Id="%AID%_PB-nnn_C-4" Width="14%" />
+                                <Column Id="%AID%_PB-nnn_C-5" Width="22%" />
+                                <Column Id="%AID%_PB-nnn_C-6" Width="26%" />
+                                <Column Id="%AID%_PB-nnn_C-7" Width="22%" />
+                                <Column Id="%AID%_PB-nnn_C-8" Width="14%" />
+                                <Column Id="%AID%_PB-nnn_C-9" Width="15%" />
                               </Columns>
                               <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,1" Text="&#160;&#160;&#160;L8" />
                               <ParameterRefRef RefId="%AID%_P-3008000_R-300800001" Cell="1,2" HelpContext="BASE-ChannelName" />
@@ -411,15 +411,15 @@
                             <ParameterBlock Id="%AID%_PB-nnn" Inline="true" Layout="Grid">
                               <Rows><Row Id="%AID%_PB-nnn_R-1" /></Rows>
                               <Columns>
-                                <Column Id="%AID%_PB-nnn_C-1" Width="7%" />
-                                <Column Id="%AID%_PB-nnn_C-2" Width="17%" />
-                                <Column Id="%AID%_PB-nnn_C-3" Width="14%" />
-                                <Column Id="%AID%_PB-nnn_C-4" Width="8%" />
-                                <Column Id="%AID%_PB-nnn_C-5" Width="12%" />
-                                <Column Id="%AID%_PB-nnn_C-6" Width="14%" />
-                                <Column Id="%AID%_PB-nnn_C-7" Width="10%" />
-                                <Column Id="%AID%_PB-nnn_C-8" Width="8%" />
-                                <Column Id="%AID%_PB-nnn_C-9" Width="10%" />
+                                <Column Id="%AID%_PB-nnn_C-1" Width="10%" />
+                                <Column Id="%AID%_PB-nnn_C-2" Width="37%" />
+                                <Column Id="%AID%_PB-nnn_C-3" Width="30%" />
+                                <Column Id="%AID%_PB-nnn_C-4" Width="14%" />
+                                <Column Id="%AID%_PB-nnn_C-5" Width="22%" />
+                                <Column Id="%AID%_PB-nnn_C-6" Width="26%" />
+                                <Column Id="%AID%_PB-nnn_C-7" Width="22%" />
+                                <Column Id="%AID%_PB-nnn_C-8" Width="14%" />
+                                <Column Id="%AID%_PB-nnn_C-9" Width="15%" />
                               </Columns>
                               <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,1" Text="&#160;&#160;&#160;L9" />
                               <ParameterRefRef RefId="%AID%_P-3009000_R-300900001" Cell="1,2" HelpContext="BASE-ChannelName" />
@@ -448,15 +448,15 @@
                             <ParameterBlock Id="%AID%_PB-nnn" Inline="true" Layout="Grid">
                               <Rows><Row Id="%AID%_PB-nnn_R-1" /></Rows>
                               <Columns>
-                                <Column Id="%AID%_PB-nnn_C-1" Width="7%" />
-                                <Column Id="%AID%_PB-nnn_C-2" Width="17%" />
-                                <Column Id="%AID%_PB-nnn_C-3" Width="14%" />
-                                <Column Id="%AID%_PB-nnn_C-4" Width="8%" />
-                                <Column Id="%AID%_PB-nnn_C-5" Width="12%" />
-                                <Column Id="%AID%_PB-nnn_C-6" Width="14%" />
-                                <Column Id="%AID%_PB-nnn_C-7" Width="10%" />
-                                <Column Id="%AID%_PB-nnn_C-8" Width="8%" />
-                                <Column Id="%AID%_PB-nnn_C-9" Width="10%" />
+                                <Column Id="%AID%_PB-nnn_C-1" Width="10%" />
+                                <Column Id="%AID%_PB-nnn_C-2" Width="37%" />
+                                <Column Id="%AID%_PB-nnn_C-3" Width="30%" />
+                                <Column Id="%AID%_PB-nnn_C-4" Width="14%" />
+                                <Column Id="%AID%_PB-nnn_C-5" Width="22%" />
+                                <Column Id="%AID%_PB-nnn_C-6" Width="26%" />
+                                <Column Id="%AID%_PB-nnn_C-7" Width="22%" />
+                                <Column Id="%AID%_PB-nnn_C-8" Width="14%" />
+                                <Column Id="%AID%_PB-nnn_C-9" Width="15%" />
                               </Columns>
                               <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,1" Text="&#160;&#160;&#160;L10" />
                               <ParameterRefRef RefId="%AID%_P-3010000_R-301000001" Cell="1,2" HelpContext="BASE-ChannelName" />
@@ -485,15 +485,15 @@
                             <ParameterBlock Id="%AID%_PB-nnn" Inline="true" Layout="Grid">
                               <Rows><Row Id="%AID%_PB-nnn_R-1" /></Rows>
                               <Columns>
-                                <Column Id="%AID%_PB-nnn_C-1" Width="7%" />
-                                <Column Id="%AID%_PB-nnn_C-2" Width="17%" />
-                                <Column Id="%AID%_PB-nnn_C-3" Width="14%" />
-                                <Column Id="%AID%_PB-nnn_C-4" Width="8%" />
-                                <Column Id="%AID%_PB-nnn_C-5" Width="12%" />
-                                <Column Id="%AID%_PB-nnn_C-6" Width="14%" />
-                                <Column Id="%AID%_PB-nnn_C-7" Width="10%" />
-                                <Column Id="%AID%_PB-nnn_C-8" Width="8%" />
-                                <Column Id="%AID%_PB-nnn_C-9" Width="10%" />
+                                <Column Id="%AID%_PB-nnn_C-1" Width="10%" />
+                                <Column Id="%AID%_PB-nnn_C-2" Width="37%" />
+                                <Column Id="%AID%_PB-nnn_C-3" Width="30%" />
+                                <Column Id="%AID%_PB-nnn_C-4" Width="14%" />
+                                <Column Id="%AID%_PB-nnn_C-5" Width="22%" />
+                                <Column Id="%AID%_PB-nnn_C-6" Width="26%" />
+                                <Column Id="%AID%_PB-nnn_C-7" Width="22%" />
+                                <Column Id="%AID%_PB-nnn_C-8" Width="14%" />
+                                <Column Id="%AID%_PB-nnn_C-9" Width="15%" />
                               </Columns>
                               <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,1" Text="&#160;&#160;&#160;L11" />
                               <ParameterRefRef RefId="%AID%_P-3011000_R-301100001" Cell="1,2" HelpContext="BASE-ChannelName" />
@@ -522,15 +522,15 @@
                             <ParameterBlock Id="%AID%_PB-nnn" Inline="true" Layout="Grid">
                               <Rows><Row Id="%AID%_PB-nnn_R-1" /></Rows>
                               <Columns>
-                                <Column Id="%AID%_PB-nnn_C-1" Width="7%" />
-                                <Column Id="%AID%_PB-nnn_C-2" Width="17%" />
-                                <Column Id="%AID%_PB-nnn_C-3" Width="14%" />
-                                <Column Id="%AID%_PB-nnn_C-4" Width="8%" />
-                                <Column Id="%AID%_PB-nnn_C-5" Width="12%" />
-                                <Column Id="%AID%_PB-nnn_C-6" Width="14%" />
-                                <Column Id="%AID%_PB-nnn_C-7" Width="10%" />
-                                <Column Id="%AID%_PB-nnn_C-8" Width="8%" />
-                                <Column Id="%AID%_PB-nnn_C-9" Width="10%" />
+                                <Column Id="%AID%_PB-nnn_C-1" Width="10%" />
+                                <Column Id="%AID%_PB-nnn_C-2" Width="37%" />
+                                <Column Id="%AID%_PB-nnn_C-3" Width="30%" />
+                                <Column Id="%AID%_PB-nnn_C-4" Width="14%" />
+                                <Column Id="%AID%_PB-nnn_C-5" Width="22%" />
+                                <Column Id="%AID%_PB-nnn_C-6" Width="26%" />
+                                <Column Id="%AID%_PB-nnn_C-7" Width="22%" />
+                                <Column Id="%AID%_PB-nnn_C-8" Width="14%" />
+                                <Column Id="%AID%_PB-nnn_C-9" Width="15%" />
                               </Columns>
                               <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,1" Text="&#160;&#160;&#160;L12" />
                               <ParameterRefRef RefId="%AID%_P-3012000_R-301200001" Cell="1,2" HelpContext="BASE-ChannelName" />
