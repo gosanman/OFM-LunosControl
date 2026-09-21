@@ -81,17 +81,14 @@
               </ParameterBlock>
 
               <!-- ============ Verbundblock der Uebersicht ============
-                   Je Verbund ein Kopf und darunter die Luefter, die auf ihn zeigen.
+                   Je Verbund ein Kopf und darunter nur Nummer und Beschreibung der
+                   Luefter, die auf ihn zeigen - alles Weitere steht in Abschnitt 1.
                    Die ETS kann nicht gruppieren, deshalb steht fuer jeden der zwoelf
-                   Luefterkanaele eine ausgeschriebene Bedingung da. Die Ids der
-                   Luefter sind ausgeschrieben, weil %CC% in einem op:part nicht
-                   definiert ist. -->
+                   Kanaele eine ausgeschriebene Bedingung da; ihre Ids sind
+                   ausgeschrieben, weil %CC% in einem op:part nicht definiert ist. -->
               <ParameterBlock Id="%AID%_PB-nnn" Name="OverviewGroup">
                 <choose ParamRefId="%AID%_UP-%TT%00%GGG+14%_R-%TT%00%GGG+14%01">
                   <when test="1">
-                    <!-- Eigenes Raster: der Verbundkopf traegt andere Inhalte als eine Luefterzeile.
-                         Dieselbe Summe 190 %, damit der Block gleich breit bleibt - so macht es das
-                         Logikmodul mit seiner Trennlinie auch. -->
                     <ParameterBlock Id="%AID%_PB-nnn" Inline="true" Layout="Grid">
                       <Rows><Row Id="%AID%_PB-nnn_R-1" /></Rows>
                       <Columns>
@@ -109,444 +106,300 @@
                       <ParameterRefRef RefId="%AID%_UP-%TT%00%GGG+7%_R-%TT%00%GGG+7%01" Cell="1,5" HelpContext="Empty" />
                       <ParameterRefRef RefId="%AID%_UP-%TT%00%GGG+6%_R-%TT%00%GGG+6%01" Cell="1,6" HelpContext="Empty" />
                     </ParameterBlock>
-                    <choose ParamRefId="%AID%_UP-3001004_R-300100401">
-                      <when test="%Gn%">
-                        <choose ParamRefId="%AID%_P-3001090_R-300109001">
-                          <when test="1">
-                            <ParameterBlock Id="%AID%_PB-nnn" Inline="true" Layout="Grid">
-                              <Rows><Row Id="%AID%_PB-nnn_R-1" /></Rows>
-                              <Columns>
-                                <Column Id="%AID%_PB-nnn_C-1" Width="10%" />
-                                <Column Id="%AID%_PB-nnn_C-2" Width="30%" />
-                                <Column Id="%AID%_PB-nnn_C-3" Width="26%" />
-                                <Column Id="%AID%_PB-nnn_C-4" Width="12%" />
-                                <Column Id="%AID%_PB-nnn_C-5" Width="20%" />
-                                <Column Id="%AID%_PB-nnn_C-6" Width="30%" />
-                                <Column Id="%AID%_PB-nnn_C-7" Width="35%" />
-                                <Column Id="%AID%_PB-nnn_C-8" Width="12%" />
-                                <Column Id="%AID%_PB-nnn_C-9" Width="15%" />
-                              </Columns>
-                              <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,1" Text="&#160;&#160;&#160;L1" />
-                              <ParameterRefRef RefId="%AID%_P-3001000_R-300100001" Cell="1,2" HelpContext="BASE-ChannelName" />
-                              <ParameterRefRef RefId="%AID%_UP-3001001_R-300100101" Cell="1,3" HelpContext="Empty" />
-                              <ParameterRefRef RefId="%AID%_UP-3001028_R-300102801" Cell="1,4" HelpContext="Empty" />
-                              <ParameterRefRef RefId="%AID%_UP-3001002_R-300100201" Cell="1,5" HelpContext="Empty" />
-                              <ParameterRefRef RefId="%AID%_UP-3001003_R-300100301" Cell="1,7" HelpContext="Empty" />
-                              <ParameterRefRef RefId="%AID%_UP-3001020_R-300102001" Cell="1,8" HelpContext="Empty" />
-                              <choose ParamRefId="%AID%_P-3001091_R-300109101">
-                            <when test="1">
-                              <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,9" Text="⛔ fehlt" />
-                            </when>
-                            <when default="true" />
-                          </choose>
-                            </ParameterBlock>
+                    <choose ParamRefId="%AID%_UP-%TT%00001_R-%TT%0000101">
+                      <when test="&gt;=1">
+                        <choose ParamRefId="%AID%_UP-3001004_R-300100401">
+                          <when test="%Gn%">
+                            <choose ParamRefId="%AID%_P-3001090_R-300109001">
+                              <when test="1">
+                                <ParameterBlock Id="%AID%_PB-nnn" Inline="true" Layout="Grid">
+                                  <Rows><Row Id="%AID%_PB-nnn_R-1" /></Rows>
+                                  <Columns>
+                                    <Column Id="%AID%_PB-nnn_C-1" Width="10%" />
+                                    <Column Id="%AID%_PB-nnn_C-2" Width="37%" />
+                                    <Column Id="%AID%_PB-nnn_C-3" Width="143%" />
+                                  </Columns>
+                                  <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,1" Text="&#160;&#160;&#160;L1" />
+                                  <ParameterRefRef RefId="%AID%_P-3001000_R-300100001" Cell="1,2" HelpContext="BASE-ChannelName" />
+                                </ParameterBlock>
+                              </when>
+                              <when default="true" />
+                            </choose>
                           </when>
                           <when default="true" />
                         </choose>
                       </when>
                       <when default="true" />
                     </choose>
-                    <choose ParamRefId="%AID%_UP-3002004_R-300200401">
-                      <when test="%Gn%">
-                        <choose ParamRefId="%AID%_P-3002090_R-300209001">
-                          <when test="1">
-                            <ParameterBlock Id="%AID%_PB-nnn" Inline="true" Layout="Grid">
-                              <Rows><Row Id="%AID%_PB-nnn_R-1" /></Rows>
-                              <Columns>
-                                <Column Id="%AID%_PB-nnn_C-1" Width="10%" />
-                                <Column Id="%AID%_PB-nnn_C-2" Width="30%" />
-                                <Column Id="%AID%_PB-nnn_C-3" Width="26%" />
-                                <Column Id="%AID%_PB-nnn_C-4" Width="12%" />
-                                <Column Id="%AID%_PB-nnn_C-5" Width="20%" />
-                                <Column Id="%AID%_PB-nnn_C-6" Width="30%" />
-                                <Column Id="%AID%_PB-nnn_C-7" Width="35%" />
-                                <Column Id="%AID%_PB-nnn_C-8" Width="12%" />
-                                <Column Id="%AID%_PB-nnn_C-9" Width="15%" />
-                              </Columns>
-                              <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,1" Text="&#160;&#160;&#160;L2" />
-                              <ParameterRefRef RefId="%AID%_P-3002000_R-300200001" Cell="1,2" HelpContext="BASE-ChannelName" />
-                              <ParameterRefRef RefId="%AID%_UP-3002001_R-300200101" Cell="1,3" HelpContext="Empty" />
-                              <ParameterRefRef RefId="%AID%_UP-3002028_R-300202801" Cell="1,4" HelpContext="Empty" />
-                              <ParameterRefRef RefId="%AID%_UP-3002002_R-300200201" Cell="1,5" HelpContext="Empty" />
-                              <ParameterRefRef RefId="%AID%_UP-3002003_R-300200301" Cell="1,7" HelpContext="Empty" />
-                              <ParameterRefRef RefId="%AID%_UP-3002020_R-300202001" Cell="1,8" HelpContext="Empty" />
-                              <choose ParamRefId="%AID%_P-3002091_R-300209101">
-                            <when test="1">
-                              <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,9" Text="⛔ fehlt" />
-                            </when>
-                            <when default="true" />
-                          </choose>
-                            </ParameterBlock>
+                    <choose ParamRefId="%AID%_UP-%TT%00001_R-%TT%0000101">
+                      <when test="&gt;=2">
+                        <choose ParamRefId="%AID%_UP-3002004_R-300200401">
+                          <when test="%Gn%">
+                            <choose ParamRefId="%AID%_P-3002090_R-300209001">
+                              <when test="1">
+                                <ParameterBlock Id="%AID%_PB-nnn" Inline="true" Layout="Grid">
+                                  <Rows><Row Id="%AID%_PB-nnn_R-1" /></Rows>
+                                  <Columns>
+                                    <Column Id="%AID%_PB-nnn_C-1" Width="10%" />
+                                    <Column Id="%AID%_PB-nnn_C-2" Width="37%" />
+                                    <Column Id="%AID%_PB-nnn_C-3" Width="143%" />
+                                  </Columns>
+                                  <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,1" Text="&#160;&#160;&#160;L2" />
+                                  <ParameterRefRef RefId="%AID%_P-3002000_R-300200001" Cell="1,2" HelpContext="BASE-ChannelName" />
+                                </ParameterBlock>
+                              </when>
+                              <when default="true" />
+                            </choose>
                           </when>
                           <when default="true" />
                         </choose>
                       </when>
                       <when default="true" />
                     </choose>
-                    <choose ParamRefId="%AID%_UP-3003004_R-300300401">
-                      <when test="%Gn%">
-                        <choose ParamRefId="%AID%_P-3003090_R-300309001">
-                          <when test="1">
-                            <ParameterBlock Id="%AID%_PB-nnn" Inline="true" Layout="Grid">
-                              <Rows><Row Id="%AID%_PB-nnn_R-1" /></Rows>
-                              <Columns>
-                                <Column Id="%AID%_PB-nnn_C-1" Width="10%" />
-                                <Column Id="%AID%_PB-nnn_C-2" Width="30%" />
-                                <Column Id="%AID%_PB-nnn_C-3" Width="26%" />
-                                <Column Id="%AID%_PB-nnn_C-4" Width="12%" />
-                                <Column Id="%AID%_PB-nnn_C-5" Width="20%" />
-                                <Column Id="%AID%_PB-nnn_C-6" Width="30%" />
-                                <Column Id="%AID%_PB-nnn_C-7" Width="35%" />
-                                <Column Id="%AID%_PB-nnn_C-8" Width="12%" />
-                                <Column Id="%AID%_PB-nnn_C-9" Width="15%" />
-                              </Columns>
-                              <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,1" Text="&#160;&#160;&#160;L3" />
-                              <ParameterRefRef RefId="%AID%_P-3003000_R-300300001" Cell="1,2" HelpContext="BASE-ChannelName" />
-                              <ParameterRefRef RefId="%AID%_UP-3003001_R-300300101" Cell="1,3" HelpContext="Empty" />
-                              <ParameterRefRef RefId="%AID%_UP-3003028_R-300302801" Cell="1,4" HelpContext="Empty" />
-                              <ParameterRefRef RefId="%AID%_UP-3003002_R-300300201" Cell="1,5" HelpContext="Empty" />
-                              <ParameterRefRef RefId="%AID%_UP-3003003_R-300300301" Cell="1,7" HelpContext="Empty" />
-                              <ParameterRefRef RefId="%AID%_UP-3003020_R-300302001" Cell="1,8" HelpContext="Empty" />
-                              <choose ParamRefId="%AID%_P-3003091_R-300309101">
-                            <when test="1">
-                              <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,9" Text="⛔ fehlt" />
-                            </when>
-                            <when default="true" />
-                          </choose>
-                            </ParameterBlock>
+                    <choose ParamRefId="%AID%_UP-%TT%00001_R-%TT%0000101">
+                      <when test="&gt;=3">
+                        <choose ParamRefId="%AID%_UP-3003004_R-300300401">
+                          <when test="%Gn%">
+                            <choose ParamRefId="%AID%_P-3003090_R-300309001">
+                              <when test="1">
+                                <ParameterBlock Id="%AID%_PB-nnn" Inline="true" Layout="Grid">
+                                  <Rows><Row Id="%AID%_PB-nnn_R-1" /></Rows>
+                                  <Columns>
+                                    <Column Id="%AID%_PB-nnn_C-1" Width="10%" />
+                                    <Column Id="%AID%_PB-nnn_C-2" Width="37%" />
+                                    <Column Id="%AID%_PB-nnn_C-3" Width="143%" />
+                                  </Columns>
+                                  <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,1" Text="&#160;&#160;&#160;L3" />
+                                  <ParameterRefRef RefId="%AID%_P-3003000_R-300300001" Cell="1,2" HelpContext="BASE-ChannelName" />
+                                </ParameterBlock>
+                              </when>
+                              <when default="true" />
+                            </choose>
                           </when>
                           <when default="true" />
                         </choose>
                       </when>
                       <when default="true" />
                     </choose>
-                    <choose ParamRefId="%AID%_UP-3004004_R-300400401">
-                      <when test="%Gn%">
-                        <choose ParamRefId="%AID%_P-3004090_R-300409001">
-                          <when test="1">
-                            <ParameterBlock Id="%AID%_PB-nnn" Inline="true" Layout="Grid">
-                              <Rows><Row Id="%AID%_PB-nnn_R-1" /></Rows>
-                              <Columns>
-                                <Column Id="%AID%_PB-nnn_C-1" Width="10%" />
-                                <Column Id="%AID%_PB-nnn_C-2" Width="30%" />
-                                <Column Id="%AID%_PB-nnn_C-3" Width="26%" />
-                                <Column Id="%AID%_PB-nnn_C-4" Width="12%" />
-                                <Column Id="%AID%_PB-nnn_C-5" Width="20%" />
-                                <Column Id="%AID%_PB-nnn_C-6" Width="30%" />
-                                <Column Id="%AID%_PB-nnn_C-7" Width="35%" />
-                                <Column Id="%AID%_PB-nnn_C-8" Width="12%" />
-                                <Column Id="%AID%_PB-nnn_C-9" Width="15%" />
-                              </Columns>
-                              <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,1" Text="&#160;&#160;&#160;L4" />
-                              <ParameterRefRef RefId="%AID%_P-3004000_R-300400001" Cell="1,2" HelpContext="BASE-ChannelName" />
-                              <ParameterRefRef RefId="%AID%_UP-3004001_R-300400101" Cell="1,3" HelpContext="Empty" />
-                              <ParameterRefRef RefId="%AID%_UP-3004028_R-300402801" Cell="1,4" HelpContext="Empty" />
-                              <ParameterRefRef RefId="%AID%_UP-3004002_R-300400201" Cell="1,5" HelpContext="Empty" />
-                              <ParameterRefRef RefId="%AID%_UP-3004003_R-300400301" Cell="1,7" HelpContext="Empty" />
-                              <ParameterRefRef RefId="%AID%_UP-3004020_R-300402001" Cell="1,8" HelpContext="Empty" />
-                              <choose ParamRefId="%AID%_P-3004091_R-300409101">
-                            <when test="1">
-                              <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,9" Text="⛔ fehlt" />
-                            </when>
-                            <when default="true" />
-                          </choose>
-                            </ParameterBlock>
+                    <choose ParamRefId="%AID%_UP-%TT%00001_R-%TT%0000101">
+                      <when test="&gt;=4">
+                        <choose ParamRefId="%AID%_UP-3004004_R-300400401">
+                          <when test="%Gn%">
+                            <choose ParamRefId="%AID%_P-3004090_R-300409001">
+                              <when test="1">
+                                <ParameterBlock Id="%AID%_PB-nnn" Inline="true" Layout="Grid">
+                                  <Rows><Row Id="%AID%_PB-nnn_R-1" /></Rows>
+                                  <Columns>
+                                    <Column Id="%AID%_PB-nnn_C-1" Width="10%" />
+                                    <Column Id="%AID%_PB-nnn_C-2" Width="37%" />
+                                    <Column Id="%AID%_PB-nnn_C-3" Width="143%" />
+                                  </Columns>
+                                  <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,1" Text="&#160;&#160;&#160;L4" />
+                                  <ParameterRefRef RefId="%AID%_P-3004000_R-300400001" Cell="1,2" HelpContext="BASE-ChannelName" />
+                                </ParameterBlock>
+                              </when>
+                              <when default="true" />
+                            </choose>
                           </when>
                           <when default="true" />
                         </choose>
                       </when>
                       <when default="true" />
                     </choose>
-                    <choose ParamRefId="%AID%_UP-3005004_R-300500401">
-                      <when test="%Gn%">
-                        <choose ParamRefId="%AID%_P-3005090_R-300509001">
-                          <when test="1">
-                            <ParameterBlock Id="%AID%_PB-nnn" Inline="true" Layout="Grid">
-                              <Rows><Row Id="%AID%_PB-nnn_R-1" /></Rows>
-                              <Columns>
-                                <Column Id="%AID%_PB-nnn_C-1" Width="10%" />
-                                <Column Id="%AID%_PB-nnn_C-2" Width="30%" />
-                                <Column Id="%AID%_PB-nnn_C-3" Width="26%" />
-                                <Column Id="%AID%_PB-nnn_C-4" Width="12%" />
-                                <Column Id="%AID%_PB-nnn_C-5" Width="20%" />
-                                <Column Id="%AID%_PB-nnn_C-6" Width="30%" />
-                                <Column Id="%AID%_PB-nnn_C-7" Width="35%" />
-                                <Column Id="%AID%_PB-nnn_C-8" Width="12%" />
-                                <Column Id="%AID%_PB-nnn_C-9" Width="15%" />
-                              </Columns>
-                              <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,1" Text="&#160;&#160;&#160;L5" />
-                              <ParameterRefRef RefId="%AID%_P-3005000_R-300500001" Cell="1,2" HelpContext="BASE-ChannelName" />
-                              <ParameterRefRef RefId="%AID%_UP-3005001_R-300500101" Cell="1,3" HelpContext="Empty" />
-                              <ParameterRefRef RefId="%AID%_UP-3005028_R-300502801" Cell="1,4" HelpContext="Empty" />
-                              <ParameterRefRef RefId="%AID%_UP-3005002_R-300500201" Cell="1,5" HelpContext="Empty" />
-                              <ParameterRefRef RefId="%AID%_UP-3005003_R-300500301" Cell="1,7" HelpContext="Empty" />
-                              <ParameterRefRef RefId="%AID%_UP-3005020_R-300502001" Cell="1,8" HelpContext="Empty" />
-                              <choose ParamRefId="%AID%_P-3005091_R-300509101">
-                            <when test="1">
-                              <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,9" Text="⛔ fehlt" />
-                            </when>
-                            <when default="true" />
-                          </choose>
-                            </ParameterBlock>
+                    <choose ParamRefId="%AID%_UP-%TT%00001_R-%TT%0000101">
+                      <when test="&gt;=5">
+                        <choose ParamRefId="%AID%_UP-3005004_R-300500401">
+                          <when test="%Gn%">
+                            <choose ParamRefId="%AID%_P-3005090_R-300509001">
+                              <when test="1">
+                                <ParameterBlock Id="%AID%_PB-nnn" Inline="true" Layout="Grid">
+                                  <Rows><Row Id="%AID%_PB-nnn_R-1" /></Rows>
+                                  <Columns>
+                                    <Column Id="%AID%_PB-nnn_C-1" Width="10%" />
+                                    <Column Id="%AID%_PB-nnn_C-2" Width="37%" />
+                                    <Column Id="%AID%_PB-nnn_C-3" Width="143%" />
+                                  </Columns>
+                                  <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,1" Text="&#160;&#160;&#160;L5" />
+                                  <ParameterRefRef RefId="%AID%_P-3005000_R-300500001" Cell="1,2" HelpContext="BASE-ChannelName" />
+                                </ParameterBlock>
+                              </when>
+                              <when default="true" />
+                            </choose>
                           </when>
                           <when default="true" />
                         </choose>
                       </when>
                       <when default="true" />
                     </choose>
-                    <choose ParamRefId="%AID%_UP-3006004_R-300600401">
-                      <when test="%Gn%">
-                        <choose ParamRefId="%AID%_P-3006090_R-300609001">
-                          <when test="1">
-                            <ParameterBlock Id="%AID%_PB-nnn" Inline="true" Layout="Grid">
-                              <Rows><Row Id="%AID%_PB-nnn_R-1" /></Rows>
-                              <Columns>
-                                <Column Id="%AID%_PB-nnn_C-1" Width="10%" />
-                                <Column Id="%AID%_PB-nnn_C-2" Width="30%" />
-                                <Column Id="%AID%_PB-nnn_C-3" Width="26%" />
-                                <Column Id="%AID%_PB-nnn_C-4" Width="12%" />
-                                <Column Id="%AID%_PB-nnn_C-5" Width="20%" />
-                                <Column Id="%AID%_PB-nnn_C-6" Width="30%" />
-                                <Column Id="%AID%_PB-nnn_C-7" Width="35%" />
-                                <Column Id="%AID%_PB-nnn_C-8" Width="12%" />
-                                <Column Id="%AID%_PB-nnn_C-9" Width="15%" />
-                              </Columns>
-                              <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,1" Text="&#160;&#160;&#160;L6" />
-                              <ParameterRefRef RefId="%AID%_P-3006000_R-300600001" Cell="1,2" HelpContext="BASE-ChannelName" />
-                              <ParameterRefRef RefId="%AID%_UP-3006001_R-300600101" Cell="1,3" HelpContext="Empty" />
-                              <ParameterRefRef RefId="%AID%_UP-3006028_R-300602801" Cell="1,4" HelpContext="Empty" />
-                              <ParameterRefRef RefId="%AID%_UP-3006002_R-300600201" Cell="1,5" HelpContext="Empty" />
-                              <ParameterRefRef RefId="%AID%_UP-3006003_R-300600301" Cell="1,7" HelpContext="Empty" />
-                              <ParameterRefRef RefId="%AID%_UP-3006020_R-300602001" Cell="1,8" HelpContext="Empty" />
-                              <choose ParamRefId="%AID%_P-3006091_R-300609101">
-                            <when test="1">
-                              <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,9" Text="⛔ fehlt" />
-                            </when>
-                            <when default="true" />
-                          </choose>
-                            </ParameterBlock>
+                    <choose ParamRefId="%AID%_UP-%TT%00001_R-%TT%0000101">
+                      <when test="&gt;=6">
+                        <choose ParamRefId="%AID%_UP-3006004_R-300600401">
+                          <when test="%Gn%">
+                            <choose ParamRefId="%AID%_P-3006090_R-300609001">
+                              <when test="1">
+                                <ParameterBlock Id="%AID%_PB-nnn" Inline="true" Layout="Grid">
+                                  <Rows><Row Id="%AID%_PB-nnn_R-1" /></Rows>
+                                  <Columns>
+                                    <Column Id="%AID%_PB-nnn_C-1" Width="10%" />
+                                    <Column Id="%AID%_PB-nnn_C-2" Width="37%" />
+                                    <Column Id="%AID%_PB-nnn_C-3" Width="143%" />
+                                  </Columns>
+                                  <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,1" Text="&#160;&#160;&#160;L6" />
+                                  <ParameterRefRef RefId="%AID%_P-3006000_R-300600001" Cell="1,2" HelpContext="BASE-ChannelName" />
+                                </ParameterBlock>
+                              </when>
+                              <when default="true" />
+                            </choose>
                           </when>
                           <when default="true" />
                         </choose>
                       </when>
                       <when default="true" />
                     </choose>
-                    <choose ParamRefId="%AID%_UP-3007004_R-300700401">
-                      <when test="%Gn%">
-                        <choose ParamRefId="%AID%_P-3007090_R-300709001">
-                          <when test="1">
-                            <ParameterBlock Id="%AID%_PB-nnn" Inline="true" Layout="Grid">
-                              <Rows><Row Id="%AID%_PB-nnn_R-1" /></Rows>
-                              <Columns>
-                                <Column Id="%AID%_PB-nnn_C-1" Width="10%" />
-                                <Column Id="%AID%_PB-nnn_C-2" Width="30%" />
-                                <Column Id="%AID%_PB-nnn_C-3" Width="26%" />
-                                <Column Id="%AID%_PB-nnn_C-4" Width="12%" />
-                                <Column Id="%AID%_PB-nnn_C-5" Width="20%" />
-                                <Column Id="%AID%_PB-nnn_C-6" Width="30%" />
-                                <Column Id="%AID%_PB-nnn_C-7" Width="35%" />
-                                <Column Id="%AID%_PB-nnn_C-8" Width="12%" />
-                                <Column Id="%AID%_PB-nnn_C-9" Width="15%" />
-                              </Columns>
-                              <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,1" Text="&#160;&#160;&#160;L7" />
-                              <ParameterRefRef RefId="%AID%_P-3007000_R-300700001" Cell="1,2" HelpContext="BASE-ChannelName" />
-                              <ParameterRefRef RefId="%AID%_UP-3007001_R-300700101" Cell="1,3" HelpContext="Empty" />
-                              <ParameterRefRef RefId="%AID%_UP-3007028_R-300702801" Cell="1,4" HelpContext="Empty" />
-                              <ParameterRefRef RefId="%AID%_UP-3007002_R-300700201" Cell="1,5" HelpContext="Empty" />
-                              <ParameterRefRef RefId="%AID%_UP-3007003_R-300700301" Cell="1,7" HelpContext="Empty" />
-                              <ParameterRefRef RefId="%AID%_UP-3007020_R-300702001" Cell="1,8" HelpContext="Empty" />
-                              <choose ParamRefId="%AID%_P-3007091_R-300709101">
-                            <when test="1">
-                              <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,9" Text="⛔ fehlt" />
-                            </when>
-                            <when default="true" />
-                          </choose>
-                            </ParameterBlock>
+                    <choose ParamRefId="%AID%_UP-%TT%00001_R-%TT%0000101">
+                      <when test="&gt;=7">
+                        <choose ParamRefId="%AID%_UP-3007004_R-300700401">
+                          <when test="%Gn%">
+                            <choose ParamRefId="%AID%_P-3007090_R-300709001">
+                              <when test="1">
+                                <ParameterBlock Id="%AID%_PB-nnn" Inline="true" Layout="Grid">
+                                  <Rows><Row Id="%AID%_PB-nnn_R-1" /></Rows>
+                                  <Columns>
+                                    <Column Id="%AID%_PB-nnn_C-1" Width="10%" />
+                                    <Column Id="%AID%_PB-nnn_C-2" Width="37%" />
+                                    <Column Id="%AID%_PB-nnn_C-3" Width="143%" />
+                                  </Columns>
+                                  <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,1" Text="&#160;&#160;&#160;L7" />
+                                  <ParameterRefRef RefId="%AID%_P-3007000_R-300700001" Cell="1,2" HelpContext="BASE-ChannelName" />
+                                </ParameterBlock>
+                              </when>
+                              <when default="true" />
+                            </choose>
                           </when>
                           <when default="true" />
                         </choose>
                       </when>
                       <when default="true" />
                     </choose>
-                    <choose ParamRefId="%AID%_UP-3008004_R-300800401">
-                      <when test="%Gn%">
-                        <choose ParamRefId="%AID%_P-3008090_R-300809001">
-                          <when test="1">
-                            <ParameterBlock Id="%AID%_PB-nnn" Inline="true" Layout="Grid">
-                              <Rows><Row Id="%AID%_PB-nnn_R-1" /></Rows>
-                              <Columns>
-                                <Column Id="%AID%_PB-nnn_C-1" Width="10%" />
-                                <Column Id="%AID%_PB-nnn_C-2" Width="30%" />
-                                <Column Id="%AID%_PB-nnn_C-3" Width="26%" />
-                                <Column Id="%AID%_PB-nnn_C-4" Width="12%" />
-                                <Column Id="%AID%_PB-nnn_C-5" Width="20%" />
-                                <Column Id="%AID%_PB-nnn_C-6" Width="30%" />
-                                <Column Id="%AID%_PB-nnn_C-7" Width="35%" />
-                                <Column Id="%AID%_PB-nnn_C-8" Width="12%" />
-                                <Column Id="%AID%_PB-nnn_C-9" Width="15%" />
-                              </Columns>
-                              <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,1" Text="&#160;&#160;&#160;L8" />
-                              <ParameterRefRef RefId="%AID%_P-3008000_R-300800001" Cell="1,2" HelpContext="BASE-ChannelName" />
-                              <ParameterRefRef RefId="%AID%_UP-3008001_R-300800101" Cell="1,3" HelpContext="Empty" />
-                              <ParameterRefRef RefId="%AID%_UP-3008028_R-300802801" Cell="1,4" HelpContext="Empty" />
-                              <ParameterRefRef RefId="%AID%_UP-3008002_R-300800201" Cell="1,5" HelpContext="Empty" />
-                              <ParameterRefRef RefId="%AID%_UP-3008003_R-300800301" Cell="1,7" HelpContext="Empty" />
-                              <ParameterRefRef RefId="%AID%_UP-3008020_R-300802001" Cell="1,8" HelpContext="Empty" />
-                              <choose ParamRefId="%AID%_P-3008091_R-300809101">
-                            <when test="1">
-                              <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,9" Text="⛔ fehlt" />
-                            </when>
-                            <when default="true" />
-                          </choose>
-                            </ParameterBlock>
+                    <choose ParamRefId="%AID%_UP-%TT%00001_R-%TT%0000101">
+                      <when test="&gt;=8">
+                        <choose ParamRefId="%AID%_UP-3008004_R-300800401">
+                          <when test="%Gn%">
+                            <choose ParamRefId="%AID%_P-3008090_R-300809001">
+                              <when test="1">
+                                <ParameterBlock Id="%AID%_PB-nnn" Inline="true" Layout="Grid">
+                                  <Rows><Row Id="%AID%_PB-nnn_R-1" /></Rows>
+                                  <Columns>
+                                    <Column Id="%AID%_PB-nnn_C-1" Width="10%" />
+                                    <Column Id="%AID%_PB-nnn_C-2" Width="37%" />
+                                    <Column Id="%AID%_PB-nnn_C-3" Width="143%" />
+                                  </Columns>
+                                  <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,1" Text="&#160;&#160;&#160;L8" />
+                                  <ParameterRefRef RefId="%AID%_P-3008000_R-300800001" Cell="1,2" HelpContext="BASE-ChannelName" />
+                                </ParameterBlock>
+                              </when>
+                              <when default="true" />
+                            </choose>
                           </when>
                           <when default="true" />
                         </choose>
                       </when>
                       <when default="true" />
                     </choose>
-                    <choose ParamRefId="%AID%_UP-3009004_R-300900401">
-                      <when test="%Gn%">
-                        <choose ParamRefId="%AID%_P-3009090_R-300909001">
-                          <when test="1">
-                            <ParameterBlock Id="%AID%_PB-nnn" Inline="true" Layout="Grid">
-                              <Rows><Row Id="%AID%_PB-nnn_R-1" /></Rows>
-                              <Columns>
-                                <Column Id="%AID%_PB-nnn_C-1" Width="10%" />
-                                <Column Id="%AID%_PB-nnn_C-2" Width="30%" />
-                                <Column Id="%AID%_PB-nnn_C-3" Width="26%" />
-                                <Column Id="%AID%_PB-nnn_C-4" Width="12%" />
-                                <Column Id="%AID%_PB-nnn_C-5" Width="20%" />
-                                <Column Id="%AID%_PB-nnn_C-6" Width="30%" />
-                                <Column Id="%AID%_PB-nnn_C-7" Width="35%" />
-                                <Column Id="%AID%_PB-nnn_C-8" Width="12%" />
-                                <Column Id="%AID%_PB-nnn_C-9" Width="15%" />
-                              </Columns>
-                              <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,1" Text="&#160;&#160;&#160;L9" />
-                              <ParameterRefRef RefId="%AID%_P-3009000_R-300900001" Cell="1,2" HelpContext="BASE-ChannelName" />
-                              <ParameterRefRef RefId="%AID%_UP-3009001_R-300900101" Cell="1,3" HelpContext="Empty" />
-                              <ParameterRefRef RefId="%AID%_UP-3009028_R-300902801" Cell="1,4" HelpContext="Empty" />
-                              <ParameterRefRef RefId="%AID%_UP-3009002_R-300900201" Cell="1,5" HelpContext="Empty" />
-                              <ParameterRefRef RefId="%AID%_UP-3009003_R-300900301" Cell="1,7" HelpContext="Empty" />
-                              <ParameterRefRef RefId="%AID%_UP-3009020_R-300902001" Cell="1,8" HelpContext="Empty" />
-                              <choose ParamRefId="%AID%_P-3009091_R-300909101">
-                            <when test="1">
-                              <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,9" Text="⛔ fehlt" />
-                            </when>
-                            <when default="true" />
-                          </choose>
-                            </ParameterBlock>
+                    <choose ParamRefId="%AID%_UP-%TT%00001_R-%TT%0000101">
+                      <when test="&gt;=9">
+                        <choose ParamRefId="%AID%_UP-3009004_R-300900401">
+                          <when test="%Gn%">
+                            <choose ParamRefId="%AID%_P-3009090_R-300909001">
+                              <when test="1">
+                                <ParameterBlock Id="%AID%_PB-nnn" Inline="true" Layout="Grid">
+                                  <Rows><Row Id="%AID%_PB-nnn_R-1" /></Rows>
+                                  <Columns>
+                                    <Column Id="%AID%_PB-nnn_C-1" Width="10%" />
+                                    <Column Id="%AID%_PB-nnn_C-2" Width="37%" />
+                                    <Column Id="%AID%_PB-nnn_C-3" Width="143%" />
+                                  </Columns>
+                                  <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,1" Text="&#160;&#160;&#160;L9" />
+                                  <ParameterRefRef RefId="%AID%_P-3009000_R-300900001" Cell="1,2" HelpContext="BASE-ChannelName" />
+                                </ParameterBlock>
+                              </when>
+                              <when default="true" />
+                            </choose>
                           </when>
                           <when default="true" />
                         </choose>
                       </when>
                       <when default="true" />
                     </choose>
-                    <choose ParamRefId="%AID%_UP-3010004_R-301000401">
-                      <when test="%Gn%">
-                        <choose ParamRefId="%AID%_P-3010090_R-301009001">
-                          <when test="1">
-                            <ParameterBlock Id="%AID%_PB-nnn" Inline="true" Layout="Grid">
-                              <Rows><Row Id="%AID%_PB-nnn_R-1" /></Rows>
-                              <Columns>
-                                <Column Id="%AID%_PB-nnn_C-1" Width="10%" />
-                                <Column Id="%AID%_PB-nnn_C-2" Width="30%" />
-                                <Column Id="%AID%_PB-nnn_C-3" Width="26%" />
-                                <Column Id="%AID%_PB-nnn_C-4" Width="12%" />
-                                <Column Id="%AID%_PB-nnn_C-5" Width="20%" />
-                                <Column Id="%AID%_PB-nnn_C-6" Width="30%" />
-                                <Column Id="%AID%_PB-nnn_C-7" Width="35%" />
-                                <Column Id="%AID%_PB-nnn_C-8" Width="12%" />
-                                <Column Id="%AID%_PB-nnn_C-9" Width="15%" />
-                              </Columns>
-                              <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,1" Text="&#160;&#160;&#160;L10" />
-                              <ParameterRefRef RefId="%AID%_P-3010000_R-301000001" Cell="1,2" HelpContext="BASE-ChannelName" />
-                              <ParameterRefRef RefId="%AID%_UP-3010001_R-301000101" Cell="1,3" HelpContext="Empty" />
-                              <ParameterRefRef RefId="%AID%_UP-3010028_R-301002801" Cell="1,4" HelpContext="Empty" />
-                              <ParameterRefRef RefId="%AID%_UP-3010002_R-301000201" Cell="1,5" HelpContext="Empty" />
-                              <ParameterRefRef RefId="%AID%_UP-3010003_R-301000301" Cell="1,7" HelpContext="Empty" />
-                              <ParameterRefRef RefId="%AID%_UP-3010020_R-301002001" Cell="1,8" HelpContext="Empty" />
-                              <choose ParamRefId="%AID%_P-3010091_R-301009101">
-                            <when test="1">
-                              <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,9" Text="⛔ fehlt" />
-                            </when>
-                            <when default="true" />
-                          </choose>
-                            </ParameterBlock>
+                    <choose ParamRefId="%AID%_UP-%TT%00001_R-%TT%0000101">
+                      <when test="&gt;=10">
+                        <choose ParamRefId="%AID%_UP-3010004_R-301000401">
+                          <when test="%Gn%">
+                            <choose ParamRefId="%AID%_P-3010090_R-301009001">
+                              <when test="1">
+                                <ParameterBlock Id="%AID%_PB-nnn" Inline="true" Layout="Grid">
+                                  <Rows><Row Id="%AID%_PB-nnn_R-1" /></Rows>
+                                  <Columns>
+                                    <Column Id="%AID%_PB-nnn_C-1" Width="10%" />
+                                    <Column Id="%AID%_PB-nnn_C-2" Width="37%" />
+                                    <Column Id="%AID%_PB-nnn_C-3" Width="143%" />
+                                  </Columns>
+                                  <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,1" Text="&#160;&#160;&#160;L10" />
+                                  <ParameterRefRef RefId="%AID%_P-3010000_R-301000001" Cell="1,2" HelpContext="BASE-ChannelName" />
+                                </ParameterBlock>
+                              </when>
+                              <when default="true" />
+                            </choose>
                           </when>
                           <when default="true" />
                         </choose>
                       </when>
                       <when default="true" />
                     </choose>
-                    <choose ParamRefId="%AID%_UP-3011004_R-301100401">
-                      <when test="%Gn%">
-                        <choose ParamRefId="%AID%_P-3011090_R-301109001">
-                          <when test="1">
-                            <ParameterBlock Id="%AID%_PB-nnn" Inline="true" Layout="Grid">
-                              <Rows><Row Id="%AID%_PB-nnn_R-1" /></Rows>
-                              <Columns>
-                                <Column Id="%AID%_PB-nnn_C-1" Width="10%" />
-                                <Column Id="%AID%_PB-nnn_C-2" Width="30%" />
-                                <Column Id="%AID%_PB-nnn_C-3" Width="26%" />
-                                <Column Id="%AID%_PB-nnn_C-4" Width="12%" />
-                                <Column Id="%AID%_PB-nnn_C-5" Width="20%" />
-                                <Column Id="%AID%_PB-nnn_C-6" Width="30%" />
-                                <Column Id="%AID%_PB-nnn_C-7" Width="35%" />
-                                <Column Id="%AID%_PB-nnn_C-8" Width="12%" />
-                                <Column Id="%AID%_PB-nnn_C-9" Width="15%" />
-                              </Columns>
-                              <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,1" Text="&#160;&#160;&#160;L11" />
-                              <ParameterRefRef RefId="%AID%_P-3011000_R-301100001" Cell="1,2" HelpContext="BASE-ChannelName" />
-                              <ParameterRefRef RefId="%AID%_UP-3011001_R-301100101" Cell="1,3" HelpContext="Empty" />
-                              <ParameterRefRef RefId="%AID%_UP-3011028_R-301102801" Cell="1,4" HelpContext="Empty" />
-                              <ParameterRefRef RefId="%AID%_UP-3011002_R-301100201" Cell="1,5" HelpContext="Empty" />
-                              <ParameterRefRef RefId="%AID%_UP-3011003_R-301100301" Cell="1,7" HelpContext="Empty" />
-                              <ParameterRefRef RefId="%AID%_UP-3011020_R-301102001" Cell="1,8" HelpContext="Empty" />
-                              <choose ParamRefId="%AID%_P-3011091_R-301109101">
-                            <when test="1">
-                              <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,9" Text="⛔ fehlt" />
-                            </when>
-                            <when default="true" />
-                          </choose>
-                            </ParameterBlock>
+                    <choose ParamRefId="%AID%_UP-%TT%00001_R-%TT%0000101">
+                      <when test="&gt;=11">
+                        <choose ParamRefId="%AID%_UP-3011004_R-301100401">
+                          <when test="%Gn%">
+                            <choose ParamRefId="%AID%_P-3011090_R-301109001">
+                              <when test="1">
+                                <ParameterBlock Id="%AID%_PB-nnn" Inline="true" Layout="Grid">
+                                  <Rows><Row Id="%AID%_PB-nnn_R-1" /></Rows>
+                                  <Columns>
+                                    <Column Id="%AID%_PB-nnn_C-1" Width="10%" />
+                                    <Column Id="%AID%_PB-nnn_C-2" Width="37%" />
+                                    <Column Id="%AID%_PB-nnn_C-3" Width="143%" />
+                                  </Columns>
+                                  <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,1" Text="&#160;&#160;&#160;L11" />
+                                  <ParameterRefRef RefId="%AID%_P-3011000_R-301100001" Cell="1,2" HelpContext="BASE-ChannelName" />
+                                </ParameterBlock>
+                              </when>
+                              <when default="true" />
+                            </choose>
                           </when>
                           <when default="true" />
                         </choose>
                       </when>
                       <when default="true" />
                     </choose>
-                    <choose ParamRefId="%AID%_UP-3012004_R-301200401">
-                      <when test="%Gn%">
-                        <choose ParamRefId="%AID%_P-3012090_R-301209001">
-                          <when test="1">
-                            <ParameterBlock Id="%AID%_PB-nnn" Inline="true" Layout="Grid">
-                              <Rows><Row Id="%AID%_PB-nnn_R-1" /></Rows>
-                              <Columns>
-                                <Column Id="%AID%_PB-nnn_C-1" Width="10%" />
-                                <Column Id="%AID%_PB-nnn_C-2" Width="30%" />
-                                <Column Id="%AID%_PB-nnn_C-3" Width="26%" />
-                                <Column Id="%AID%_PB-nnn_C-4" Width="12%" />
-                                <Column Id="%AID%_PB-nnn_C-5" Width="20%" />
-                                <Column Id="%AID%_PB-nnn_C-6" Width="30%" />
-                                <Column Id="%AID%_PB-nnn_C-7" Width="35%" />
-                                <Column Id="%AID%_PB-nnn_C-8" Width="12%" />
-                                <Column Id="%AID%_PB-nnn_C-9" Width="15%" />
-                              </Columns>
-                              <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,1" Text="&#160;&#160;&#160;L12" />
-                              <ParameterRefRef RefId="%AID%_P-3012000_R-301200001" Cell="1,2" HelpContext="BASE-ChannelName" />
-                              <ParameterRefRef RefId="%AID%_UP-3012001_R-301200101" Cell="1,3" HelpContext="Empty" />
-                              <ParameterRefRef RefId="%AID%_UP-3012028_R-301202801" Cell="1,4" HelpContext="Empty" />
-                              <ParameterRefRef RefId="%AID%_UP-3012002_R-301200201" Cell="1,5" HelpContext="Empty" />
-                              <ParameterRefRef RefId="%AID%_UP-3012003_R-301200301" Cell="1,7" HelpContext="Empty" />
-                              <ParameterRefRef RefId="%AID%_UP-3012020_R-301202001" Cell="1,8" HelpContext="Empty" />
-                              <choose ParamRefId="%AID%_P-3012091_R-301209101">
-                            <when test="1">
-                              <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,9" Text="⛔ fehlt" />
-                            </when>
-                            <when default="true" />
-                          </choose>
-                            </ParameterBlock>
+                    <choose ParamRefId="%AID%_UP-%TT%00001_R-%TT%0000101">
+                      <when test="&gt;=12">
+                        <choose ParamRefId="%AID%_UP-3012004_R-301200401">
+                          <when test="%Gn%">
+                            <choose ParamRefId="%AID%_P-3012090_R-301209001">
+                              <when test="1">
+                                <ParameterBlock Id="%AID%_PB-nnn" Inline="true" Layout="Grid">
+                                  <Rows><Row Id="%AID%_PB-nnn_R-1" /></Rows>
+                                  <Columns>
+                                    <Column Id="%AID%_PB-nnn_C-1" Width="10%" />
+                                    <Column Id="%AID%_PB-nnn_C-2" Width="37%" />
+                                    <Column Id="%AID%_PB-nnn_C-3" Width="143%" />
+                                  </Columns>
+                                  <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,1" Text="&#160;&#160;&#160;L12" />
+                                  <ParameterRefRef RefId="%AID%_P-3012000_R-301200001" Cell="1,2" HelpContext="BASE-ChannelName" />
+                                </ParameterBlock>
+                              </when>
+                              <when default="true" />
+                            </choose>
                           </when>
                           <when default="true" />
                         </choose>
@@ -557,7 +410,6 @@
                   <when default="true" />
                 </choose>
               </ParameterBlock>
-
               <!-- ===================== Verbundseite ===================== -->
               <ParameterBlock Id="%AID%_PB-nnn" Name="Groups">
 
