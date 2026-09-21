@@ -75,7 +75,7 @@
                         <Column Id="%AID%_PB-nnn_C-3" Width="50%" />
                       </Columns>
                       <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,1" Text="Verbund %Gn%" />
-                      <ParameterRefRef RefId="%AID%_UP-%TT%00%GGG+14%_R-%TT%00%GGG+14%01" Cell="1,2" />
+                      <ParameterRefRef RefId="%AID%_UP-%TT%00%GGG+14%_R-%TT%00%GGG+14%01" Cell="1,2" HelpContext="%DOC%" />
                       <ParameterRefRef RefId="%AID%_P-%TT%00%GGG+0%_R-%TT%00%GGG+0%01" Cell="1,3" HelpContext="BASE-ChannelName" />
                     </ParameterBlock>
               </ParameterBlock>
@@ -92,19 +92,19 @@
                     <ParameterBlock Id="%AID%_PB-nnn" Inline="true" Layout="Grid">
                       <Rows><Row Id="%AID%_PB-nnn_R-1" /></Rows>
                       <Columns>
-                        <Column Id="%AID%_PB-nnn_C-1" Width="10%" />
+                        <Column Id="%AID%_PB-nnn_C-1" Width="12%" />
                         <Column Id="%AID%_PB-nnn_C-2" Width="30%" />
-                        <Column Id="%AID%_PB-nnn_C-3" Width="30%" />
-                        <Column Id="%AID%_PB-nnn_C-4" Width="62%" />
-                        <Column Id="%AID%_PB-nnn_C-5" Width="30%" />
-                        <Column Id="%AID%_PB-nnn_C-6" Width="28%" />
+                        <Column Id="%AID%_PB-nnn_C-3" Width="54%" />
+                        <Column Id="%AID%_PB-nnn_C-4" Width="54%" />
+                        <Column Id="%AID%_PB-nnn_C-5" Width="20%" />
+                        <Column Id="%AID%_PB-nnn_C-6" Width="20%" />
                       </Columns>
                       <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,1" Text="V%Gn%" UIHint="Headline" />
                       <ParameterRefRef RefId="%AID%_P-%TT%00%GGG+0%_R-%TT%00%GGG+0%01" Cell="1,2" HelpContext="BASE-ChannelName" />
-                      <ParameterRefRef RefId="%AID%_UP-%TT%00%GGG+1%_R-%TT%00%GGG+1%01" Cell="1,3" HelpContext="Empty" />
-                      <ParameterRefRef RefId="%AID%_UP-%TT%00%GGG+2%_R-%TT%00%GGG+2%01" Cell="1,4" HelpContext="Empty" />
-                      <ParameterRefRef RefId="%AID%_UP-%TT%00%GGG+7%_R-%TT%00%GGG+7%01" Cell="1,5" HelpContext="Empty" />
-                      <ParameterRefRef RefId="%AID%_UP-%TT%00%GGG+6%_R-%TT%00%GGG+6%01" Cell="1,6" HelpContext="Empty" />
+                      <ParameterRefRef RefId="%AID%_UP-%TT%00%GGG+1%_R-%TT%00%GGG+1%01" Cell="1,3" HelpContext="%DOC%" />
+                      <ParameterRefRef RefId="%AID%_UP-%TT%00%GGG+2%_R-%TT%00%GGG+2%01" Cell="1,4" HelpContext="%DOC%" />
+                      <ParameterRefRef RefId="%AID%_UP-%TT%00%GGG+7%_R-%TT%00%GGG+7%01" Cell="1,5" HelpContext="%DOC%" />
+                      <ParameterRefRef RefId="%AID%_UP-%TT%00%GGG+6%_R-%TT%00%GGG+6%01" Cell="1,6" HelpContext="%DOC%" />
                     </ParameterBlock>
                     <choose ParamRefId="%AID%_UP-%TT%00001_R-%TT%0000101">
                       <when test="&gt;=1">
@@ -125,7 +125,7 @@
                     <choose ParamRefId="%AID%_UP-3001001_R-300100101">
                       <when test="1" />
                       <when default="true">
-                        <ParameterRefRef RefId="%AID%_UP-3001003_R-300100301" Cell="1,3" HelpContext="Empty" />
+                        <ParameterRefRef RefId="%AID%_UP-3001003_R-300100301" Cell="1,3" HelpContext="%DOC%" />
                       </when>
                     </choose>
                                 </ParameterBlock>
@@ -157,7 +157,7 @@
                     <choose ParamRefId="%AID%_UP-3002001_R-300200101">
                       <when test="1" />
                       <when default="true">
-                        <ParameterRefRef RefId="%AID%_UP-3002003_R-300200301" Cell="1,3" HelpContext="Empty" />
+                        <ParameterRefRef RefId="%AID%_UP-3002003_R-300200301" Cell="1,3" HelpContext="%DOC%" />
                       </when>
                     </choose>
                                 </ParameterBlock>
@@ -189,7 +189,7 @@
                     <choose ParamRefId="%AID%_UP-3003001_R-300300101">
                       <when test="1" />
                       <when default="true">
-                        <ParameterRefRef RefId="%AID%_UP-3003003_R-300300301" Cell="1,3" HelpContext="Empty" />
+                        <ParameterRefRef RefId="%AID%_UP-3003003_R-300300301" Cell="1,3" HelpContext="%DOC%" />
                       </when>
                     </choose>
                                 </ParameterBlock>
@@ -221,7 +221,7 @@
                     <choose ParamRefId="%AID%_UP-3004001_R-300400101">
                       <when test="1" />
                       <when default="true">
-                        <ParameterRefRef RefId="%AID%_UP-3004003_R-300400301" Cell="1,3" HelpContext="Empty" />
+                        <ParameterRefRef RefId="%AID%_UP-3004003_R-300400301" Cell="1,3" HelpContext="%DOC%" />
                       </when>
                     </choose>
                                 </ParameterBlock>
@@ -253,7 +253,7 @@
                     <choose ParamRefId="%AID%_UP-3005001_R-300500101">
                       <when test="1" />
                       <when default="true">
-                        <ParameterRefRef RefId="%AID%_UP-3005003_R-300500301" Cell="1,3" HelpContext="Empty" />
+                        <ParameterRefRef RefId="%AID%_UP-3005003_R-300500301" Cell="1,3" HelpContext="%DOC%" />
                       </when>
                     </choose>
                                 </ParameterBlock>
@@ -285,7 +285,7 @@
                     <choose ParamRefId="%AID%_UP-3006001_R-300600101">
                       <when test="1" />
                       <when default="true">
-                        <ParameterRefRef RefId="%AID%_UP-3006003_R-300600301" Cell="1,3" HelpContext="Empty" />
+                        <ParameterRefRef RefId="%AID%_UP-3006003_R-300600301" Cell="1,3" HelpContext="%DOC%" />
                       </when>
                     </choose>
                                 </ParameterBlock>
@@ -317,7 +317,7 @@
                     <choose ParamRefId="%AID%_UP-3007001_R-300700101">
                       <when test="1" />
                       <when default="true">
-                        <ParameterRefRef RefId="%AID%_UP-3007003_R-300700301" Cell="1,3" HelpContext="Empty" />
+                        <ParameterRefRef RefId="%AID%_UP-3007003_R-300700301" Cell="1,3" HelpContext="%DOC%" />
                       </when>
                     </choose>
                                 </ParameterBlock>
@@ -349,7 +349,7 @@
                     <choose ParamRefId="%AID%_UP-3008001_R-300800101">
                       <when test="1" />
                       <when default="true">
-                        <ParameterRefRef RefId="%AID%_UP-3008003_R-300800301" Cell="1,3" HelpContext="Empty" />
+                        <ParameterRefRef RefId="%AID%_UP-3008003_R-300800301" Cell="1,3" HelpContext="%DOC%" />
                       </when>
                     </choose>
                                 </ParameterBlock>
@@ -381,7 +381,7 @@
                     <choose ParamRefId="%AID%_UP-3009001_R-300900101">
                       <when test="1" />
                       <when default="true">
-                        <ParameterRefRef RefId="%AID%_UP-3009003_R-300900301" Cell="1,3" HelpContext="Empty" />
+                        <ParameterRefRef RefId="%AID%_UP-3009003_R-300900301" Cell="1,3" HelpContext="%DOC%" />
                       </when>
                     </choose>
                                 </ParameterBlock>
@@ -413,7 +413,7 @@
                     <choose ParamRefId="%AID%_UP-3010001_R-301000101">
                       <when test="1" />
                       <when default="true">
-                        <ParameterRefRef RefId="%AID%_UP-3010003_R-301000301" Cell="1,3" HelpContext="Empty" />
+                        <ParameterRefRef RefId="%AID%_UP-3010003_R-301000301" Cell="1,3" HelpContext="%DOC%" />
                       </when>
                     </choose>
                                 </ParameterBlock>
@@ -445,7 +445,7 @@
                     <choose ParamRefId="%AID%_UP-3011001_R-301100101">
                       <when test="1" />
                       <when default="true">
-                        <ParameterRefRef RefId="%AID%_UP-3011003_R-301100301" Cell="1,3" HelpContext="Empty" />
+                        <ParameterRefRef RefId="%AID%_UP-3011003_R-301100301" Cell="1,3" HelpContext="%DOC%" />
                       </when>
                     </choose>
                                 </ParameterBlock>
@@ -477,7 +477,7 @@
                     <choose ParamRefId="%AID%_UP-3012001_R-301200101">
                       <when test="1" />
                       <when default="true">
-                        <ParameterRefRef RefId="%AID%_UP-3012003_R-301200301" Cell="1,3" HelpContext="Empty" />
+                        <ParameterRefRef RefId="%AID%_UP-3012003_R-301200301" Cell="1,3" HelpContext="%DOC%" />
                       </when>
                     </choose>
                                 </ParameterBlock>
@@ -506,7 +506,7 @@
                       <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
                       <ParameterSeparator Id="%AID%_PS-nnn" Text="Kanaldefinition" UIHint="Headline" />
                       <ParameterRefRef RefId="%AID%_P-%TT%00%GGG+0%_R-%TT%00%GGG+0%01"  IndentLevel="1" HelpContext="BASE-ChannelName" />
-                      <ParameterRefRef RefId="%AID%_UP-%TT%00%GGG+1%_R-%TT%00%GGG+1%01" IndentLevel="1" />
+                      <ParameterRefRef RefId="%AID%_UP-%TT%00%GGG+1%_R-%TT%00%GGG+1%01" IndentLevel="1" HelpContext="%DOC%" />
 
                       <!-- Stufenregel und Nachstroemung gibt es nur, wenn der Verbund seine
                            Stufe selbst bildet. Ein Slave bekommt sie vom externen Master. -->
@@ -514,27 +514,27 @@
                         <when test="0 1">
                           <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
                           <ParameterSeparator Id="%AID%_PS-nnn" Text="Stufenbildung" UIHint="Headline" />
-                          <ParameterRefRef RefId="%AID%_UP-%TT%00%GGG+2%_R-%TT%00%GGG+2%01" IndentLevel="1" />
+                          <ParameterRefRef RefId="%AID%_UP-%TT%00%GGG+2%_R-%TT%00%GGG+2%01" IndentLevel="1" HelpContext="%DOC%" />
                           <choose ParamRefId="%AID%_UP-%TT%00%GGG+2%_R-%TT%00%GGG+2%01">
                             <when test="2">
-                              <ParameterRefRef RefId="%AID%_UP-%TT%00%GGG+4%_R-%TT%00%GGG+4%01" IndentLevel="2" />
+                              <ParameterRefRef RefId="%AID%_UP-%TT%00%GGG+4%_R-%TT%00%GGG+4%01" IndentLevel="2" HelpContext="%DOC%" />
                             </when>
                             <when default="true" />
                           </choose>
-                          <ParameterRefRef RefId="%AID%_UP-%TT%00%GGG+3%_R-%TT%00%GGG+3%01" IndentLevel="1" />
-                          <ParameterRefRef RefId="%AID%_UP-%TT%00%GGG+5%_R-%TT%00%GGG+5%01" IndentLevel="1" />
+                          <ParameterRefRef RefId="%AID%_UP-%TT%00%GGG+3%_R-%TT%00%GGG+3%01" IndentLevel="1" HelpContext="%DOC%" />
+                          <ParameterRefRef RefId="%AID%_UP-%TT%00%GGG+5%_R-%TT%00%GGG+5%01" IndentLevel="1" HelpContext="%DOC%" />
                         </when>
                         <when default="true" />
                       </choose>
 
                       <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
                       <ParameterSeparator Id="%AID%_PS-nnn" Text="Takt" UIHint="Headline" />
-                      <ParameterRefRef RefId="%AID%_UP-%TT%00%GGG+7%_R-%TT%00%GGG+7%01"  IndentLevel="1" />
-                      <ParameterRefRef RefId="%AID%_UP-%TT%00%GGG+8%_R-%TT%00%GGG+8%01"  IndentLevel="1" />
-                      <ParameterRefRef RefId="%AID%_UP-%TT%00%GGG+9%_R-%TT%00%GGG+9%01"  IndentLevel="1" />
-                      <ParameterRefRef RefId="%AID%_UP-%TT%00%GGG+10%_R-%TT%00%GGG+10%01" IndentLevel="1" />
-                      <ParameterRefRef RefId="%AID%_UP-%TT%00%GGG+11%_R-%TT%00%GGG+11%01" IndentLevel="1" />
-                      <ParameterRefRef RefId="%AID%_UP-%TT%00%GGG+6%_R-%TT%00%GGG+6%01"  IndentLevel="1" />
+                      <ParameterRefRef RefId="%AID%_UP-%TT%00%GGG+7%_R-%TT%00%GGG+7%01"  IndentLevel="1" HelpContext="%DOC%" />
+                      <ParameterRefRef RefId="%AID%_UP-%TT%00%GGG+8%_R-%TT%00%GGG+8%01"  IndentLevel="1" HelpContext="%DOC%" />
+                      <ParameterRefRef RefId="%AID%_UP-%TT%00%GGG+9%_R-%TT%00%GGG+9%01"  IndentLevel="1" HelpContext="%DOC%" />
+                      <ParameterRefRef RefId="%AID%_UP-%TT%00%GGG+10%_R-%TT%00%GGG+10%01" IndentLevel="1" HelpContext="%DOC%" />
+                      <ParameterRefRef RefId="%AID%_UP-%TT%00%GGG+11%_R-%TT%00%GGG+11%01" IndentLevel="1" HelpContext="%DOC%" />
+                      <ParameterRefRef RefId="%AID%_UP-%TT%00%GGG+6%_R-%TT%00%GGG+6%01"  IndentLevel="1" HelpContext="%DOC%" />
                       <ParameterSeparator Id="%AID%_PS-nnn" Text="Der kurze Zyklus ist die Wärmerückgewinnung: der Regenerator gibt die gespeicherte Wärme wieder ab, bevor er auskühlt. Längere Zykluszeiten verringern die erreichbare Wärmerückgewinnung." UIHint="Information" />
 
                       <!-- Master sendet, Slave ueberwacht - je eine Zeit, nie beide. -->
@@ -542,12 +542,12 @@
                         <when test="1">
                           <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
                           <ParameterSeparator Id="%AID%_PS-nnn" Text="Kopplung über den Bus" UIHint="Headline" />
-                          <ParameterRefRef RefId="%AID%_UP-%TT%00%GGG+12%_R-%TT%00%GGG+12%01" IndentLevel="1" />
+                          <ParameterRefRef RefId="%AID%_UP-%TT%00%GGG+12%_R-%TT%00%GGG+12%01" IndentLevel="1" HelpContext="%DOC%" />
                         </when>
                         <when test="2">
                           <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
                           <ParameterSeparator Id="%AID%_PS-nnn" Text="Kopplung über den Bus" UIHint="Headline" />
-                          <ParameterRefRef RefId="%AID%_UP-%TT%00%GGG+13%_R-%TT%00%GGG+13%01" IndentLevel="1" />
+                          <ParameterRefRef RefId="%AID%_UP-%TT%00%GGG+13%_R-%TT%00%GGG+13%01" IndentLevel="1" HelpContext="%DOC%" />
                           <ParameterSeparator Id="%AID%_PS-nnn" Text="Bleibt das Lebenszeichen des Masters aus, gehen die Lüfter dieses Verbunds auf Stillstand (5,00 V) und melden Fehlercode 2." UIHint="Information" />
                         </when>
                         <when default="true" />

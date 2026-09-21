@@ -58,7 +58,7 @@
                 <Parameter Id="%AID%_UP-%TT%%CC%026" Name="r%C%DehumOff" Offset="6" BitOffset="0" ParameterType="%AID%_PT-RoomDehumHpa" Text="Feuchteführung sperren unter" SuffixText=" × 0,1 hPa" Value="5" />
                 <Parameter Id="%AID%_UP-%TT%%CC%027" Name="r%C%FrostTemp" Offset="7" BitOffset="0" ParameterType="%AID%_PT-RoomFrostTemp" Text="Frostgrenze innen" SuffixText=" °C" Value="8" />
                 <Parameter Id="%AID%_UP-%TT%%CC%028" Name="r%C%HeatTemp"  Offset="8" BitOffset="0" ParameterType="%AID%_PT-RoomHeatTemp" Text="Hitzegrenze innen" SuffixText=" °C" Value="30" />
-                <Parameter Id="%AID%_UP-%TT%%CC%029" Name="r%C%TempGap"   Offset="9" BitOffset="0" ParameterType="%AID%_PT-RoomTempGap" Text="Mindestabstand innen/außen" SuffixText=" K" Value="3" />
+                <Parameter Id="%AID%_UP-%TT%%CC%029" Name="r%C%TempGap"   Offset="9" BitOffset="0" ParameterType="%AID%_PT-RoomTempGap" Text="Mindestabstand innen zu außen" SuffixText=" K" Value="3" />
               </Union>
 
               <!-- CO2- und VOC-Treppe -->
@@ -479,7 +479,7 @@
                         <Column Id="%AID%_PB-nnn_C-3" Width="50%" />
                       </Columns>
                       <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,1" Text="Raum %C%" />
-                      <ParameterRefRef RefId="%AID%_UP-%TT%%CC%001_R-%TT%%CC%00101" Cell="1,2" />
+                      <ParameterRefRef RefId="%AID%_UP-%TT%%CC%001_R-%TT%%CC%00101" Cell="1,2" HelpContext="%DOC%" />
                       <ParameterRefRef RefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" Cell="1,3" HelpContext="BASE-ChannelName" />
                     </ParameterBlock>
               </ParameterBlock>
@@ -494,9 +494,9 @@
                           <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
                           <ParameterSeparator Id="%AID%_PS-nnn" Text="Kanaldefinition" UIHint="Headline" />
                           <ParameterRefRef RefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" IndentLevel="1" HelpContext="BASE-ChannelName" />
-                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%008_R-%TT%%CC%00801" IndentLevel="1" />
-                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%012_R-%TT%%CC%01201" IndentLevel="1" />
-                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%004_R-%TT%%CC%00401" IndentLevel="1" />
+                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%008_R-%TT%%CC%00801" IndentLevel="1" HelpContext="%DOC%" />
+                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%012_R-%TT%%CC%01201" IndentLevel="1" HelpContext="%DOC%" />
+                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%004_R-%TT%%CC%00401" IndentLevel="1" HelpContext="%DOC%" />
                           <!-- Aussenwerte und Betriebsartvorgabe kann man nur ab Raum 2 von
                                Raum 1 uebernehmen; auf Raum 1 selbst waere die Frage sinnlos. -->
                           <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
@@ -505,15 +505,15 @@
                                Auf Raum 1 falsch, ab Raum 2 wahr. -->
                           <choose ParamRefId="%AID%_P-%TT%00004_R-%TT%0000401">
                             <when test="&lt;%C%">
-                              <ParameterRefRef RefId="%AID%_UP-%TT%%CC%002_R-%TT%%CC%00201" IndentLevel="1" />
-                              <ParameterRefRef RefId="%AID%_UP-%TT%%CC%003_R-%TT%%CC%00301" IndentLevel="1" />
+                              <ParameterRefRef RefId="%AID%_UP-%TT%%CC%002_R-%TT%%CC%00201" IndentLevel="1" HelpContext="%DOC%" />
+                              <ParameterRefRef RefId="%AID%_UP-%TT%%CC%003_R-%TT%%CC%00301" IndentLevel="1" HelpContext="%DOC%" />
                             </when>
                             <when default="true">
                               <ParameterSeparator Id="%AID%_PS-nnn" Text="Raum 1 hat immer eigene Objekte; die übrigen Räume können seine Außenwerte und seine Betriebsartvorgabe übernehmen." UIHint="Information" />
                             </when>
                           </choose>
-                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%013_R-%TT%%CC%01301" IndentLevel="1" />
-                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%005_R-%TT%%CC%00501" IndentLevel="1" />
+                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%013_R-%TT%%CC%01301" IndentLevel="1" HelpContext="%DOC%" />
+                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%005_R-%TT%%CC%00501" IndentLevel="1" HelpContext="%DOC%" />
 
                           <!-- ===== Feuchte ===== -->
                           
@@ -521,191 +521,191 @@
                           <ParameterBlock Id="%AID%_PB-nnn" Name="r%C%Lead" Text="Führungen" Icon="gauge" HelpContext="Empty"><ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
                           <ParameterSeparator Id="%AID%_PS-nnn" Text="Führung Feuchte" UIHint="Headline" />
                           <ParameterSeparator Id="%AID%_PS-nnn" Text="Grenzwert-Treppe: Grenzwert n schaltet Stufe n ein, Grenzwert n−1 schaltet sie wieder aus. Die Werte müssen aufsteigend sein — die Firmware prüft das beim Start." UIHint="Information" />
-                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%020_R-%TT%%CC%02001" IndentLevel="1" />
-                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%021_R-%TT%%CC%02101" IndentLevel="1" />
-                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%022_R-%TT%%CC%02201" IndentLevel="1" />
-                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%023_R-%TT%%CC%02301" IndentLevel="1" />
-                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%024_R-%TT%%CC%02401" IndentLevel="1" />
+                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%020_R-%TT%%CC%02001" IndentLevel="1" HelpContext="%DOC%" />
+                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%021_R-%TT%%CC%02101" IndentLevel="1" HelpContext="%DOC%" />
+                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%022_R-%TT%%CC%02201" IndentLevel="1" HelpContext="%DOC%" />
+                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%023_R-%TT%%CC%02301" IndentLevel="1" HelpContext="%DOC%" />
+                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%024_R-%TT%%CC%02401" IndentLevel="1" HelpContext="%DOC%" />
 
                           <ParameterSeparator Id="%AID%_PS-nnn" Text="Feuchtevergleich (Entfeuchtung)" UIHint="Headline" />
                           <ParameterSeparator Id="%AID%_PS-nnn" Text="Verglichen wird der Wasserdampf-Partialdruck innen gegen außen, nicht die relative Feuchte. Nur so fördert das Lüften Feuchte heraus statt herein." UIHint="Information" />
-                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%025_R-%TT%%CC%02501" IndentLevel="1" />
-                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%026_R-%TT%%CC%02601" IndentLevel="1" />
-                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%009_R-%TT%%CC%00901" IndentLevel="1" />
+                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%025_R-%TT%%CC%02501" IndentLevel="1" HelpContext="%DOC%" />
+                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%026_R-%TT%%CC%02601" IndentLevel="1" HelpContext="%DOC%" />
+                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%009_R-%TT%%CC%00901" IndentLevel="1" HelpContext="%DOC%" />
 
                           <!-- ===== CO2 und Luftguete ===== -->
                           <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
                           <ParameterSeparator Id="%AID%_PS-nnn" Text="Führung CO₂" UIHint="Headline" />
-                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%030_R-%TT%%CC%03001" IndentLevel="1" />
-                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%031_R-%TT%%CC%03101" IndentLevel="1" />
-                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%032_R-%TT%%CC%03201" IndentLevel="1" />
-                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%033_R-%TT%%CC%03301" IndentLevel="1" />
-                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%034_R-%TT%%CC%03401" IndentLevel="1" />
+                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%030_R-%TT%%CC%03001" IndentLevel="1" HelpContext="%DOC%" />
+                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%031_R-%TT%%CC%03101" IndentLevel="1" HelpContext="%DOC%" />
+                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%032_R-%TT%%CC%03201" IndentLevel="1" HelpContext="%DOC%" />
+                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%033_R-%TT%%CC%03301" IndentLevel="1" HelpContext="%DOC%" />
+                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%034_R-%TT%%CC%03401" IndentLevel="1" HelpContext="%DOC%" />
 
                           <ParameterSeparator Id="%AID%_PS-nnn" Text="Führung Luftgüte (VOC)" UIHint="Headline" />
-                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%007_R-%TT%%CC%00701" IndentLevel="1" />
-                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%035_R-%TT%%CC%03501" IndentLevel="1" />
-                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%036_R-%TT%%CC%03601" IndentLevel="1" />
-                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%037_R-%TT%%CC%03701" IndentLevel="1" />
-                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%038_R-%TT%%CC%03801" IndentLevel="1" />
-                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%039_R-%TT%%CC%03901" IndentLevel="1" />
+                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%007_R-%TT%%CC%00701" IndentLevel="1" HelpContext="%DOC%" />
+                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%035_R-%TT%%CC%03501" IndentLevel="1" HelpContext="%DOC%" />
+                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%036_R-%TT%%CC%03601" IndentLevel="1" HelpContext="%DOC%" />
+                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%037_R-%TT%%CC%03701" IndentLevel="1" HelpContext="%DOC%" />
+                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%038_R-%TT%%CC%03801" IndentLevel="1" HelpContext="%DOC%" />
+                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%039_R-%TT%%CC%03901" IndentLevel="1" HelpContext="%DOC%" />
 
                           <!-- ===== Temperatur ===== -->
                           <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
                           <ParameterSeparator Id="%AID%_PS-nnn" Text="Führung Temperatur und Gebäudeschutz" UIHint="Headline" />
-                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%027_R-%TT%%CC%02701" IndentLevel="1" />
-                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%028_R-%TT%%CC%02801" IndentLevel="1" />
+                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%027_R-%TT%%CC%02701" IndentLevel="1" HelpContext="%DOC%" />
+                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%028_R-%TT%%CC%02801" IndentLevel="1" HelpContext="%DOC%" />
                           <ParameterSeparator Id="%AID%_PS-nnn" Text="Unterhalb der Frostgrenze und oberhalb der Hitzegrenze bei wärmerer Außenluft geht der Raum in den Schutzbetrieb. Rückkehr jeweils 2 K innerhalb der Grenze." UIHint="Information" />
-                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%029_R-%TT%%CC%02901" IndentLevel="1" />
-                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%010_R-%TT%%CC%01001" IndentLevel="1" />
-                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%011_R-%TT%%CC%01101" IndentLevel="1" />
-                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%006_R-%TT%%CC%00601" IndentLevel="1" />
+                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%029_R-%TT%%CC%02901" IndentLevel="1" HelpContext="%DOC%" />
+                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%010_R-%TT%%CC%01001" IndentLevel="1" HelpContext="%DOC%" />
+                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%011_R-%TT%%CC%01101" IndentLevel="1" HelpContext="%DOC%" />
+                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%006_R-%TT%%CC%00601" IndentLevel="1" HelpContext="%DOC%" />
                           </ParameterBlock>
 
                           <ParameterBlock Id="%AID%_PB-nnn" Name="r%C%Modes" Text="Betriebsarten" Icon="format-list-text" HelpContext="Empty">
                             <ParameterSeparator Id="%AID%_PS-nnn" Text="Jede Betriebsart hat einen eigenen Parametersatz: Grundstufe, Maximalstufe, welche Führungen wirken, Zyklusregel und Nachlauf. Die Maximalstufe deckelt auch die Führungen." UIHint="Information" />
                           <ParameterBlock Id="%AID%_PB-nnn" Name="r%C%ModeComfort" Text="Komfort" Icon="cog-outline" HelpContext="Empty">
                             <ParameterSeparator Id="%AID%_PS-nnn" Text="Stufenrahmen" UIHint="Headline" />
-                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%100_R-%TT%%CC%10001" IndentLevel="1" />
-                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%101_R-%TT%%CC%10101" IndentLevel="1" />
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%100_R-%TT%%CC%10001" IndentLevel="1" HelpContext="%DOC%" />
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%101_R-%TT%%CC%10101" IndentLevel="1" HelpContext="%DOC%" />
                             <ParameterSeparator Id="%AID%_PS-nnn" Text="Führungen" UIHint="Headline" />
-                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%102_R-%TT%%CC%10201" IndentLevel="1" />
-                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%104_R-%TT%%CC%10401" IndentLevel="1" />
-                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%105_R-%TT%%CC%10501" IndentLevel="1" />
-                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%106_R-%TT%%CC%10601" IndentLevel="1" />
-                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%107_R-%TT%%CC%10701" IndentLevel="1" />
-                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%103_R-%TT%%CC%10301" IndentLevel="1" />
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%102_R-%TT%%CC%10201" IndentLevel="1" HelpContext="%DOC%" />
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%104_R-%TT%%CC%10401" IndentLevel="1" HelpContext="%DOC%" />
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%105_R-%TT%%CC%10501" IndentLevel="1" HelpContext="%DOC%" />
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%106_R-%TT%%CC%10601" IndentLevel="1" HelpContext="%DOC%" />
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%107_R-%TT%%CC%10701" IndentLevel="1" HelpContext="%DOC%" />
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%103_R-%TT%%CC%10301" IndentLevel="1" HelpContext="%DOC%" />
                             <ParameterSeparator Id="%AID%_PS-nnn" Text="Takt und Nachlauf" UIHint="Headline" />
-                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%109_R-%TT%%CC%10901" IndentLevel="1" />
-                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%110_R-%TT%%CC%11001" IndentLevel="1" />
-                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%108_R-%TT%%CC%10801" IndentLevel="1" />
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%109_R-%TT%%CC%10901" IndentLevel="1" HelpContext="%DOC%" />
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%110_R-%TT%%CC%11001" IndentLevel="1" HelpContext="%DOC%" />
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%108_R-%TT%%CC%10801" IndentLevel="1" HelpContext="%DOC%" />
                           </ParameterBlock>
 
                           <ParameterBlock Id="%AID%_PB-nnn" Name="r%C%ModeStandby" Text="Standby" Icon="cog-outline" HelpContext="Empty">
                             <ParameterSeparator Id="%AID%_PS-nnn" Text="Stufenrahmen" UIHint="Headline" />
-                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%112_R-%TT%%CC%11201" IndentLevel="1" />
-                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%113_R-%TT%%CC%11301" IndentLevel="1" />
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%112_R-%TT%%CC%11201" IndentLevel="1" HelpContext="%DOC%" />
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%113_R-%TT%%CC%11301" IndentLevel="1" HelpContext="%DOC%" />
                             <ParameterSeparator Id="%AID%_PS-nnn" Text="Führungen" UIHint="Headline" />
-                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%114_R-%TT%%CC%11401" IndentLevel="1" />
-                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%116_R-%TT%%CC%11601" IndentLevel="1" />
-                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%117_R-%TT%%CC%11701" IndentLevel="1" />
-                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%118_R-%TT%%CC%11801" IndentLevel="1" />
-                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%119_R-%TT%%CC%11901" IndentLevel="1" />
-                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%115_R-%TT%%CC%11501" IndentLevel="1" />
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%114_R-%TT%%CC%11401" IndentLevel="1" HelpContext="%DOC%" />
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%116_R-%TT%%CC%11601" IndentLevel="1" HelpContext="%DOC%" />
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%117_R-%TT%%CC%11701" IndentLevel="1" HelpContext="%DOC%" />
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%118_R-%TT%%CC%11801" IndentLevel="1" HelpContext="%DOC%" />
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%119_R-%TT%%CC%11901" IndentLevel="1" HelpContext="%DOC%" />
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%115_R-%TT%%CC%11501" IndentLevel="1" HelpContext="%DOC%" />
                             <ParameterSeparator Id="%AID%_PS-nnn" Text="Takt und Nachlauf" UIHint="Headline" />
-                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%121_R-%TT%%CC%12101" IndentLevel="1" />
-                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%122_R-%TT%%CC%12201" IndentLevel="1" />
-                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%120_R-%TT%%CC%12001" IndentLevel="1" />
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%121_R-%TT%%CC%12101" IndentLevel="1" HelpContext="%DOC%" />
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%122_R-%TT%%CC%12201" IndentLevel="1" HelpContext="%DOC%" />
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%120_R-%TT%%CC%12001" IndentLevel="1" HelpContext="%DOC%" />
                           </ParameterBlock>
 
                           <ParameterBlock Id="%AID%_PB-nnn" Name="r%C%ModeNight" Text="Nacht" Icon="cog-outline" HelpContext="Empty">
                             <ParameterSeparator Id="%AID%_PS-nnn" Text="Stufenrahmen" UIHint="Headline" />
-                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%124_R-%TT%%CC%12401" IndentLevel="1" />
-                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%125_R-%TT%%CC%12501" IndentLevel="1" />
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%124_R-%TT%%CC%12401" IndentLevel="1" HelpContext="%DOC%" />
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%125_R-%TT%%CC%12501" IndentLevel="1" HelpContext="%DOC%" />
                             <ParameterSeparator Id="%AID%_PS-nnn" Text="Die Maximalstufe ist der eigentliche Zweck dieser Betriebsart: sie deckelt auch die Führungen. Ein CO₂-Anstieg hebt den Raum nachts nicht mehr an." UIHint="Information" />
                             <ParameterSeparator Id="%AID%_PS-nnn" Text="Führungen" UIHint="Headline" />
-                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%126_R-%TT%%CC%12601" IndentLevel="1" />
-                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%128_R-%TT%%CC%12801" IndentLevel="1" />
-                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%129_R-%TT%%CC%12901" IndentLevel="1" />
-                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%130_R-%TT%%CC%13001" IndentLevel="1" />
-                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%131_R-%TT%%CC%13101" IndentLevel="1" />
-                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%127_R-%TT%%CC%12701" IndentLevel="1" />
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%126_R-%TT%%CC%12601" IndentLevel="1" HelpContext="%DOC%" />
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%128_R-%TT%%CC%12801" IndentLevel="1" HelpContext="%DOC%" />
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%129_R-%TT%%CC%12901" IndentLevel="1" HelpContext="%DOC%" />
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%130_R-%TT%%CC%13001" IndentLevel="1" HelpContext="%DOC%" />
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%131_R-%TT%%CC%13101" IndentLevel="1" HelpContext="%DOC%" />
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%127_R-%TT%%CC%12701" IndentLevel="1" HelpContext="%DOC%" />
                             <ParameterSeparator Id="%AID%_PS-nnn" Text="Takt und Nachlauf" UIHint="Headline" />
-                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%133_R-%TT%%CC%13301" IndentLevel="1" />
-                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%134_R-%TT%%CC%13401" IndentLevel="1" />
-                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%132_R-%TT%%CC%13201" IndentLevel="1" />
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%133_R-%TT%%CC%13301" IndentLevel="1" HelpContext="%DOC%" />
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%134_R-%TT%%CC%13401" IndentLevel="1" HelpContext="%DOC%" />
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%132_R-%TT%%CC%13201" IndentLevel="1" HelpContext="%DOC%" />
                           </ParameterBlock>
 
                           <ParameterBlock Id="%AID%_PB-nnn" Name="r%C%ModeProtect" Text="Frost-/Gebäudeschutz" Icon="cog-outline" HelpContext="Empty">
                             <ParameterSeparator Id="%AID%_PS-nnn" Text="Stufenrahmen" UIHint="Headline" />
-                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%136_R-%TT%%CC%13601" IndentLevel="1" />
-                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%137_R-%TT%%CC%13701" IndentLevel="1" />
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%136_R-%TT%%CC%13601" IndentLevel="1" HelpContext="%DOC%" />
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%137_R-%TT%%CC%13701" IndentLevel="1" HelpContext="%DOC%" />
                             <ParameterSeparator Id="%AID%_PS-nnn" Text="Führungen" UIHint="Headline" />
-                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%138_R-%TT%%CC%13801" IndentLevel="1" />
-                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%140_R-%TT%%CC%14001" IndentLevel="1" />
-                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%141_R-%TT%%CC%14101" IndentLevel="1" />
-                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%142_R-%TT%%CC%14201" IndentLevel="1" />
-                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%143_R-%TT%%CC%14301" IndentLevel="1" />
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%138_R-%TT%%CC%13801" IndentLevel="1" HelpContext="%DOC%" />
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%140_R-%TT%%CC%14001" IndentLevel="1" HelpContext="%DOC%" />
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%141_R-%TT%%CC%14101" IndentLevel="1" HelpContext="%DOC%" />
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%142_R-%TT%%CC%14201" IndentLevel="1" HelpContext="%DOC%" />
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%143_R-%TT%%CC%14301" IndentLevel="1" HelpContext="%DOC%" />
                             <ParameterSeparator Id="%AID%_PS-nnn" Text="Der Frostschutz ist in dieser Betriebsart fest eingeschaltet und deshalb nicht aufgeführt. Ein durchfrierender Raum ist kein Bedienfall." UIHint="Information" />
                             <ParameterSeparator Id="%AID%_PS-nnn" Text="Takt und Nachlauf" UIHint="Headline" />
-                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%145_R-%TT%%CC%14501" IndentLevel="1" />
-                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%146_R-%TT%%CC%14601" IndentLevel="1" />
-                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%144_R-%TT%%CC%14401" IndentLevel="1" />
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%145_R-%TT%%CC%14501" IndentLevel="1" HelpContext="%DOC%" />
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%146_R-%TT%%CC%14601" IndentLevel="1" HelpContext="%DOC%" />
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%144_R-%TT%%CC%14401" IndentLevel="1" HelpContext="%DOC%" />
                           </ParameterBlock>
 
                           <ParameterBlock Id="%AID%_PB-nnn" Name="r%C%ModeBoost" Text="Stoßlüften" Icon="cog-outline" HelpContext="Empty">
                             <ParameterSeparator Id="%AID%_PS-nnn" Text="Stufenrahmen" UIHint="Headline" />
-                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%148_R-%TT%%CC%14801" IndentLevel="1" />
-                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%149_R-%TT%%CC%14901" IndentLevel="1" />
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%148_R-%TT%%CC%14801" IndentLevel="1" HelpContext="%DOC%" />
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%149_R-%TT%%CC%14901" IndentLevel="1" HelpContext="%DOC%" />
                             <ParameterSeparator Id="%AID%_PS-nnn" Text="Führungen" UIHint="Headline" />
-                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%150_R-%TT%%CC%15001" IndentLevel="1" />
-                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%152_R-%TT%%CC%15201" IndentLevel="1" />
-                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%153_R-%TT%%CC%15301" IndentLevel="1" />
-                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%154_R-%TT%%CC%15401" IndentLevel="1" />
-                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%155_R-%TT%%CC%15501" IndentLevel="1" />
-                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%151_R-%TT%%CC%15101" IndentLevel="1" />
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%150_R-%TT%%CC%15001" IndentLevel="1" HelpContext="%DOC%" />
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%152_R-%TT%%CC%15201" IndentLevel="1" HelpContext="%DOC%" />
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%153_R-%TT%%CC%15301" IndentLevel="1" HelpContext="%DOC%" />
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%154_R-%TT%%CC%15401" IndentLevel="1" HelpContext="%DOC%" />
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%155_R-%TT%%CC%15501" IndentLevel="1" HelpContext="%DOC%" />
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%151_R-%TT%%CC%15101" IndentLevel="1" HelpContext="%DOC%" />
                             <ParameterSeparator Id="%AID%_PS-nnn" Text="Takt und Nachlauf" UIHint="Headline" />
-                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%157_R-%TT%%CC%15701" IndentLevel="1" />
-                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%158_R-%TT%%CC%15801" IndentLevel="1" />
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%157_R-%TT%%CC%15701" IndentLevel="1" HelpContext="%DOC%" />
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%158_R-%TT%%CC%15801" IndentLevel="1" HelpContext="%DOC%" />
                           </ParameterBlock>
 
                           <ParameterBlock Id="%AID%_PB-nnn" Name="r%C%ModeLower" Text="Temperatur-Absenkung" Icon="cog-outline" HelpContext="Empty">
                             <ParameterSeparator Id="%AID%_PS-nnn" Text="Stufenrahmen" UIHint="Headline" />
-                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%160_R-%TT%%CC%16001" IndentLevel="1" />
-                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%161_R-%TT%%CC%16101" IndentLevel="1" />
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%160_R-%TT%%CC%16001" IndentLevel="1" HelpContext="%DOC%" />
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%161_R-%TT%%CC%16101" IndentLevel="1" HelpContext="%DOC%" />
                             <ParameterSeparator Id="%AID%_PS-nnn" Text="Führungen" UIHint="Headline" />
-                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%162_R-%TT%%CC%16201" IndentLevel="1" />
-                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%164_R-%TT%%CC%16401" IndentLevel="1" />
-                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%165_R-%TT%%CC%16501" IndentLevel="1" />
-                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%166_R-%TT%%CC%16601" IndentLevel="1" />
-                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%167_R-%TT%%CC%16701" IndentLevel="1" />
-                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%163_R-%TT%%CC%16301" IndentLevel="1" />
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%162_R-%TT%%CC%16201" IndentLevel="1" HelpContext="%DOC%" />
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%164_R-%TT%%CC%16401" IndentLevel="1" HelpContext="%DOC%" />
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%165_R-%TT%%CC%16501" IndentLevel="1" HelpContext="%DOC%" />
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%166_R-%TT%%CC%16601" IndentLevel="1" HelpContext="%DOC%" />
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%167_R-%TT%%CC%16701" IndentLevel="1" HelpContext="%DOC%" />
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%163_R-%TT%%CC%16301" IndentLevel="1" HelpContext="%DOC%" />
                             <ParameterSeparator Id="%AID%_PS-nnn" Text="Takt und Nachlauf" UIHint="Headline" />
-                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%169_R-%TT%%CC%16901" IndentLevel="1" />
-                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%170_R-%TT%%CC%17001" IndentLevel="1" />
-                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%168_R-%TT%%CC%16801" IndentLevel="1" />
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%169_R-%TT%%CC%16901" IndentLevel="1" HelpContext="%DOC%" />
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%170_R-%TT%%CC%17001" IndentLevel="1" HelpContext="%DOC%" />
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%168_R-%TT%%CC%16801" IndentLevel="1" HelpContext="%DOC%" />
                           </ParameterBlock>
 
                           <ParameterBlock Id="%AID%_PB-nnn" Name="r%C%ModeQuiet" Text="Ruhe (Aus)" Icon="cog-outline" HelpContext="Empty">
                             <ParameterSeparator Id="%AID%_PS-nnn" Text="Stufenrahmen" UIHint="Headline" />
-                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%172_R-%TT%%CC%17201" IndentLevel="1" />
-                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%173_R-%TT%%CC%17301" IndentLevel="1" />
-                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%175_R-%TT%%CC%17501" IndentLevel="1" />
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%172_R-%TT%%CC%17201" IndentLevel="1" HelpContext="%DOC%" />
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%173_R-%TT%%CC%17301" IndentLevel="1" HelpContext="%DOC%" />
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%175_R-%TT%%CC%17501" IndentLevel="1" HelpContext="%DOC%" />
                             <ParameterSeparator Id="%AID%_PS-nnn" Text="Ruhe schaltet die Lüftung des Raums ab. Führungen, Takt und Nachlauf gibt es hier nicht; nur der Frostschutz bleibt wählbar." UIHint="Information" />
                           </ParameterBlock>
                           </ParameterBlock>
 
                           <ParameterBlock Id="%AID%_PB-nnn" Name="r%C%Force" Text="Zwangsobjekte und Nacht" Icon="alert-outline" HelpContext="Empty">
                             <ParameterSeparator Id="%AID%_PS-nnn" Text="Ein Zwangsobjekt schaltet den Raum für eine Laufzeit in eine Betriebsart. Nach Ablauf oder Rücknahme fällt er auf die nächste noch aktive Ebene zurück." UIHint="Information" />
-                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%201_R-%TT%%CC%20101" IndentLevel="1" />
-                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%205_R-%TT%%CC%20501" IndentLevel="1" />
-                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%202_R-%TT%%CC%20201" IndentLevel="1" />
-                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%206_R-%TT%%CC%20601" IndentLevel="1" />
-                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%203_R-%TT%%CC%20301" IndentLevel="1" />
-                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%207_R-%TT%%CC%20701" IndentLevel="1" />
-                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%200_R-%TT%%CC%20001" IndentLevel="1" />
-                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%208_R-%TT%%CC%20801" IndentLevel="1" />
-                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%204_R-%TT%%CC%20401" IndentLevel="1" />
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%201_R-%TT%%CC%20101" IndentLevel="1" HelpContext="%DOC%" />
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%205_R-%TT%%CC%20501" IndentLevel="1" HelpContext="%DOC%" />
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%202_R-%TT%%CC%20201" IndentLevel="1" HelpContext="%DOC%" />
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%206_R-%TT%%CC%20601" IndentLevel="1" HelpContext="%DOC%" />
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%203_R-%TT%%CC%20301" IndentLevel="1" HelpContext="%DOC%" />
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%207_R-%TT%%CC%20701" IndentLevel="1" HelpContext="%DOC%" />
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%200_R-%TT%%CC%20001" IndentLevel="1" HelpContext="%DOC%" />
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%208_R-%TT%%CC%20801" IndentLevel="1" HelpContext="%DOC%" />
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%204_R-%TT%%CC%20401" IndentLevel="1" HelpContext="%DOC%" />
                             <ParameterSeparator Id="%AID%_PS-nnn" Text="Eine Nutzeraktion auf einer der Bedienebenen setzt die darüberliegenden Ebenen zurück — jede Bedienung bekommt eine sichtbare Reaktion. Sperre, Schutz, Zu-/Abluftanforderung und Verbund sind davon ausgenommen." UIHint="Information" />
                           </ParameterBlock>
 
                           <ParameterBlock Id="%AID%_PB-nnn" Name="r%C%Interval" Text="Intervallbetrieb" Icon="timer-outline" HelpContext="Empty">
                             <ParameterSeparator Id="%AID%_PS-nnn" Text="Gilt in den Betriebsarten, in denen „Intervallbetrieb“ eingeschaltet ist. Innerhalb der Aktivzeit läuft die Grundstufe, außerhalb steht der Raum still." UIHint="Information" />
-                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%220_R-%TT%%CC%22001" IndentLevel="1" />
-                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%221_R-%TT%%CC%22101" IndentLevel="1" />
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%220_R-%TT%%CC%22001" IndentLevel="1" HelpContext="%DOC%" />
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%221_R-%TT%%CC%22101" IndentLevel="1" HelpContext="%DOC%" />
                           </ParameterBlock>
 
                           <ParameterBlock Id="%AID%_PB-nnn" Name="r%C%Operate" Text="Bedienung und Abluft" Icon="gesture-tap" HelpContext="Empty">
                             <ParameterSeparator Id="%AID%_PS-nnn" Text="Abluftanforderung" UIHint="Headline" />
-                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%230_R-%TT%%CC%23001" IndentLevel="1" />
-                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%234_R-%TT%%CC%23401" IndentLevel="1" />
-                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%235_R-%TT%%CC%23501" IndentLevel="1" />
-                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%231_R-%TT%%CC%23101" IndentLevel="1" />
-                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%232_R-%TT%%CC%23201" IndentLevel="1" />
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%230_R-%TT%%CC%23001" IndentLevel="1" HelpContext="%DOC%" />
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%234_R-%TT%%CC%23401" IndentLevel="1" HelpContext="%DOC%" />
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%235_R-%TT%%CC%23501" IndentLevel="1" HelpContext="%DOC%" />
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%231_R-%TT%%CC%23101" IndentLevel="1" HelpContext="%DOC%" />
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%232_R-%TT%%CC%23201" IndentLevel="1" HelpContext="%DOC%" />
                             <ParameterSeparator Id="%AID%_PS-nnn" Text="Beim ego bedeutet Stufe 4 den Abluftstoß mit beiden Motoren. Die Zuluftanforderung meldet den Partnern im Haus, dass nachströmende Luft gebraucht wird." UIHint="Information" />
                             <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
                             <ParameterSeparator Id="%AID%_PS-nnn" Text="Sperre" UIHint="Headline" />
-                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%233_R-%TT%%CC%23301" IndentLevel="1" />
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%233_R-%TT%%CC%23301" IndentLevel="1" HelpContext="%DOC%" />
                             <ParameterSeparator Id="%AID%_PS-nnn" Text="Die Sperre gewinnt gegen alles andere. KNX ist kein Sicherheitsbus — für den Verbund mit einer Feuerstätte ist zusätzlich ein fest verdrahteter Kontakt gefordert." UIHint="Information" />
                           </ParameterBlock>
 
