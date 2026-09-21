@@ -488,7 +488,7 @@
               <ParameterBlock Id="%AID%_PB-nnn" Name="Channel">
                     <choose ParamRefId="%AID%_UP-%TT%%CC%001_R-%TT%%CC%00101">
                       <when test="=1">
-                        <ParameterBlock Id="%AID%_PB-nnn" Name="r%C%Page" Text="Raum %C%: {{0: ...}}" TextParameterRefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" Icon="thermometer" HelpContext="Empty" ShowInComObjectTree="true">
+                        <ParameterBlock Id="%AID%_PB-nnn" Name="r%C%Page" Text="Raum %C%: {{0: ...}}" TextParameterRefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" Icon="floor-plan" HelpContext="Empty" ShowInComObjectTree="true">
 
                                                     <!-- ===== Allgemein ===== -->
                           <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />

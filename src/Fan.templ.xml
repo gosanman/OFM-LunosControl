@@ -280,7 +280,7 @@
                   <when test="&gt;=%C%">
                     <choose ParamRefId="%AID%_UP-%TT%%CC%010_R-%TT%%CC%01001">
                       <when test="=1">
-                        <ParameterBlock Id="%AID%_PB-nnn" Name="f%C%Page" Text="Lüfter %C%: {{0: ...}}" TextParameterRefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" Icon="windsock" HelpContext="Empty" ShowInComObjectTree="true">
+                        <ParameterBlock Id="%AID%_PB-nnn" Name="f%C%Page" Text="Lüfter %C%: {{0: ...}}" TextParameterRefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" Icon="fan" HelpContext="Empty" ShowInComObjectTree="true">
 
                           <!-- ===== Allgemein ===== -->
                           <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />

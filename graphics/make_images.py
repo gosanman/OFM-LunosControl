@@ -5,6 +5,9 @@
   Baggages/kwlboard-N.png      Klemmenbild fuer die Seite "Anschluss" (TypePicture)
   graphics/kwlboard-N.svg      bearbeitbare Quelle desselben Bildes
 
+Die Modul-Icons kommen nicht von hier, sondern aus Material Design Icons:
+graphics/mdi/*.svg werden mit graphics/mdi.py nach src/Baggages/Icons gerastert.
+
 Die Klemmen sind von LINKS nach RECHTS angeordnet: Kanal 1 liegt links aussen.
 Aufruf aus dem OFM-Wurzelverzeichnis:  python graphics/make_images.py
 """
