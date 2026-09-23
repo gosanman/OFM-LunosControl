@@ -31,6 +31,19 @@ namespace Kwl
         Exhaust = 1  ///< Abluft, foerdert nach draussen
     };
 
+    /// Welcher Pendeltakt gilt. Die Zykluszeit selbst steht am Verbund; hier steht
+    /// nur, WER sie bestimmt.
+    ///
+    /// WRG ist die Pendelbewegung: der kurze Zyklus (70 s) gewinnt Waerme zurueck,
+    /// der lange (1 h, Sommer) tut das praktisch nicht mehr - er wechselt aber
+    /// weiter die Richtung. "Sommer" heisst also nicht "feste Richtung".
+    enum class CycleRule : uint8_t
+    {
+        FromOperatingMode = 0, ///< keine Vorgabe, die Betriebsart entscheidet
+        Wrg = 1,               ///< kurzer Zyklus, Waermerueckgewinnung
+        Summer = 2             ///< langer Zyklus, Sommerbetrieb
+    };
+
     /// Hoechste Luefterstufe. Stufe 0 ist Stillstand.
     constexpr uint8_t kStageMax = 4;
 
