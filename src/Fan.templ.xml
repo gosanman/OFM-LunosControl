@@ -197,7 +197,7 @@
               <ComObjectRef Id="%AID%_O-%TT%%CC%014_R-%TT%%CC%01401" RefId="%AID%_O-%TT%%CC%014" Text="{{0:Lüfter %C%}}: Filter Restlaufzeit" FunctionText="Lüfter %C%: Ausgang, Prozent"                      TextParameterRefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" />
               <ComObjectRef Id="%AID%_O-%TT%%CC%015_R-%TT%%CC%01501" RefId="%AID%_O-%TT%%CC%015" Text="{{0:Lüfter %C%}}: Filterwechsel quittieren" FunctionText="Lüfter %C%: Eingang, Zähler zurücksetzen"     TextParameterRefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" />
               <ComObjectRef Id="%AID%_O-%TT%%CC%016_R-%TT%%CC%01601" RefId="%AID%_O-%TT%%CC%016" Text="{{0:Lüfter %C%}}: Störung"             FunctionText="Lüfter %C%: Ausgang, Alarm"                        TextParameterRefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" />
-              <ComObjectRef Id="%AID%_O-%TT%%CC%017_R-%TT%%CC%01701" RefId="%AID%_O-%TT%%CC%017" Text="{{0:Lüfter %C%}}: Fehlercode"          FunctionText="Lüfter %C%: Ausgang, Fehlercode 1…10"              TextParameterRefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" />
+              <ComObjectRef Id="%AID%_O-%TT%%CC%017_R-%TT%%CC%01701" RefId="%AID%_O-%TT%%CC%017" Text="{{0:Lüfter %C%}}: Fehlercode"          FunctionText="Lüfter %C%: Ausgang, Fehlercode 1…11"              TextParameterRefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" />
               <ComObjectRef Id="%AID%_O-%TT%%CC%023_R-%TT%%CC%02301" RefId="%AID%_O-%TT%%CC%023" Text="{{0:Lüfter %C%}}: Reserve"             FunctionText="Lüfter %C%: Platzhalter, hält die Blockgröße auf 24" TextParameterRefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" />
             </ComObjectRefs>
           </Static>

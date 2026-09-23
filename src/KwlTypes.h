@@ -62,6 +62,34 @@ namespace Kwl
     /// Zahl der Betriebsarten ohne "Auto".
     constexpr uint8_t kModeCount = 7;
 
+    /// Fehlercodes (PLAN Anhang). Die REIHENFOLGE IST DIE PRIORITAET: liegen
+    /// mehrere an, gewinnt der kleinste Wert groesser 0. Neue Codes gehoeren
+    /// deshalb ans Ende, sonst verschiebt sich die Rangfolge der bestehenden.
+    enum class ErrorCode : uint8_t
+    {
+        None = 0,
+        NoRelease = 1,        ///< Freigabe fehlt
+        MasterTimeout = 2,    ///< Lebenszeichen des Masters bleibt aus
+        Configuration = 3,    ///< Kanalzahl oder Kennlinie passt nicht zur Platine
+        DacUnreachable = 4,   ///< DAC antwortet nicht - Alarm
+        BadValue = 5,         ///< ungueltiger Empfangswert
+        MonitoringPaused = 6, ///< Ueberwachung ausgesetzt
+        HumidityBlocks = 7,   ///< Feuchtevergleich sperrt, kein Alarm
+        SensorsMissing = 8,   ///< Sensorwerte fehlen, kein Alarm
+        ProtectionActive = 9, ///< Schutzbetrieb aktiv, kein Alarm
+        FilterDue = 10,       ///< Filterwechsel faellig, kein Alarm
+        DirectionConflict = 11 ///< Richtungskonflikt im Verbund, kein Alarm
+    };
+
+    /// Loest dieser Code den Stoerungsausgang (DPT 1.005) aus?
+    /// Nur die Codes, bei denen der Knoten nicht mehr das tut, was er soll.
+    constexpr bool isAlarm(ErrorCode code)
+    {
+        return code == ErrorCode::NoRelease || code == ErrorCode::MasterTimeout ||
+               code == ErrorCode::Configuration || code == ErrorCode::DacUnreachable ||
+               code == ErrorCode::BadValue;
+    }
+
     /// Hoechste Luefterstufe. Stufe 0 ist Stillstand.
     constexpr uint8_t kStageMax = 4;
 
