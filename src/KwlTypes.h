@@ -44,6 +44,24 @@ namespace Kwl
         Summer = 2             ///< langer Zyklus, Sommerbetrieb
     };
 
+    /// Betriebsart. Die Werte 1…4 sind DPT 20.102 (KNX-Standard), 5…7 sind die
+    /// drei erweiterten Arten und liegen ausserhalb des Standardbereichs.
+    /// Der Wert 0 auf dem KO heisst "Auto" und waehlt die Standard-Betriebsart.
+    enum class OperatingMode : uint8_t
+    {
+        Auto = 0,       ///< nur als KO-Wert: Standard-Betriebsart gilt
+        Comfort = 1,    ///< Komfort
+        Standby = 2,    ///< Standby
+        Eco = 3,        ///< Eco / Nacht
+        Protection = 4, ///< Frost-/Gebaeudeschutz
+        Boost = 5,      ///< Stosslueften
+        Reduction = 6,  ///< Temperatur-Absenkung
+        Quiet = 7       ///< Ruhe (Aus)
+    };
+
+    /// Zahl der Betriebsarten ohne "Auto".
+    constexpr uint8_t kModeCount = 7;
+
     /// Hoechste Luefterstufe. Stufe 0 ist Stillstand.
     constexpr uint8_t kStageMax = 4;
 
