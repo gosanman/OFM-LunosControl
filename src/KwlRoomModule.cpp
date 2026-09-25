@@ -56,14 +56,17 @@ namespace Kwl
 
     void KwlRoomModule::showHelp()
     {
-        openknx.console.printHelpLine("kwlr", "Raeume anzeigen");
+        // Kein eigenes Kommando: "kwl" beantwortet auch die Raeume. Zwei Module,
+        // die auf dasselbe Praefix antworten, sind an der Konsole nicht zu
+        // durchschauen.
+        openknx.console.printHelpLine("kwl r", "Alle Raeume je eine Zeile");
     }
 
     bool KwlRoomModule::processCommand(const std::string cmd, bool debugKo)
     {
         (void)debugKo;
 
-        if (cmd == "kwlr")
+        if (cmd == "kwl r")
         {
             printStatus();
             return true;

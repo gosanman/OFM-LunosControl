@@ -54,8 +54,12 @@ namespace Kwl
         float humidityOut() const { return mHumOut.value; }
         float tempOut() const { return mTempOut.value; }
 
-        /// Eine Zeile fuer "kwlr".
+        /// Eine Zeile fuer die Uebersicht.
         void printStatusLine();
+
+        /// Ausfuehrliche Einzelansicht fuer "kwl rNN": warum die Stufe so ist,
+        /// wie sie ist. Beim Inbetriebnehmen die eigentliche Frage.
+        void printDetail();
 
       private:
         /// Ein Messwert vom Bus samt Alter. Ein Wert, der nie kam, ist nicht

@@ -97,6 +97,9 @@ namespace Kwl
         /// Eine Zeile fuer "kwl st".
         void printStatusLine();
 
+        /// Ausfuehrliche Einzelansicht fuer "kwl fNN".
+        void printDetail();
+
       private:
         /// Sollspannung am Luefter -> Spannung, die der DAC ausgeben muss.
         float condition(float volt, uint8_t stage) const;

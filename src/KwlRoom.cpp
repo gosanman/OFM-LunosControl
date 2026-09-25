@@ -677,6 +677,77 @@ namespace Kwl
 
     // ------------------------------------------------------------ Konsole
 
+    void KwlRoom::printDetail()
+    {
+        const unsigned no = _channelIndex + 1;
+        if (!mActive)
+        {
+            logInfoP("Raum %u ist nicht aktiviert", no);
+            return;
+        }
+
+        static const char* kSource[] = {"-",       "Sperre",   "Schutz",
+                                        "Anforderung", "Verbund", "Handstufe",
+                                        "Automatik"};
+        static const char* kMode[] = {"Auto",  "Komfort",     "Standby", "Nacht",
+                                      "Schutz", "Stosslueften", "Absenkung",
+                                      "Ruhe"};
+
+        const StageResult& r = mStage;
+        const uint8_t src = static_cast<uint8_t>(r.source);
+        const uint8_t mode = static_cast<uint8_t>(r.mode);
+
+        logInfoP("Raum %u", no);
+        logIndentUp();
+        logInfoP("Stufe %u aus Rang %u (%s)", (unsigned)r.stage, (unsigned)src,
+                 src < 7 ? kSource[src] : "?");
+        logInfoP("Betriebsart %s von Ebene %u", mode < 8 ? kMode[mode] : "?",
+                 (unsigned)r.modeRank);
+        logInfoP("Grundstufe %u, Maximalstufe %u",
+                 (unsigned)mArbiter.modeParams(r.mode).baseStage,
+                 (unsigned)mArbiter.modeParams(r.mode).maxStage);
+
+        // Messwerte mit Gueltigkeit - "kein Wert" ist beim Suchen die haeufigste
+        // Antwort, deshalb steht sie ausdruecklich da und nicht als leeres Feld.
+        logInfoP("rF innen  %s", mHumIn.valid ? "gueltig" : "FEHLT");
+        if (mHumIn.valid)
+        {
+            logIndentUp();
+            logInfoP("%d,%u %%, Treppe auf Stufe %u", (int)mHumIn.value,
+                     (unsigned)((int)(mHumIn.value * 10) % 10),
+                     (unsigned)mHumidity.stage());
+            logIndentDown();
+        }
+        logInfoP("CO2 %s%s", mCo2Val.valid ? "gueltig" : "FEHLT",
+                 mCo2Val.valid ? "" : " (Fuehrung laeuft nicht)");
+        if (mCo2Val.valid)
+        {
+            logIndentUp();
+            logInfoP("%d ppm, Treppe auf Stufe %u", (int)mCo2Val.value,
+                     (unsigned)mCo2.stage());
+            logIndentDown();
+        }
+        logInfoP("VOC %s, Treppe auf Stufe %u", mVocVal.valid ? "gueltig" : "FEHLT",
+                 (unsigned)mVoc.stage());
+        logInfoP("T innen %s, T aussen %s, T soll %s",
+                 mTempIn.valid ? "gueltig" : "FEHLT",
+                 mTempOut.valid ? "gueltig" : "FEHLT",
+                 mTempSet.valid ? "gueltig" : "FEHLT");
+
+        logInfoP("Feuchtevergleich: %s", mDehumBlocked ? "SPERRT die rF-Treppe"
+                                                       : "erlaubt");
+        logInfoP("Schutz %s, Intervall %s, Sperre %s",
+                 mProtection ? "AKTIV" : "aus",
+                 mIntervalRunning ? "laeuft" : "PAUSE",
+                 mLocked ? "GESETZT" : "offen");
+
+        static const char* kExhaust[] = {"Ruhe", "Vorlauf", "Aktiv", "Nachlauf"};
+        logInfoP("Abluftanforderung: %s, Betriebsweise %u, Zykluswunsch %s",
+                 kExhaust[static_cast<uint8_t>(mExhaust)], (unsigned)mDirMode,
+                 mCycleWish == CycleRule::Summer ? "Sommer" : "WRG");
+        logIndentDown();
+    }
+
     void KwlRoom::printStatusLine()
     {
         if (!mActive)

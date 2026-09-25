@@ -388,6 +388,61 @@ namespace Kwl
         KoFAN_GroupAlive.value(true, DPT_Switch);
     }
 
+    void KwlFan::printDetail()
+    {
+        const unsigned no = _channelIndex + 1;
+        if (!mActive)
+        {
+            logInfoP("Luefter %u ist nicht aktiviert", no);
+            return;
+        }
+
+        static const char* kTypeName[] = {"LUNOS e2-60", "LUNOS ego", "LUNOS RA 15-60",
+                                          "generisch bipolar", "generisch unipolar"};
+        const uint8_t t = static_cast<uint8_t>(mType);
+
+        logInfoP("Luefter %u", no);
+        logIndentUp();
+        logInfoP("Typ %s, %u Stellkanal%s ab S%u", t < 5 ? kTypeName[t] : "?",
+                 (unsigned)channelsNeeded(), channelsNeeded() == 2 ? "/-kanaele" : "",
+                 (unsigned)(mDacChannel + 1));
+        logInfoP("Raum %u, Verbund %u, Phase %u, Anteil %u %%", (unsigned)mRoomNo,
+                 (unsigned)mGroupNo, (unsigned)mPhase, (unsigned)mShare);
+        logInfoP("Stufe %u %s, %d mV am Ausgang%s", (unsigned)mStage,
+                 mDirection == Direction::Supply ? "Zuluft" : "Abluft",
+                 (int)(mLastVolt * 1000.0f), mHrv ? ", WRG aktiv" : "");
+        logInfoP("Volumenstrom %u m3/h", (unsigned)mFlow[mStage]);
+
+        // Die beiden Korrekturen ausdruecklich, weil sie erklaeren, warum die
+        // gemessene Spannung nicht die Zahl aus der Kennlinientabelle ist.
+        logInfoP("Kalibrierfaktor %d (10000 = 1,0000)", (int)(mCalib * 10000.0f));
+        if (mCableComp)
+            logInfoP("Leitungskompensation an: %d mOhm je Leiter",
+                     (int)(mCableResistance * 1000.0f));
+        else
+            logInfoP("Leitungskompensation aus");
+
+        logInfoP("Freigabe %s, %s", mUseEnable ? (mEnableLatched ? "erteilt" : "FEHLT")
+                                               : "nicht verlangt",
+                 mSuspended ? "SUSPENDIERT" : "in Betrieb");
+        logInfoP("Betriebsstunden %u h", (unsigned)(mRunSeconds / 3600u));
+
+        if (mFilterMode == 1)
+            logInfoP("Filter nach Laufzeit: %u von %u h%s",
+                     (unsigned)(mFilterSeconds / 3600u),
+                     (unsigned)(mFilterLimitSeconds / 3600u),
+                     mFilterDue ? " - FAELLIG" : "");
+        else if (mFilterMode == 2)
+            logInfoP("Filter nach Luftmenge: %u von %u m3%s", (unsigned)mFilterVolume,
+                     (unsigned)mFilterLimitVolume, mFilterDue ? " - FAELLIG" : "");
+        else
+            logInfoP("Filterzaehler aus");
+
+        logInfoP("Fehlercode %u%s", (unsigned)mLastError,
+                 isAlarm(mLastError) ? " (Alarm)" : "");
+        logIndentDown();
+    }
+
     void KwlFan::printStatusLine()
     {
         if (!mActive)

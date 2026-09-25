@@ -521,6 +521,8 @@ namespace Kwl
         {
             openknx.console.printHelpLine("kwl st", "Alle Luefterkanaele je eine Zeile");
             openknx.console.printHelpLine("kwl grp", "Verbuende mit Takt und Richtung");
+            openknx.console.printHelpLine("kwl fNN", "Luefter NN ausfuehrlich, z.B. kwl f1");
+            openknx.console.printHelpLine("kwl rNN", "Raum NN ausfuehrlich, z.B. kwl r1");
             return true;
         }
 
@@ -533,6 +535,35 @@ namespace Kwl
         if (cmd == "kwl grp")
         {
             printGroups();
+            return true;
+        }
+
+        // "kwl f1" und "kwl r1". Die Nummern sind die der ETS, also ab 1 - beim
+        // Suchen an der Platine zaehlt niemand ab 0.
+        if (cmd.length() >= 6 && cmd.compare(0, 5, "kwl f") == 0)
+        {
+            const int no = atoi(cmd.c_str() + 5);
+            if (no < 1 || no > FAN_ChannelCount || mFan[no - 1] == nullptr)
+            {
+                logInfoP("Luefter %d gibt es nicht (1…%u)", no,
+                         (unsigned)FAN_ChannelCount);
+                return true;
+            }
+            mFan[no - 1]->printDetail();
+            return true;
+        }
+
+        if (cmd.length() >= 6 && cmd.compare(0, 5, "kwl r") == 0)
+        {
+            const int no = atoi(cmd.c_str() + 5);
+            KwlRoom* room = openknxKwlRoomModule.room(static_cast<uint8_t>(no));
+            if (room == nullptr)
+            {
+                logInfoP("Raum %d gibt es nicht (1…%u)", no,
+                         (unsigned)ROOM_ChannelCount);
+                return true;
+            }
+            room->printDetail();
             return true;
         }
 
