@@ -47,7 +47,7 @@
                 <Parameter Id="%AID%_UP-%TT%%CC%013" Name="f%C%UseEnable"   Offset="2" BitOffset="3" ParameterType="%AID%_PT-FanYesNo"        Text="Freigabe über Objekt" Value="0" />
                 <Parameter Id="%AID%_UP-%TT%%CC%014" Name="f%C%SuspendAllowed" Offset="2" BitOffset="4" ParameterType="%AID%_PT-FanYesNo"     Text="Suspendieren erlauben" Value="1" />
                 <Parameter Id="%AID%_UP-%TT%%CC%015" Name="f%C%Direction5V" Offset="2" BitOffset="5" ParameterType="%AID%_PT-FanDirection5V"  Text="Zuordnung der Spannungshälften" Value="0" />
-                <Parameter Id="%AID%_UP-%TT%%CC%016" Name="f%C%PowerOnStage" Offset="2" BitOffset="6" ParameterType="%AID%_PT-FanPowerOnStage" Text="Einschaltwert ohne Bus (EEPROM)" Value="1" />
+<!-- %CC%016 "Einschaltwert ohne Bus (EEPROM)" gestrichen 2026-09-25: kein EEPROM-Store (Messprotokoll Phase 1, Befund B1). Offset 2, Bit 6-7 frei. -->
                 <Parameter Id="%AID%_UP-%TT%%CC%020" Name="f%C%Share"       Offset="3" BitOffset="0" ParameterType="%AID%_PT-FanShare"        Text="Anteil an der Verbundstufe" SuffixText=" %" Value="100" />
                 <Parameter Id="%AID%_UP-%TT%%CC%021" Name="f%C%CableLength" Offset="4" BitOffset="0" ParameterType="%AID%_PT-FanCableLength"  Text="Einfache Leitungslänge" SuffixText=" m" Value="10" />
                 <Parameter Id="%AID%_UP-%TT%%CC%022" Name="f%C%FilterRemind" Offset="5" BitOffset="0" ParameterType="%AID%_PT-FanFilterRemind" Text="Meldung wiederholen nach" SuffixText=" h" Value="24" />
@@ -107,7 +107,6 @@
               <ParameterRef Id="%AID%_UP-%TT%%CC%013_R-%TT%%CC%01301" RefId="%AID%_UP-%TT%%CC%013" />
               <ParameterRef Id="%AID%_UP-%TT%%CC%014_R-%TT%%CC%01401" RefId="%AID%_UP-%TT%%CC%014" />
               <ParameterRef Id="%AID%_UP-%TT%%CC%015_R-%TT%%CC%01501" RefId="%AID%_UP-%TT%%CC%015" />
-              <ParameterRef Id="%AID%_UP-%TT%%CC%016_R-%TT%%CC%01601" RefId="%AID%_UP-%TT%%CC%016" />
               <ParameterRef Id="%AID%_UP-%TT%%CC%020_R-%TT%%CC%02001" RefId="%AID%_UP-%TT%%CC%020" />
               <ParameterRef Id="%AID%_UP-%TT%%CC%021_R-%TT%%CC%02101" RefId="%AID%_UP-%TT%%CC%021" />
               <ParameterRef Id="%AID%_UP-%TT%%CC%022_R-%TT%%CC%02201" RefId="%AID%_UP-%TT%%CC%022" />
@@ -434,8 +433,7 @@
                             </when>
                             <when default="true" />
                           </choose>
-                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%016_R-%TT%%CC%01601" IndentLevel="1" HelpContext="%DOC%" />
-                          <ParameterSeparator Id="%AID%_PS-nnn" Text="Der Einschaltwert liegt im EEPROM des DAC und gilt nur, wenn die 12-V-Versorgung ohne Bus wiederkehrt. Geschrieben wird er ausschließlich von Hand über die Konsole (kwl store)." UIHint="Information" />
+                          <ParameterSeparator Id="%AID%_PS-nnn" Text="Kehrt die 12-V-Versorgung ohne KNX-Bus wieder, laufen die Lüfter mit voller Drehzahl in einer Richtung, bis das Gerät startet – ohne Bus dauerhaft. Der Baustein hat keinen speicherbaren Einschaltwert." UIHint="Information" />
 
                           <!-- ===== Senden ===== -->
                           <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />

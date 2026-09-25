@@ -241,13 +241,6 @@
               <ParameterType Id="%AID%_PT-FanFilterRemind" Name="FanFilterRemind">
                 <TypeNumber SizeInBit="8" Type="unsignedInt" minInclusive="1" maxInclusive="72" />
               </ParameterType>
-              <ParameterType Id="%AID%_PT-FanPowerOnStage" Name="FanPowerOnStage">
-                <TypeRestriction Base="Value" SizeInBit="2">
-                  <Enumeration Text="Stillstand" Value="0" Id="%ENID%" />
-                  <Enumeration Text="Stufe 1 (Feuchteschutz)" Value="1" Id="%ENID%" />
-                  <Enumeration Text="Stufe 2" Value="2" Id="%ENID%" />
-                </TypeRestriction>
-              </ParameterType>
               <ParameterType Id="%AID%_PT-FanSendCycleMin" Name="FanSendCycleMin">
                 <TypeNumber SizeInBit="16" Type="unsignedInt" minInclusive="0" maxInclusive="1440" />
               </ParameterType>

@@ -20,6 +20,11 @@ namespace Kwl
         /// Startzeit des GP8413 nach Anlegen der 12 V (< 2 ms) plus Reserve,
         /// Referenzdesign 6.1 Punkt 1.
         constexpr uint32_t kStartupMs = 5;
+
+        /// Wiederholungen der Adressabfrage. Gemessen 2026-09-25 (Messprotokoll
+        /// Phase 1): U3 antwortete nach dem Kaltstart erst beim dritten Anlauf.
+        constexpr uint8_t kProbeAttempts = 3;
+        constexpr uint32_t kProbeRetryMs = 10;
     } // namespace
 
     Gp8413Drive::Gp8413Drive(uint8_t addrA, uint8_t addrB, uint8_t channels)
@@ -58,20 +63,27 @@ namespace Kwl
 
         sleep_ms(kStartupMs);
 
-        // Adressabfrage. Ein Lesezugriff ueber ein Byte ist der uebliche Weg, eine
-        // Adresse zu pruefen: es zaehlt allein das ACK auf das Adressbyte. Ob der
-        // GP8413 ueberhaupt sinnvolle Daten zurueckgibt, ist offen (Referenzdesign
-        // O6) und fuer die Anwesenheit ohne Bedeutung.
-        //
-        // ZU PRUEFEN an der Platine (Phase 1, P7): antwortet der Chip auf einen
-        // Lesezugriff mit ACK? Tut er es nicht, muss diese Abfrage auf einen
-        // Schreibzugriff ohne Nutzdaten umgestellt werden.
+        // Adressabfrage per SCHREIBZUGRIFF, nicht per Lesezugriff. Gemessen
+        // 2026-09-25 (Messprotokoll Phase 1, vor E1 und E2): U3 quittierte nach
+        // dem Kaltstart mehrfach keinen Lesezugriff, einen Schreibzugriff sofort.
+        // Der RP2040 kann keinen Schreibzugriff ohne Nutzdaten senden (das
+        // Synopsys-I2C kennt keinen Null-Byte-Transfer), deshalb Register 0x01 <-
+        // 0x11: idempotent und ohnehin das Erste, was configure() schreibt - die
+        // Reihenfolge aus Invariante 3 bleibt gewahrt. Der Lesepfad liefert beim
+        // GP8413 ohnehin nur 0x11 zurueck (O6, F2).
+        const uint8_t buf[2] = {kRegRange, kRange0to10V};
         for (uint8_t chip = 0; chip < 2; chip++)
         {
             if (chip * 2 >= mChannels)
                 break;
-            uint8_t dummy = 0;
-            if (i2c_read_blocking(FANDRV_I2C_PORT, mAddr[chip], &dummy, 1, false) < 0)
+            bool ok = false;
+            for (uint8_t attempt = 0; attempt < kProbeAttempts && !ok; attempt++)
+            {
+                if (attempt > 0)
+                    sleep_ms(kProbeRetryMs);
+                ok = writeBytes(mAddr[chip], buf, sizeof(buf));
+            }
+            if (!ok)
                 return false;
         }
         return true;
