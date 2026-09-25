@@ -71,6 +71,12 @@ namespace Kwl
             mStandardMode = mode;
     }
 
+    void StageArbiter::setNightMode(OperatingMode mode)
+    {
+        if (modeIndex(mode) != 0)
+            mNightMode = mode;
+    }
+
     void StageArbiter::setProtectionStage(uint8_t stage)
     {
         mProtectionStage = clampStage(stage);
@@ -110,6 +116,17 @@ namespace Kwl
         mAirDemand = active;
         mAirDemandDirection = direction;
         mAirDemandStage = clampStage(stage);
+    }
+
+    void StageArbiter::setDirectionOverride(bool active, Direction direction)
+    {
+        mDirectionOverride = active;
+        mOverrideDirection = direction;
+    }
+
+    void StageArbiter::setAutomaticSuppressed(bool suppressed)
+    {
+        mAutomaticSuppressed = suppressed;
     }
 
     void StageArbiter::setGroupStage(bool active, uint8_t stage, Direction direction)
@@ -289,9 +306,11 @@ namespace Kwl
         uint8_t chosen = 0;
         if (mForcedObjectHierarchical)
         {
-            for (uint8_t i = 1; i <= 3; i++)
+            // "hierarchisch - 1 vor 2 vor 3", so wie es in der ETS steht: das
+            // Zwangsobjekt mit der KLEINSTEN Nummer gewinnt.
+            for (uint8_t i = 3; i >= 1; i--)
                 if (mForcedObjectOn[i])
-                    chosen = i; // 3 schlaegt 2 schlaegt 1
+                    chosen = i;
         }
         else if (mForcedObjectLast != 0 && mForcedObjectOn[mForcedObjectLast])
         {
@@ -307,7 +326,7 @@ namespace Kwl
 
         if (mNight) // Rang 8
         {
-            mActiveMode = OperatingMode::Eco;
+            mActiveMode = mNightMode;
             mActiveModeRank = 8;
             return;
         }
@@ -336,8 +355,11 @@ namespace Kwl
 
         mResult.mode = mActiveMode;
         mResult.modeRank = mActiveModeRank;
-        mResult.directionForced = false;
-        mResult.direction = Direction::Supply;
+        // Die reine Richtungsvorgabe (Rang 3) steht vorn, damit sie fuer alles
+        // gilt, was aus Rang 4 oder tiefer kommt - Verbund, Handstufe, Automatik.
+        // Sie sagt nur, wohin gefoerdert wird, nicht wie viel.
+        mResult.directionForced = mDirectionOverride;
+        mResult.direction = mDirectionOverride ? mOverrideDirection : Direction::Supply;
 
         // Rang 1: Sperre. Stufe 0 heisst in KwlCurve der sichere Zustand, also
         // 5,00 V beim bipolaren Kanal - nicht Code 0.
@@ -345,6 +367,9 @@ namespace Kwl
         {
             mResult.stage = 0;
             mResult.source = StageSource::Lock;
+            // Stillstand hat keine Richtung.
+            mResult.directionForced = false;
+            mResult.direction = Direction::Supply;
             return;
         }
 
@@ -367,13 +392,17 @@ namespace Kwl
             return;
         }
 
-        // Rang 4: Verbund. Nur beim Slave gesetzt.
+        // Rang 4: Verbund. Nur beim Slave gesetzt. Eine Richtungsvorgabe aus
+        // Rang 3 steht darueber und bleibt stehen.
         if (mGroup)
         {
             mResult.stage = mGroupStage;
             mResult.source = StageSource::Group;
-            mResult.directionForced = true;
-            mResult.direction = mGroupDirection;
+            if (!mDirectionOverride)
+            {
+                mResult.directionForced = true;
+                mResult.direction = mGroupDirection;
+            }
             return;
         }
 
@@ -389,9 +418,13 @@ namespace Kwl
         // Rang 6: Grundstufe laeuft immer, Fuehrungen heben an, Maximalstufe
         // deckelt. Eine Grundstufe ueber der Maximalstufe ist eine Fehlparametrierung
         // und wird gedeckelt, nicht durchgelassen.
-        uint8_t stage = p.baseStage > mGuidanceStage ? p.baseStage : mGuidanceStage;
-        if (stage > p.maxStage)
-            stage = p.maxStage;
+        uint8_t stage = 0;
+        if (!mAutomaticSuppressed)
+        {
+            stage = p.baseStage > mGuidanceStage ? p.baseStage : mGuidanceStage;
+            if (stage > p.maxStage)
+                stage = p.maxStage;
+        }
         mResult.stage = stage;
         mResult.source = StageSource::Automatic;
     }
@@ -409,6 +442,8 @@ namespace Kwl
         mLock = false;
         mProtection = false;
         mAirDemand = false;
+        mDirectionOverride = false;
+        mAutomaticSuppressed = false;
         mGroup = false;
         mManualActive = false;
         mManualStage = 0;

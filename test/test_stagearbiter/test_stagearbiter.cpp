@@ -172,6 +172,99 @@ static void test_sperre_faellt_weg_und_die_ebene_darunter_uebernimmt(void)
 
 // ---------------------------------------------------------------- Betriebsarten
 
+// ---------------------------------------------------------------- Richtungsvorgabe
+
+static void test_richtungsvorgabe_ohne_stufe(void)
+{
+    // Das Betriebsweise-KO sagt nur, wohin gefoerdert wird. Die Stufe bleibt die,
+    // die ohne es gegolten haette.
+    StageArbiter a;
+    a.setGuidanceStage(2);
+    TEST_ASSERT_FALSE(a.update(0).directionForced);
+
+    a.setDirectionOverride(true, Direction::Exhaust);
+    const StageResult r = a.update(0);
+    TEST_ASSERT_EQUAL_UINT8(2, r.stage);
+    TEST_ASSERT_EQUAL(StageSource::Automatic, r.source);
+    TEST_ASSERT_TRUE(r.directionForced);
+    TEST_ASSERT_EQUAL(Direction::Exhaust, r.direction);
+}
+
+static void test_richtungsvorgabe_gilt_auch_fuer_hand_und_verbund(void)
+{
+    // Sie steht auf Rang 3 und damit ueber Verbund und Handstufe.
+    StageArbiter a;
+    a.setDirectionOverride(true, Direction::Supply);
+
+    a.setManualStage(3, 0);
+    StageResult r = a.update(0);
+    TEST_ASSERT_EQUAL(StageSource::Manual, r.source);
+    TEST_ASSERT_EQUAL(Direction::Supply, r.direction);
+
+    a.setGroupStage(true, 2, Direction::Exhaust);
+    r = a.update(0);
+    TEST_ASSERT_EQUAL(StageSource::Group, r.source);
+    TEST_ASSERT_EQUAL(Direction::Supply, r.direction); // Rang 3 vor Rang 4
+}
+
+static void test_anforderung_schlaegt_die_richtungsvorgabe(void)
+{
+    // Beide sind Rang 3; die Anforderung ist die konkretere Aussage, weil sie
+    // auch eine Stufe nennt.
+    StageArbiter a;
+    a.setDirectionOverride(true, Direction::Supply);
+    a.setAirDemand(true, Direction::Exhaust, 4);
+
+    const StageResult r = a.update(0);
+    TEST_ASSERT_EQUAL(StageSource::AirDemand, r.source);
+    TEST_ASSERT_EQUAL_UINT8(4, r.stage);
+    TEST_ASSERT_EQUAL(Direction::Exhaust, r.direction);
+}
+
+static void test_sperre_hat_keine_richtung(void)
+{
+    StageArbiter a;
+    a.setDirectionOverride(true, Direction::Exhaust);
+    a.setLock(true);
+    const StageResult r = a.update(0);
+    TEST_ASSERT_EQUAL_UINT8(0, r.stage);
+    TEST_ASSERT_FALSE(r.directionForced);
+}
+
+// ---------------------------------------------------------------- Intervall
+
+static void test_automatik_stillgelegt(void)
+{
+    // Intervallbetrieb in der Pause: Rang 6 gibt 0 aus, Grundstufe eingeschlossen.
+    StageArbiter a;
+    a.setGuidanceStage(3);
+    TEST_ASSERT_EQUAL_UINT8(2, a.update(0).stage); // Standby deckelt bei 2
+
+    a.setAutomaticSuppressed(true);
+    const StageResult r = a.update(0);
+    TEST_ASSERT_EQUAL_UINT8(0, r.stage);
+    TEST_ASSERT_EQUAL(StageSource::Automatic, r.source);
+
+    a.setAutomaticSuppressed(false);
+    TEST_ASSERT_EQUAL_UINT8(2, a.update(0).stage);
+}
+
+static void test_stilllegung_schlaegt_nicht_hand_und_schutz(void)
+{
+    // Die Pause ist eine Sparmassnahme, kein Sicherheitsfall - sie darf eine
+    // Bedienung oder einen Schutzfall nicht ueberstimmen.
+    StageArbiter a;
+    a.setAutomaticSuppressed(true);
+
+    a.setManualStage(3, 0);
+    TEST_ASSERT_EQUAL_UINT8(3, a.update(0).stage);
+
+    a.setManualActive(false, 0);
+    a.setProtectionStage(1);
+    a.setProtection(true);
+    TEST_ASSERT_EQUAL_UINT8(1, a.update(0).stage);
+}
+
 static void test_rangfolge_der_betriebsartebenen(void)
 {
     StageArbiter a;
@@ -324,16 +417,26 @@ static void test_zwangsobjekte_gleichrangig_letztes_gewinnt(void)
 
 static void test_zwangsobjekte_hierarchisch(void)
 {
+    // "hierarchisch - 1 vor 2 vor 3", so steht es in der ETS: die kleinste Nummer
+    // gewinnt, unabhaengig davon, welche zuletzt kam.
     StageArbiter a;
     a.setForcedObjectHierarchical(true);
     a.setForcedObject(2, OperatingMode::Quiet, 0);
 
-    a.setForcedObjectState(3, true, 0);  // Komfort
-    a.setForcedObjectState(1, true, 100); // Stosslueften, spaeter, aber niedriger
-    TEST_ASSERT_EQUAL(OperatingMode::Comfort, a.update(100).mode);
+    a.setForcedObjectState(3, true, 0); // Komfort
+    TEST_ASSERT_EQUAL(OperatingMode::Comfort, a.update(0).mode);
 
-    a.setForcedObjectState(3, false, 200);
-    TEST_ASSERT_EQUAL(OperatingMode::Boost, a.update(200).mode);
+    a.setForcedObjectState(1, true, 100); // Stosslueften - kleinere Nummer, gewinnt
+    TEST_ASSERT_EQUAL(OperatingMode::Boost, a.update(100).mode);
+
+    a.setForcedObjectState(2, true, 150); // Ruhe - dazwischen, aendert nichts
+    TEST_ASSERT_EQUAL(OperatingMode::Boost, a.update(150).mode);
+
+    a.setForcedObjectState(1, false, 200); // faellt weg -> jetzt gilt 2
+    TEST_ASSERT_EQUAL(OperatingMode::Quiet, a.update(200).mode);
+
+    a.setForcedObjectState(2, false, 300); // und danach 3
+    TEST_ASSERT_EQUAL(OperatingMode::Comfort, a.update(300).mode);
 }
 
 static void test_zwangsobjekt_ohne_laufzeit_bleibt(void)
@@ -489,6 +592,12 @@ int main(int, char**)
     RUN_TEST(test_schutzstufe_ist_parametrierbar);
     RUN_TEST(test_rang1_sperre_gewinnt_gegen_alles);
     RUN_TEST(test_sperre_faellt_weg_und_die_ebene_darunter_uebernimmt);
+    RUN_TEST(test_richtungsvorgabe_ohne_stufe);
+    RUN_TEST(test_richtungsvorgabe_gilt_auch_fuer_hand_und_verbund);
+    RUN_TEST(test_anforderung_schlaegt_die_richtungsvorgabe);
+    RUN_TEST(test_sperre_hat_keine_richtung);
+    RUN_TEST(test_automatik_stillgelegt);
+    RUN_TEST(test_stilllegung_schlaegt_nicht_hand_und_schutz);
     RUN_TEST(test_rangfolge_der_betriebsartebenen);
     RUN_TEST(test_auto_faellt_auf_die_standard_betriebsart);
     RUN_TEST(test_arcus_beispiel_1_auto_nacht_zwangsobjekt);

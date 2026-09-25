@@ -79,6 +79,10 @@ namespace Kwl
         /// Standard-Betriebsart (Rang 11), Vorgabe Standby.
         void setStandardMode(OperatingMode mode);
 
+        /// Betriebsart, die das Nacht-Objekt (Rang 8) auswaehlt. Vorgabe Eco; die
+        /// ETS laesst auch Temperatur-Absenkung und Ruhe zu.
+        void setNightMode(OperatingMode mode);
+
         /// Stufe im Schutzfall (Rang 2), Vorgabe 0 - Frost heisst Lueftung aus.
         void setProtectionStage(uint8_t stage);
 
@@ -88,7 +92,8 @@ namespace Kwl
         void setForcedObject(uint8_t index, OperatingMode mode, uint32_t runtimeMs);
 
         /// false: gleichrangig, das zuletzt eingeschaltete gewinnt.
-        /// true: hierarchisch, 3 schlaegt 2 schlaegt 1.
+        /// true: hierarchisch, 1 vor 2 vor 3 - die kleinste Nummer gewinnt,
+        /// so wie der ETS-Text es sagt.
         void setForcedObjectHierarchical(bool hierarchical);
 
         /// Laufzeit der Zwangsbetriebsart, 0 = unendlich.
@@ -101,6 +106,12 @@ namespace Kwl
         void setLock(bool active);
         void setProtection(bool active);
         void setAirDemand(bool active, Direction direction, uint8_t stage);
+
+        /// Reine Richtungsvorgabe ohne Stufe (Betriebsweise-KO, ebenfalls Rang 3).
+        /// Sie erzwingt die Richtung und laesst den Takt aus, ruehrt die Stufe aber
+        /// nicht an - im Unterschied zur Zu-/Abluftanforderung, die beides setzt.
+        /// Eine anstehende Anforderung geht vor: sie ist die konkretere Aussage.
+        void setDirectionOverride(bool active, Direction direction);
         void setGroupStage(bool active, uint8_t stage, Direction direction);
 
         // --- Rang 5, Handstufe ----------------------------------------------
@@ -119,6 +130,11 @@ namespace Kwl
         /// Stufenwunsch der Fuehrungen (Treppen, Temperatur). Grundstufe und
         /// Maximalstufe der aktiven Betriebsart kommen hier obendrauf.
         void setGuidanceStage(uint8_t stage);
+
+        /// Automatikstufe stilllegen (Intervallbetrieb in der Pause). Rang 6 gibt
+        /// dann 0 aus - Grundstufe eingeschlossen. Die Raenge 1 bis 5 bleiben
+        /// unberuehrt: eine Handstufe oder ein Schutzfall schlagen die Pause.
+        void setAutomaticSuppressed(bool suppressed);
 
         // --- Raenge 7 bis 11 ------------------------------------------------
         void setForcedObjectState(uint8_t index, bool active, uint32_t now);
@@ -156,6 +172,7 @@ namespace Kwl
         // Parametrierung
         ModeParams mParams[kModeCount + 1];
         OperatingMode mStandardMode = OperatingMode::Standby;
+        OperatingMode mNightMode = OperatingMode::Eco;
         uint8_t mProtectionStage = 0;
         OperatingMode mForcedObjectMode[4] = {OperatingMode::Auto, OperatingMode::Boost,
                                               OperatingMode::Quiet, OperatingMode::Comfort};
@@ -168,6 +185,9 @@ namespace Kwl
         bool mLock = false;
         bool mProtection = false;
         bool mAirDemand = false;
+        bool mDirectionOverride = false;
+        Direction mOverrideDirection = Direction::Exhaust;
+        bool mAutomaticSuppressed = false;
         Direction mAirDemandDirection = Direction::Exhaust;
         uint8_t mAirDemandStage = 0;
         bool mGroup = false;
