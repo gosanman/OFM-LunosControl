@@ -62,6 +62,9 @@ Verbünden sind unabhängig voneinander.
    Beide Lüfter eines Verbunds brauchen **verschiedene Phasen** (0 und 1) — sonst
    laufen sie gleichsinnig und es gibt weder Luftaustausch noch Wärmerückgewinnung.
 4. **Je Raum** die Sensoren verknüpfen und die Betriebsarten parametrieren.
+   Außentemperatur und Außenfeuchte gelten fürs ganze Haus: verknüpfen Sie sie an
+   Raum 1 und stellen Sie bei den übrigen Räumen *von Raum 1 übernehmen* ein.
+   Dasselbe gibt es für die Betriebsart, wenn das ganze Haus gemeinsam umschaltet.
 5. **Prüfen** über die serielle Konsole: `kwl st`, `kwl r1`, `kwl f1`.
 
 ### Balance — der Punkt, an dem Anlagen scheitern
@@ -99,6 +102,10 @@ Sieben Stück, je Raum getrennt parametrierbar. Vier davon sind KNX-Standard
 **Grundstufe** läuft immer, auch ohne jede Anforderung. **Maximalstufe** ist der
 Deckel für alle Führungen — der eigentliche Zweck der Betriebsart *Nacht*: im
 Schlafzimmer soll auch ein CO₂-Wert über allen Grenzwerten nicht Stufe 4 auslösen.
+
+> DPT 20.102 kennt nur die vier Standard-Betriebsarten. Stoßlüften, Absenkung und
+> Ruhe passen dort nicht hinein — dafür gibt es das Objekt *Betriebsart Status
+> erweitert* mit den Werten 1…7.
 
 Je Betriebsart lässt sich zusätzlich einstellen, welche Führungen überhaupt laufen
 (Temperatur, Feuchte, CO₂, Luftgüte, Entfeuchtung, Frostschutz), welche
@@ -301,9 +308,10 @@ es an den Fenstern.
 | 14–20 | rF innen, T innen, rF außen, T außen, CO₂, Luftgüte, Solltemperatur | Ein | 9.007 / 9.001 / 9.008 |
 | 21–24 | Führungen aktiv: Temperatur, Feuchte, CO₂, Luftgüte (0 sperrt) | Ein | 1.003 |
 | 21 | *oder* Freie Kühlung aktiv (Heizungssperre) | Aus | 1.003 |
+| 28 | Betriebsart Status erweitert (1…7) | Aus | 5.010 |
 | 25 | Raumanforderung Stufe | Aus | **5.100** |
 | 26 | Raumanforderung % | Aus | 5.001 |
-| 27 / 28 | Betriebsart Status / erweitert | Aus | 20.102 / 5.010 |
+| 27 | Betriebsart Status | Aus | 20.102 |
 | 29 | Betriebsweise Status | Aus | 5.010 |
 | 30 | Schutzbetrieb aktiv | Aus | 1.001 |
 | 31 | Feuchtevergleich sperrt | Aus | 1.001 |

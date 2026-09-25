@@ -49,10 +49,15 @@ namespace Kwl
         /// den Bus - das KO gibt es zusaetzlich fuer fremde Geraete.
         bool supplyRequested() const { return mSupplyReq; }
 
-        /// Aussenwerte fuer Raeume, die sie von Raum 1 uebernehmen.
+        /// Aussenwerte fuer Raeume, die sie von Raum 1 uebernehmen. Die Werte
+        /// gelten fuer das ganze Haus; sie zweimal zu verknuepfen waere doppelte
+        /// Buslast und eine Fehlerquelle mehr.
         bool hasOutdoor() const { return mHumOut.valid && mTempOut.valid; }
         float humidityOut() const { return mHumOut.value; }
         float tempOut() const { return mTempOut.value; }
+
+        /// Betriebsart fuer Raeume, die sie von Raum 1 uebernehmen.
+        OperatingMode activeMode() const { return mStage.mode; }
 
         /// Eine Zeile fuer die Uebersicht.
         void printStatusLine();
@@ -112,6 +117,7 @@ namespace Kwl
         void applyCycleWish(uint8_t wish);
         void sendStage();
         void sendMode();
+        void sendModeExt();
         void sendHumidity();
 
         bool mActive = false;
@@ -126,6 +132,10 @@ namespace Kwl
         /// true: bei fehlenden Messwerten Stillstand, false: Grundstufe weiter.
         bool mStopOnMissing = false;
         bool mSensorsMissing = false;
+
+        /// true: Aussenwerte und/oder Betriebsart kommen von Raum 1.
+        bool mOutdoorFromRoom1 = false;
+        bool mModeFromRoom1 = false;
 
         /// 0 = ppb (9.008), 1 = Index 5.010, 2 = Index 7.001.
         uint8_t mVocUnit = 0;
@@ -182,6 +192,7 @@ namespace Kwl
         Sent<uint8_t> mSentStage;
         Sent<uint8_t> mSentPct;
         Sent<uint8_t> mSentMode;
+        Sent<uint8_t> mSentModeExt;
         Sent<uint8_t> mSentDirMode;
         Sent<bool> mSentProtect;
         Sent<bool> mSentDehumBlock;
