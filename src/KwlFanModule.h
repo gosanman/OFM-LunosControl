@@ -39,11 +39,15 @@ namespace Kwl
       private:
         bool checkHardware();
         void setupChannels();
+        void setupGroups();
+        void driveGroup(uint8_t group, uint32_t now);
         void printStatus();
+        void printGroups();
 
         KwlOutput mOutput;
         KwlFan* mFan[FAN_ChannelCount] = {};
         KwlGroup mGroup[kGroupsMax];
+        bool mGroupActive[kGroupsMax] = {};
 
         ErrorCode mError = ErrorCode::None;
         bool mBelow5vIsSupply = true;
