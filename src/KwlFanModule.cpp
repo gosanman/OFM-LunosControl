@@ -14,6 +14,10 @@ namespace Kwl
         /// Schleife ueber %n%. Sie ist stumpf, aber sie ist an einer Stelle.
         struct GroupParams
         {
+            uint8_t role;
+            uint16_t heartbeat;
+            uint16_t masterTimeout;
+            uint8_t followSupply;
             uint8_t stageRule;
             uint8_t cycleConflict;
             bool active;
@@ -22,6 +26,18 @@ namespace Kwl
             uint16_t cycle[kStageMax + 1]; // Index 1…4
             uint16_t summer;
         };
+
+        /// KO-Index innerhalb des Kanalblocks, ohne _channelIndex - das Makro
+        /// FAN_KoCalcIndex rechnet darueber und gibt es nur im Kanal.
+        int koIndex(uint16_t asap)
+        {
+            if (asap < FAN_KoBlockOffset)
+                return -1;
+            const uint16_t rel = asap - FAN_KoBlockOffset;
+            if (rel >= FAN_ChannelCount * FAN_KoBlockSize)
+                return -1;
+            return rel % FAN_KoBlockSize;
+        }
 
         GroupParams readGroup(uint8_t group)
         {
@@ -103,6 +119,25 @@ namespace Kwl
             if (!p.active)
                 continue;
 
+            mGroupRole[g] = static_cast<GroupRole>(p.role);
+            mGroupLeadRoom[g] = p.leadRoom;
+            mGroupFollowSupply[g] = p.followSupply;
+            mGroupHeartbeatMs[g] = static_cast<uint32_t>(p.heartbeat) * 1000u;
+            mGroupTimeoutMs[g] = static_cast<uint32_t>(p.masterTimeout) * 1000u;
+            mGroupSpeaker[g] = -1;
+            mGroupLastAlive[g] = millis();
+            mGroupTimedOut[g] = false;
+
+            // Die Gruppen-KOs haengen am Luefter mit der kleinsten Nummer in
+            // diesem Verbund - deterministisch und ohne eigenen Parameter.
+            for (uint8_t i = 0; i < FAN_ChannelCount; i++)
+                if (mFan[i] != nullptr && mFan[i]->isActive() &&
+                    mFan[i]->groupNo() == g + 1)
+                {
+                    mGroupSpeaker[g] = static_cast<int8_t>(i);
+                    break;
+                }
+
             mGroup[g].setStageRule(static_cast<GroupStageRule>(p.stageRule));
             mGroup[g].setCycleConflict(static_cast<GroupCycleConflict>(p.cycleConflict));
             mGroup[g].setLeadRoom(p.leadRoom);
@@ -159,6 +194,11 @@ namespace Kwl
 
         const uint32_t now = millis();
 
+        // Zaehler und Filterueberwachung laufen unabhaengig vom Verbund.
+        for (uint8_t i = 0; i < FAN_ChannelCount; i++)
+            if (mFan[i] != nullptr)
+                mFan[i]->loop();
+
         for (uint8_t g = 0; g < kGroupsMax; g++)
         {
             if (!mGroupActive[g])
@@ -167,14 +207,33 @@ namespace Kwl
         }
     }
 
-    void KwlFanModule::driveGroup(uint8_t group, uint32_t now)
+    void KwlFanModule::collectMembers(uint8_t group)
     {
         KwlGroup& grp = mGroup[group];
+        grp.clearMembers();
+
+        // Slave: der Verbund rechnet nicht aus den Raeumen, sondern folgt dem, was
+        // der Master sendet. Das kommt als EIN Mitglied mit Richtungsforderung
+        // herein - damit laeuft dieselbe Zustandsmaschine, samt Totzeit beim
+        // Wechsel der Halbwelle.
+        if (mGroupRole[group] == GroupRole::Slave)
+        {
+            GroupMember m{};
+            m.roomNo = 0;
+            m.stage = mGroupRxStage[group];
+            m.maxStage = kStageMax;
+            m.cycleWish = CycleRule::Wrg;
+            m.directionDemanded = true;
+            m.direction = mGroupRxTact[group] ? Direction::Exhaust : Direction::Supply;
+            m.phase = 0;
+            m.share = 100;
+            grp.addMember(m);
+            return;
+        }
 
         // Mitglieder in jedem Durchlauf neu einsammeln: Stufe, Deckel und
         // Richtungsforderung eines Raums aendern sich staendig, und der Verbund
         // soll auf dem Stand rechnen, der jetzt gilt.
-        grp.clearMembers();
         for (uint8_t i = 0; i < FAN_ChannelCount; i++)
         {
             KwlFan* fan = mFan[i];
@@ -199,10 +258,79 @@ namespace Kwl
             grp.addMember(m);
         }
 
+        // "Folgt Zuluftanforderung von Raum n": zieht anderswo ein Geraet Abluft
+        // ab, muss hier nachstroemen. Der Wunsch kommt in-process, nicht ueber den
+        // Bus - das KO am Raum gibt es zusaetzlich fuer fremde Geraete.
+        const uint8_t followRoom = mGroupFollowSupply[group];
+        if (followRoom > 0)
+        {
+            KwlRoom* source = openknxKwlRoomModule.room(followRoom);
+            if (source != nullptr && source->isActive() && source->supplyRequested())
+            {
+                GroupMember m{};
+                m.roomNo = followRoom;
+                m.stage = 0; // nur die Richtung, keine Stufe
+                m.maxStage = kStageMax;
+                m.cycleWish = CycleRule::Wrg;
+                m.directionDemanded = true;
+                m.direction = Direction::Supply;
+                m.phase = 0;
+                m.share = 100;
+                grp.addMember(m);
+            }
+        }
+    }
+
+    void KwlFanModule::sendGroup(uint8_t group, const GroupResult& r, uint32_t now)
+    {
+        const int8_t speaker = mGroupSpeaker[group];
+        if (speaker < 0 || mFan[speaker] == nullptr)
+            return;
+
+        const bool tact = r.phase0Direction == Direction::Exhaust;
+        const bool changed = r.stage != mGroupSentStage[group] ||
+                             tact != mGroupSentTact[group];
+        const bool heartbeat = mGroupHeartbeatMs[group] > 0 &&
+                               (now - mGroupLastSent[group]) >= mGroupHeartbeatMs[group];
+        if (!changed && !heartbeat)
+            return;
+
+        mGroupSentStage[group] = r.stage;
+        mGroupSentTact[group] = tact;
+        mGroupLastSent[group] = now;
+
+        mFan[speaker]->sendGroupState(r.stage, tact);
+    }
+
+    void KwlFanModule::driveGroup(uint8_t group, uint32_t now)
+    {
+        KwlGroup& grp = mGroup[group];
+
+        // Master-Ueberwachung: bleibt das Lebenszeichen aus, weiss der Slave nicht
+        // mehr, in welcher Halbwelle der Verbund steht. Weiterlaufen hiesse raten -
+        // also Stillstand und Fehlercode 2.
+        if (mGroupRole[group] == GroupRole::Slave && mGroupTimeoutMs[group] > 0)
+        {
+            const bool timedOut =
+                (now - mGroupLastAlive[group]) >= mGroupTimeoutMs[group];
+            if (timedOut != mGroupTimedOut[group])
+            {
+                mGroupTimedOut[group] = timedOut;
+                if (timedOut)
+                    logErrorP("Verbund %u: Lebenszeichen des Masters bleibt aus",
+                              (unsigned)(group + 1));
+            }
+        }
+
+        collectMembers(group);
+
         if (grp.memberCount() == 0)
             return;
 
         const GroupResult r = grp.update(now);
+
+        if (mGroupRole[group] == GroupRole::Master)
+            sendGroup(group, r, now);
 
         for (uint8_t i = 0; i < FAN_ChannelCount; i++)
         {
@@ -210,7 +338,9 @@ namespace Kwl
             if (fan == nullptr || !fan->isActive() || fan->groupNo() != group + 1)
                 continue;
 
-            if (r.inDeadTime)
+            // Fehlende Freigabe, Suspendierung oder ein fehlender Master schlagen
+            // alles - sie sind der Grund, warum es Rang 1 gibt.
+            if (r.inDeadTime || fan->blocked() || mGroupTimedOut[group])
             {
                 // Sicherheitsinvariante 5: waehrend des Wechsels steht alles auf
                 // 5,00 V, beim ego beide Motoren gleichzeitig.
@@ -218,15 +348,121 @@ namespace Kwl
                 continue;
             }
 
-            const uint8_t stage = KwlGroup::stageForShare(r.stage, fan->share());
-            const Direction dir = KwlGroup::directionFor(r, fan->phase());
-            fan->drive(mOutput, stage, dir, mBelow5vIsSupply);
+            DriveCommand cmd;
+            cmd.stage = KwlGroup::stageForShare(r.stage, fan->share());
+            cmd.direction = KwlGroup::directionFor(r, fan->phase());
+            cmd.hrv = r.hrv;
+            fan->drive(mOutput, cmd, mBelow5vIsSupply);
         }
 
         if (!mOutput.ready())
         {
             mError = mOutput.error();
             logErrorP("Ausgabe fehlgeschlagen - Fehlercode %u", (unsigned)mError);
+        }
+
+        const ErrorCode groupError =
+            mGroupTimedOut[group] ? ErrorCode::MasterTimeout : mError;
+        for (uint8_t i = 0; i < FAN_ChannelCount; i++)
+            if (mFan[i] != nullptr && mFan[i]->groupNo() == group + 1)
+                mFan[i]->sendFault(r.conflict && r.conflictRoom == mFan[i]->roomNo(),
+                                   groupError);
+    }
+
+    int8_t KwlFanModule::groupOf(GroupObject& ko) const
+    {
+        const int channel = FAN_KoCalcChannel(ko.asap());
+        if (channel < 0 || channel >= FAN_ChannelCount)
+            return -1;
+        for (uint8_t g = 0; g < kGroupsMax; g++)
+            if (mGroupSpeaker[g] == static_cast<int8_t>(channel))
+                return static_cast<int8_t>(g);
+        return -1;
+    }
+
+    void KwlFanModule::processInputKo(GroupObject& ko)
+    {
+        const int channel = FAN_KoCalcChannel(ko.asap());
+        if (channel < 0 || channel >= FAN_ChannelCount)
+            return;
+
+        // Gruppen-KOs gehoeren dem Verbund, nicht dem Luefter - auch wenn sie an
+        // seinem Kanal haengen. Ein Slave hoert darauf, ein Master und ein
+        // interner Verbund nicht: sonst wuerde er sich selbst folgen.
+        const int8_t group = groupOf(ko);
+        if (group >= 0 && mGroupRole[group] == GroupRole::Slave)
+        {
+            switch (koIndex(ko.asap()))
+            {
+                case FAN_KoGroupStage:
+                    mGroupRxStage[group] = ko.value(DPT_Value_1_Ucount);
+                    mGroupLastAlive[group] = millis();
+                    return;
+                case FAN_KoGroupTact:
+                    mGroupRxTact[group] = ko.value(DPT_Start);
+                    mGroupLastAlive[group] = millis();
+                    return;
+                case FAN_KoGroupAlive:
+                    mGroupLastAlive[group] = millis();
+                    return;
+                default:
+                    break;
+            }
+        }
+
+        if (mFan[channel] != nullptr)
+            mFan[channel]->processInputKo(ko);
+    }
+
+    // ------------------------------------------------------------ Flash
+
+    uint16_t KwlFanModule::flashSize()
+    {
+        // Versionsbyte, dann je Kanal ein Flagbyte und drei Zaehler. Die Groesse
+        // haengt an FAN_ChannelCount und nicht an der Platine: das Feld wird vom
+        // Framework vor setup() abgefragt, da steht die Hardwareauswahl noch nicht.
+        return 1 + FAN_ChannelCount * 13;
+    }
+
+    void KwlFanModule::writeFlash()
+    {
+        openknx.flash.writeByte(kFlashVersion);
+
+        for (uint8_t i = 0; i < FAN_ChannelCount; i++)
+        {
+            KwlFan::PersistentState s{};
+            if (mFan[i] != nullptr)
+                s = mFan[i]->persistentState();
+
+            openknx.flash.writeByte(s.flags);
+            openknx.flash.writeInt(s.runSeconds);
+            openknx.flash.writeInt(s.filterSeconds);
+            openknx.flash.writeInt(s.filterVolume);
+        }
+    }
+
+    void KwlFanModule::readFlash(const uint8_t* data, const uint16_t size)
+    {
+        (void)data;
+        if (size < flashSize())
+            return; // noch nichts oder ein aelteres Layout gespeichert
+
+        if (openknx.flash.readByte() != kFlashVersion)
+        {
+            logInfoP("Gespeicherte Daten haben eine andere Version, werden verworfen");
+            return;
+        }
+
+        for (uint8_t i = 0; i < FAN_ChannelCount; i++)
+        {
+            KwlFan::PersistentState s;
+            s.flags = openknx.flash.readByte();
+            s.runSeconds = openknx.flash.readInt();
+            s.filterSeconds = openknx.flash.readInt();
+            s.filterVolume = openknx.flash.readInt();
+
+            if (mFan[i] != nullptr)
+                mFan[i]->restore(s);
         }
     }
 

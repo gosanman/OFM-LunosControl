@@ -153,6 +153,46 @@ static void test_sommer_wechselt_weiter_die_richtung(void)
     TEST_ASSERT_EQUAL(Direction::Exhaust, g.update(3602000).phase0Direction);
 }
 
+static void test_waermerueckgewinnung_gemeldet(void)
+{
+    // WRG heisst: es wird gependelt, und zwar kurz. Der Verbund meldet das, damit
+    // der Luefter es nicht raten muss.
+    KwlGroup g;
+    fill(g, 2, 4, 2, 4);
+    TEST_ASSERT_TRUE(g.update(0).hrv);
+
+    // Stillstand ist keine Waermerueckgewinnung.
+    fill(g, 0, 4, 0, 4);
+    TEST_ASSERT_FALSE(g.update(0).hrv);
+}
+
+static void test_sommer_ist_keine_waermerueckgewinnung(void)
+{
+    // Der lange Zyklus wechselt weiter die Richtung, aber der Regenerator ist
+    // nach etwa einer Minute gesaettigt - praktisch keine WRG mehr.
+    KwlGroup g;
+    g.clearMembers();
+    g.addMember(member(1, 2, 4, 0, CycleRule::Summer));
+    g.addMember(member(2, 2, 4, 1, CycleRule::Summer));
+    TEST_ASSERT_FALSE(g.update(0).hrv);
+
+    // Will einer der beiden WRG, gewinnt der kuerzere Zyklus - und damit die WRG.
+    g.clearMembers();
+    g.addMember(member(1, 2, 4, 0, CycleRule::Summer));
+    g.addMember(member(2, 2, 4, 1, CycleRule::Wrg));
+    TEST_ASSERT_TRUE(g.update(0).hrv);
+}
+
+static void test_feste_richtung_ist_keine_waermerueckgewinnung(void)
+{
+    // Ohne Wechsel kein Regenerator-Betrieb.
+    KwlGroup g;
+    g.clearMembers();
+    g.addMember(member(1, 4, 4, 0, CycleRule::Wrg, true, Direction::Exhaust));
+    g.addMember(member(2, 2, 4, 1));
+    TEST_ASSERT_FALSE(g.update(0).hrv);
+}
+
 // ---------------------------------------------------------------- Takt
 
 static void test_pendeltakt_mit_totzeit(void)
@@ -407,6 +447,9 @@ int main(int, char**)
     RUN_TEST(test_kuerzester_zyklus_gewinnt);
     RUN_TEST(test_fuehrender_raum_entscheidet_den_zyklus);
     RUN_TEST(test_sommer_wechselt_weiter_die_richtung);
+    RUN_TEST(test_waermerueckgewinnung_gemeldet);
+    RUN_TEST(test_sommer_ist_keine_waermerueckgewinnung);
+    RUN_TEST(test_feste_richtung_ist_keine_waermerueckgewinnung);
     RUN_TEST(test_pendeltakt_mit_totzeit);
     RUN_TEST(test_phase_1_laeuft_immer_gegenlaeufig);
     RUN_TEST(test_stillstand_haelt_den_takt_an);

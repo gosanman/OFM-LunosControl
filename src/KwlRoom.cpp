@@ -408,7 +408,8 @@ namespace Kwl
 
         // Zuluftanforderung an die Partner: solange dieser Knoten Abluft faehrt,
         // muss anderswo nachstroemen, sonst pfeift es an den Fenstern.
-        KoROOM_SupplyReq.value(running && mSendSupplyReq, DPT_Switch);
+        mSupplyReq = running && mSendSupplyReq;
+        KoROOM_SupplyReq.value(mSupplyReq, DPT_Switch);
     }
 
     uint8_t KwlRoom::runGuidance(OperatingMode mode, uint32_t now)
@@ -584,41 +585,94 @@ namespace Kwl
         }
         mStage = now;
 
-        if (now.stage != before.stage || now.source != before.source)
-            sendStage();
-        if (now.mode != before.mode)
-            sendMode();
-
+        (void)before;
+        sendStage();
+        sendMode();
         sendHumidity();
-        KoROOM_ProtectAct.value(mProtection, DPT_Switch);
-        KoROOM_DehumBlock.value(mDehumBlocked, DPT_Switch);
-        KoROOM_IntervalAct.value(mIntervalRunning, DPT_Switch);
-        KoROOM_DirModeAct.value(mDirMode, DPT_Value_1_Ucount);
+
+        if (mSentProtect.due(mProtection, ms, 0))
+        {
+            KoROOM_ProtectAct.value(mProtection, DPT_Switch);
+            mSentProtect.mark(mProtection, ms);
+        }
+        if (mSentDehumBlock.due(mDehumBlocked, ms, 0))
+        {
+            KoROOM_DehumBlock.value(mDehumBlocked, DPT_Switch);
+            mSentDehumBlock.mark(mDehumBlocked, ms);
+        }
+        if (mSentInterval.due(mIntervalRunning, ms, 0))
+        {
+            KoROOM_IntervalAct.value(mIntervalRunning, DPT_Switch);
+            mSentInterval.mark(mIntervalRunning, ms);
+        }
+        if (mSentDirMode.due(mDirMode, ms, 0))
+        {
+            KoROOM_DirModeAct.value(mDirMode, DPT_Value_1_Ucount);
+            mSentDirMode.mark(mDirMode, ms);
+        }
     }
 
     void KwlRoom::sendHumidity()
     {
         // Anzeige in g/kg. Der Vergleich selbst laeuft ueber den Partialdruck und
         // braucht die Hoehe nicht - nur diese beiden Objekte tun es.
+        //
+        // Totband 0,05 g/kg: darunter ist es das Rauschen der Feuchtesensoren, und
+        // ein Wert, der sich in der letzten Stelle bewegt, gehoert nicht auf den
+        // Bus. Gerechnet wird in 1/100 g/kg, damit das Totband ganzzahlig bleibt.
+        const uint32_t ms = millis();
+        constexpr uint32_t kBand = 5;
+
         if (mHumIn.valid && mTempIn.valid)
-            KoROOM_AbsHumIn.value(
-                MoistAir::mixingRatioAt(mTempIn.value, mHumIn.value, mAltitude),
-                Dpt(9, 29));
+        {
+            const float g = MoistAir::mixingRatioAt(mTempIn.value, mHumIn.value, mAltitude);
+            const int32_t raw = static_cast<int32_t>(g * 100.0f);
+            if (!mSentAbsIn.valid ||
+                SendCondition::passesDeadband(raw, mSentAbsIn.value, 0, kBand))
+            {
+                KoROOM_AbsHumIn.value(g, Dpt(9, 29));
+                mSentAbsIn.mark(raw, ms);
+            }
+        }
+
         if (mHumOut.valid && mTempOut.valid)
-            KoROOM_AbsHumOut.value(
-                MoistAir::mixingRatioAt(mTempOut.value, mHumOut.value, mAltitude),
-                Dpt(9, 29));
+        {
+            const float g = MoistAir::mixingRatioAt(mTempOut.value, mHumOut.value, mAltitude);
+            const int32_t raw = static_cast<int32_t>(g * 100.0f);
+            if (!mSentAbsOut.valid ||
+                SendCondition::passesDeadband(raw, mSentAbsOut.value, 0, kBand))
+            {
+                KoROOM_AbsHumOut.value(g, Dpt(9, 29));
+                mSentAbsOut.mark(raw, ms);
+            }
+        }
     }
 
     void KwlRoom::sendStage()
     {
-        KoROOM_DemandStage.value(mStage.stage, DPT_Value_1_Ucount);
-        KoROOM_DemandPct.value(StageMap::stageToPercent(mStage.stage), DPT_Scaling);
+        const uint32_t ms = millis();
+        if (mSentStage.due(mStage.stage, ms, 0))
+        {
+            KoROOM_DemandStage.value(mStage.stage, DPT_Value_1_Ucount);
+            mSentStage.mark(mStage.stage, ms);
+        }
+
+        const uint8_t pct = StageMap::stageToPercent(mStage.stage);
+        if (mSentPct.due(pct, ms, 0))
+        {
+            KoROOM_DemandPct.value(pct, DPT_Scaling);
+            mSentPct.mark(pct, ms);
+        }
     }
 
     void KwlRoom::sendMode()
     {
-        KoROOM_ModeAct.value(static_cast<uint8_t>(mStage.mode), DPT_HVACMode);
+        const uint32_t ms = millis();
+        const uint8_t mode = static_cast<uint8_t>(mStage.mode);
+        if (!mSentMode.due(mode, ms, 0))
+            return;
+        KoROOM_ModeAct.value(mode, DPT_HVACMode);
+        mSentMode.mark(mode, ms);
     }
 
     // ------------------------------------------------------------ Konsole

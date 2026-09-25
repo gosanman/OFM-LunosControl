@@ -1,6 +1,7 @@
 #pragma once
 
 #include "MoistAir.h"
+#include "SendCondition.h"
 #include "OpenKNX.h"
 #include "StageArbiter.h"
 #include "StageLadder.h"
@@ -42,6 +43,11 @@ namespace Kwl
         /// Welchen Takt dieser Raum wuenscht. Der Verbund entscheidet bei
         /// Uneinigkeit nach seiner eigenen Regel.
         CycleRule cycleWish() const { return mCycleWish; }
+
+        /// Fordert dieser Raum gerade Zuluft an? Solange er Abluft faehrt, muss
+        /// anderswo nachstroemen. Die Partner lesen das in-process, nicht ueber
+        /// den Bus - das KO gibt es zusaetzlich fuer fremde Geraete.
+        bool supplyRequested() const { return mSupplyReq; }
 
         /// Aussenwerte fuer Raeume, die sie von Raum 1 uebernehmen.
         bool hasOutdoor() const { return mHumOut.valid && mTempOut.valid; }
@@ -152,6 +158,7 @@ namespace Kwl
         uint32_t mExhaustLagMs = 0;
         uint8_t mExhaustIntervalIdx = 0;
         bool mSendSupplyReq = true;
+        bool mSupplyReq = false;
 
         // --- Betriebsweise-KO (Rang 3) ---------------------------------------
         /// 0 = auto, 1 = WRG, 2 = Zuluft, 3 = Abluft.
@@ -165,6 +172,18 @@ namespace Kwl
         // --- Nachlauf nach Anforderungsende ----------------------------------
         uint8_t mGuidanceHold = 0;
         uint32_t mGuidanceHoldSince = 0;
+
+        // Was zuletzt auf dem Bus war. GroupObject::value() sendet immer, also
+        // wird hier entschieden statt dort.
+        Sent<uint8_t> mSentStage;
+        Sent<uint8_t> mSentPct;
+        Sent<uint8_t> mSentMode;
+        Sent<uint8_t> mSentDirMode;
+        Sent<bool> mSentProtect;
+        Sent<bool> mSentDehumBlock;
+        Sent<bool> mSentInterval;
+        Sent<int32_t> mSentAbsIn;  ///< in 1/100 g/kg, fuer das Totband
+        Sent<int32_t> mSentAbsOut;
 
         StageResult mStage{};
         bool mProtection = false;

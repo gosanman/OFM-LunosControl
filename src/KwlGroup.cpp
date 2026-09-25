@@ -4,7 +4,7 @@ namespace Kwl
 {
     KwlGroup::KwlGroup()
     {
-        mResult = {0, false, Direction::Supply, false, false, 0, 70};
+        mResult = {0, false, Direction::Supply, false, false, 0, 70, true};
     }
 
     Direction KwlGroup::opposite(Direction d)
@@ -131,29 +131,37 @@ namespace Kwl
 
     // ------------------------------------------------------------ Zykluszeit
 
-    uint16_t KwlGroup::computeCycleSeconds(uint8_t stage) const
+    uint16_t KwlGroup::computeCycleSeconds(uint8_t stage)
     {
         const uint8_t s = stage == 0 ? 1 : stage;
+        mSummerChosen = false;
 
         if (mCycleConflict == GroupCycleConflict::LeadRoomWins)
         {
             for (uint8_t i = 0; i < mCount; i++)
                 if (mMember[i].roomNo == mLeadRoom)
-                    return mMember[i].cycleWish == CycleRule::Summer ? mSummerCycle
-                                                                    : mCycleTime[s];
+                {
+                    mSummerChosen = mMember[i].cycleWish == CycleRule::Summer;
+                    return mSummerChosen ? mSummerCycle : mCycleTime[s];
+                }
         }
 
         // Kuerzester Zyklus gewinnt: wer WRG will, bekommt sie. Ein langer Zyklus
         // ist die Abwesenheit von WRG - die laesst sich nicht erzwingen, wenn der
         // Nachbar sie braucht.
         uint16_t shortest = 0;
+        bool summer = true;
         for (uint8_t i = 0; i < mCount; i++)
         {
-            const uint16_t wish =
-                mMember[i].cycleWish == CycleRule::Summer ? mSummerCycle : mCycleTime[s];
+            const bool wantsSummer = mMember[i].cycleWish == CycleRule::Summer;
+            const uint16_t wish = wantsSummer ? mSummerCycle : mCycleTime[s];
             if (shortest == 0 || wish < shortest)
+            {
                 shortest = wish;
+                summer = wantsSummer;
+            }
         }
+        mSummerChosen = summer;
         return shortest == 0 ? mCycleTime[s] : shortest;
     }
 
@@ -222,6 +230,9 @@ namespace Kwl
 
         mResult.stage = stage;
         mResult.cycleSeconds = cycle;
+        // WRG heisst: es wird gependelt, und zwar kurz. Eine feste Richtung ist
+        // keine Waermerueckgewinnung, ein Stundenzyklus praktisch auch nicht.
+        mResult.hrv = stage > 0 && !mFixed && !mSummerChosen;
         mResult.directionFixed = mFixed;
         mResult.conflict = mConflict;
         mResult.conflictRoom = mConflictRoom;
@@ -288,6 +299,6 @@ namespace Kwl
         mInDeadTime = false;
         mStarted = false;
         mSince = 0;
-        mResult = {0, false, Direction::Supply, false, false, 0, mCycleTime[1]};
+        mResult = {0, false, Direction::Supply, false, false, 0, mCycleTime[1], true};
     }
 } // namespace Kwl

@@ -46,6 +46,10 @@ namespace Kwl
         bool conflict;             ///< zwei Forderungen schliessen sich aus
         uint8_t conflictRoom;      ///< der unterlegene Raum, 0 = keiner
         uint16_t cycleSeconds;     ///< aktuell wirksame Zykluszeit
+        /// Waermerueckgewinnung: der Verbund pendelt im kurzen Zyklus. Beim langen
+        /// Zyklus (Sommer) wechselt er zwar weiter die Richtung, der Regenerator
+        /// ist nach etwa einer Minute aber gesaettigt - praktisch keine WRG mehr.
+        bool hrv;
     };
 
     // ========================================================================
@@ -116,7 +120,7 @@ namespace Kwl
 
       private:
         uint8_t computeStage() const;
-        uint16_t computeCycleSeconds(uint8_t stage) const;
+        uint16_t computeCycleSeconds(uint8_t stage);
         void resolveDemands(uint8_t stage);
         static Direction opposite(Direction d);
 
@@ -134,6 +138,7 @@ namespace Kwl
         uint8_t mCount = 0;
 
         bool mFixed = false;
+        bool mSummerChosen = false;
         Direction mDemandDirection = Direction::Supply;
         bool mConflict = false;
         uint8_t mConflictRoom = 0;
