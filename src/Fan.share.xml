@@ -19,7 +19,7 @@
        und auf der BASE-Seite "Module" gibt es nur noch einen Schalter fuer beide.
 
        Geraeteweites Speicherbild dieses Moduls:
-         Offset 0     Hardware      (Enum, Wert = Kanalzahl)
+         Offset 0     Hardware      (Enum, Wert = Platinenkennung FANDRV_BOARD_ID)
          Offset 1     StartupDelay
          Offset 2..3  Reserve
          Offset 4..   8 Verbuende a 20 Byte (Fan.group.part.xml) -> 4..163
@@ -50,19 +50,30 @@
             <ParameterTypes>
 
               <!-- ===== Hardwareauswahl =====
-                   Der Enum-WERT ist die Kanalzahl. Damit wird die Sichtbarkeit einer
-                   Luefterseite zu einem schlichten Zahlenvergleich (Kanalnummer <=
-                   Hardware), und die Firmware liest denselben Parameter als Zahl und
-                   vergleicht ihn mit FANDRV_BOARD_CHANNELS aus dem Board-Header. -->
+                   Der Enum-WERT ist die Platinenkennung FANDRV_BOARD_ID aus dem Board-
+                   Header, NICHT die Kanalzahl. Zwei Platinen mit gleicher Kanalzahl, aber
+                   anderer Belegung (Pins, Adressen, Klemmenbild) muessen unterscheidbar
+                   bleiben. Die Firmware vergleicht diesen Wert mit FANDRV_BOARD_ID.
+
+                   Die Kanalzahl fuer die Sichtbarkeit der Luefterseiten steht im
+                   unsichtbaren Parameter HardwareChannels (%TT%00006), den die Tabelle
+                   unter "Allgemein" per Assign aus dieser Auswahl setzt. Eine neue
+                   Platine braucht deshalb drei Eintraege: hier den Enum-Wert, dort die
+                   Kanalzahl, im Board-Header FANDRV_BOARD_ID. Kennungen werden nie
+                   wiederverwendet. -->
               <ParameterType Id="%AID%_PT-FanHardware" Name="FanHardware">
                 <TypeRestriction Base="Value" SizeInBit="8" UIHint="DropDown">
-                  <Enumeration Text="Entwicklungsaufbau Pico + DFR1073 (2 Kanäle)" Value="2" Id="%ENID%" Icon="kwlhw-2" />
-                  <Enumeration Text="KNXFANDRV Rev 0.1 (4 Kanäle)" Value="4" Id="%ENID%" Icon="kwlhw-4" />
-                  <Enumeration Text="KNXFANDRV 6 (6 Kanäle)" Value="6" Id="%ENID%" Icon="kwlhw-6" />
-                  <Enumeration Text="KNXFANDRV 8 (8 Kanäle)" Value="8" Id="%ENID%" Icon="kwlhw-8" />
-                  <Enumeration Text="KNXFANDRV 10 (10 Kanäle)" Value="10" Id="%ENID%" Icon="kwlhw-10" />
-                  <Enumeration Text="KNXFANDRV 12 (12 Kanäle)" Value="12" Id="%ENID%" Icon="kwlhw-12" />
+                  <Enumeration Text="Entwicklungsaufbau Pico + DFR1073 (2 Kanäle)" Value="0" Id="%ENID%" Icon="kwlhw-2" />
+                  <Enumeration Text="KNXFANDRV Rev 0.1 (4 Kanäle)" Value="1" Id="%ENID%" Icon="kwlhw-4" />
+                  <Enumeration Text="KNXFANDRV 6 (6 Kanäle)" Value="2" Id="%ENID%" Icon="kwlhw-6" />
+                  <Enumeration Text="KNXFANDRV 8 (8 Kanäle)" Value="3" Id="%ENID%" Icon="kwlhw-8" />
+                  <Enumeration Text="KNXFANDRV 10 (10 Kanäle)" Value="4" Id="%ENID%" Icon="kwlhw-10" />
+                  <Enumeration Text="KNXFANDRV 12 (12 Kanäle)" Value="5" Id="%ENID%" Icon="kwlhw-12" />
                 </TypeRestriction>
+              </ParameterType>
+              <!-- Kanalzahl der gewaehlten Platine, nur fuer die Sichtbarkeit. -->
+              <ParameterType Id="%AID%_PT-FanHardwareChannels" Name="FanHardwareChannels">
+                <TypeNumber SizeInBit="8" Type="unsignedInt" minInclusive="0" maxInclusive="12" />
               </ParameterType>
               <ParameterType Id="%AID%_PT-FanOverviewFilter" Name="FanOverviewFilter">
                 <TypeRestriction Base="Value" SizeInBit="1">
@@ -281,7 +292,7 @@
             <Parameters>
               <Union SizeInBit="24">
                 <Memory CodeSegment="%AID%_RS-04-00000" Offset="0" BitOffset="0" />
-                <Parameter Id="%AID%_UP-%TT%00001" Name="Hardware" Offset="0" BitOffset="0" ParameterType="%AID%_PT-FanHardware" Text="Platine" Value="4" />
+                <Parameter Id="%AID%_UP-%TT%00001" Name="Hardware" Offset="0" BitOffset="0" ParameterType="%AID%_PT-FanHardware" Text="Platine" Value="1" />
                 <Parameter Id="%AID%_UP-%TT%00002" Name="StartupDelay" Offset="1" BitOffset="0" ParameterType="%AID%_PT-FanStartupDelay" Text="Wartezeit nach Busspannungswiederkehr" SuffixText=" s" Value="3" />
                 <!-- Funktionstaste, drei Gesten je 2 Bit in Byte 2. Byte 3 bleibt frei. -->
                 <Parameter Id="%AID%_UP-%TT%00003" Name="ButtonShort"  Offset="2" BitOffset="0" ParameterType="%AID%_PT-FanButtonAction" Text="Funktionstaste kurz" Value="1" />
@@ -289,6 +300,8 @@
                 <Parameter Id="%AID%_UP-%TT%00005" Name="ButtonDouble" Offset="2" BitOffset="4" ParameterType="%AID%_PT-FanButtonAction" Text="Funktionstaste doppelt" Value="3" />
               </Union>
               <Parameter Id="%AID%_P-%TT%00020" Name="OverviewFilter" ParameterType="%AID%_PT-FanOverviewFilter" Text="Anzeigen" Value="0" />
+              <!-- Vorgabe 4 passt zur Vorgabe von Hardware (1 = Rev 0.1). -->
+              <Parameter Id="%AID%_P-%TT%00006" Name="HardwareChannels" ParameterType="%AID%_PT-FanHardwareChannels" Text="Kanalzahl der Platine (interner Wert)" Access="None" Value="4" />
               <Parameter Id="%AID%_P-%TT%00010" Name="BoardPic2" ParameterType="%AID%_PT-BoardPic2" Text="" Access="Read" Value="" />
               <Parameter Id="%AID%_P-%TT%00011" Name="BoardPic4" ParameterType="%AID%_PT-BoardPic4" Text="" Access="Read" Value="" />
               <!-- Offset 3 Reserve, ab Offset 4 die Verbuende -->
@@ -301,6 +314,7 @@
               <ParameterRef Id="%AID%_UP-%TT%00004_R-%TT%0000401" RefId="%AID%_UP-%TT%00004" />
               <ParameterRef Id="%AID%_UP-%TT%00005_R-%TT%0000501" RefId="%AID%_UP-%TT%00005" />
               <ParameterRef Id="%AID%_P-%TT%00020_R-%TT%0002001" RefId="%AID%_P-%TT%00020" />
+              <ParameterRef Id="%AID%_P-%TT%00006_R-%TT%0000601" RefId="%AID%_P-%TT%00006" />
               <ParameterRef Id="%AID%_P-%TT%00010_R-%TT%0001001" RefId="%AID%_P-%TT%00010" />
               <ParameterRef Id="%AID%_P-%TT%00011_R-%TT%0001101" RefId="%AID%_P-%TT%00011" />
               <op:usePart name="GROUP" xpath="//Static/ParameterRefs/*" />
@@ -323,6 +337,18 @@
                 <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
                 <ParameterSeparator Id="%AID%_PS-nnn" Text="Gerät" UIHint="Headline" />
                 <ParameterRefRef RefId="%AID%_UP-%TT%00001_R-%TT%0000101" IndentLevel="1" HelpContext="%DOC%" />
+                <!-- Platinenkennung -> Kanalzahl. Die einzige Stelle, an der die ETS
+                     die Kanalzahl einer Platine kennt; alle Luefterseiten fragen
+                     HardwareChannels ab, nie die Kennung direkt. -->
+                <choose ParamRefId="%AID%_UP-%TT%00001_R-%TT%0000101">
+                  <when test="0"><Assign TargetParamRefRef="%AID%_P-%TT%00006_R-%TT%0000601" Value="2" /></when>
+                  <when test="1"><Assign TargetParamRefRef="%AID%_P-%TT%00006_R-%TT%0000601" Value="4" /></when>
+                  <when test="2"><Assign TargetParamRefRef="%AID%_P-%TT%00006_R-%TT%0000601" Value="6" /></when>
+                  <when test="3"><Assign TargetParamRefRef="%AID%_P-%TT%00006_R-%TT%0000601" Value="8" /></when>
+                  <when test="4"><Assign TargetParamRefRef="%AID%_P-%TT%00006_R-%TT%0000601" Value="10" /></when>
+                  <when test="5"><Assign TargetParamRefRef="%AID%_P-%TT%00006_R-%TT%0000601" Value="12" /></when>
+                  <when default="true"><Assign TargetParamRefRef="%AID%_P-%TT%00006_R-%TT%0000601" Value="0" /></when>
+                </choose>
                 <ParameterRefRef RefId="%AID%_UP-%TT%00002_R-%TT%0000201" IndentLevel="1" HelpContext="%DOC%" />
                 <ParameterRefRef RefId="%AID%_UP-2000003_R-200000301" IndentLevel="1" HelpContext="%DOC%" />
                 <ParameterRefRef RefId="%AID%_UP-2000002_R-200000201" IndentLevel="1" HelpContext="%DOC%" />
@@ -339,15 +365,16 @@
                      Bild, und eine Seite fuer ein Bild ist ein Klick zu viel. -->
                 <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
                 <ParameterSeparator Id="%AID%_PS-nnn" Text="Anschluss" UIHint="Headline" />
+  <!-- Klemmenbild haengt an der Platine, nicht an der Kanalzahl - deshalb hier die Kennung. -->
   <choose ParamRefId="%AID%_UP-%TT%00001_R-%TT%0000101">
-                    <when test="2">
+                    <when test="0">
                       <ParameterBlock Id="%AID%_PB-nnn" Inline="true" Layout="Grid">
                         <Rows><Row Id="%AID%_PB-nnn_R-1" /></Rows>
                         <Columns><Column Id="%AID%_PB-nnn_C-1" Width="100%" /></Columns>
                         <ParameterRefRef RefId="%AID%_P-%TT%00010_R-%TT%0001001" Cell="1,1" />
                       </ParameterBlock>
                     </when>
-                    <when test="4">
+                    <when test="1">
                       <ParameterBlock Id="%AID%_PB-nnn" Inline="true" Layout="Grid">
                         <Rows><Row Id="%AID%_PB-nnn_R-1" /></Rows>
                         <Columns><Column Id="%AID%_PB-nnn_C-1" Width="100%" /></Columns>

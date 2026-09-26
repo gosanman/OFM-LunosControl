@@ -206,7 +206,7 @@
 
               <!-- ===================== Zeile in der Kanalauswahl ===================== -->
               <ParameterBlock Id="%AID%_PB-nnn" Name="Settings">
-                <choose ParamRefId="%AID%_UP-%TT%00001_R-%TT%0000101">
+                <choose ParamRefId="%AID%_P-%TT%00006_R-%TT%0000601">
                   <when test="&gt;=%C%">
                     <ParameterBlock Id="%AID%_PB-nnn" Inline="true" Layout="Grid">
                       <Rows><Row Id="%AID%_PB-nnn_R-1" /></Rows>
@@ -239,7 +239,7 @@
                   <when default="true" />
                 </choose>
 
-                <choose ParamRefId="%AID%_UP-%TT%00001_R-%TT%0000101">
+                <choose ParamRefId="%AID%_P-%TT%00006_R-%TT%0000601">
                   <when test="&gt;=%C%">
                     <choose ParamRefId="%AID%_P-%TT%%CC%090_R-%TT%%CC%09001">
                       <when test="1">
@@ -287,7 +287,7 @@
               <!-- ===================== Kanalreiter ===================== -->
               <ParameterBlock Id="%AID%_PB-nnn" Name="Channel">
                 <!-- Aeussere Klammer: gibt die gewaehlte Platine diesen Kanal ueberhaupt her? -->
-                <choose ParamRefId="%AID%_UP-%TT%00001_R-%TT%0000101">
+                <choose ParamRefId="%AID%_P-%TT%00006_R-%TT%0000601">
                   <when test="&gt;=%C%">
                     <choose ParamRefId="%AID%_UP-%TT%%CC%010_R-%TT%%CC%01001">
                       <when test="=1">

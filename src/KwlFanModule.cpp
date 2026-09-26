@@ -84,6 +84,12 @@ namespace Kwl
         // Auswahl und Bestueckung nicht ueberein, waeren alle Kanalzuordnungen
         // verschoben - und eine verschobene Zuordnung stellt den falschen Luefter
         // auf Vollgas. Deshalb Fehlercode 3 und kein stilles Weiterlaufen.
+        //
+        // Der Enum-Wert von FAN_Hardware ist die Platinenkennung FANDRV_BOARD_ID
+        // (Fan.share.xml, PT-FanHardware: 0 = Entwicklungsaufbau, 1 = Rev 0.1, ...),
+        // nicht die Kanalzahl. Zwei Platinen mit gleicher Kanalzahl, aber anderer
+        // Belegung muessen unterscheidbar bleiben. Die Kanalzahl folgt aus dem
+        // Board-Header, der zu dieser Kennung gehoert.
         if (ParamFAN_Hardware == boardId())
             return true;
 
