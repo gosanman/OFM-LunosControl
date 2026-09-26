@@ -77,6 +77,13 @@ namespace Kwl
         /// Nummer eines Verbunds tut das - er traegt dessen KOs.
         void sendGroupState(uint8_t stage, bool tact);
 
+        /// Fuer die Geraete-LED und die Funktionstaste im Modul.
+        ErrorCode lastError() const { return mLastError; }
+        bool filterDue() const { return mFilterDue; }
+
+        /// Filterzaehler zuruecksetzen - vom Quittungsobjekt oder von der Taste.
+        void acknowledgeFilter();
+
         bool isActive() const { return mActive; }
         FanType type() const { return mType; }
         uint8_t dacChannel() const { return mDacChannel; }
@@ -102,6 +109,13 @@ namespace Kwl
 
         /// Ausfuehrliche Einzelansicht fuer "kwl fNN".
         void printDetail();
+
+        /// Dasselbe fuers Diagnose-KO: je Zeile hoechstens 14 Zeichen, weil
+        /// DPT 16 nicht mehr traegt. `detail` haengt Kalibrierung und Filter an.
+        void printDiagnose(bool detail);
+
+        /// Restlaufzeit des Filters in Prozent, 0 wenn kein Filterzaehler laeuft.
+        uint8_t filterLeftPercent() const;
 
       private:
         /// Sollspannung am Luefter -> Spannung, die der DAC ausgeben muss.

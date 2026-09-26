@@ -41,6 +41,21 @@ namespace Kwl
 
         ErrorCode error() const { return mError; }
 
+        /// Info-LED-Funktionen (PT-SLEDFunc in Fan.share.xml): 110 zeigt Betrieb
+        /// und Stoerungen, 111 nur Stoerungen. Die ETS ordnet die eine LED der
+        /// Platine einer davon zu - oder einer Basisfunktion, dann tun wir nichts.
+        static constexpr uint32_t kLedFunctionAll = 110;
+        static constexpr uint32_t kLedFunctionFaultsOnly = 111;
+
+        /// Wirkung einer Geste der Funktionstaste (PT-FanButtonAction).
+        enum class ButtonAction : uint8_t
+        {
+            None = 0,
+            Boost = 1,     ///< Stosslueften ein/aus, alle Raeume
+            Quiet = 2,     ///< Ruhe ein/aus, alle Raeume
+            FilterAck = 3  ///< Filterwechsel quittieren, faellige Filter
+        };
+
       private:
         static constexpr uint8_t kFlashVersion = 1;
 
@@ -53,6 +68,25 @@ namespace Kwl
         int8_t groupOf(GroupObject& ko) const;
         void printStatus();
         void printGroups();
+        void printGroupsDiagnose();
+
+        // --- Geraete-LED und Funktionstaste -----------------------------------
+        void setupButton();
+        void handleButton(ButtonAction action, uint32_t now);
+        void toggleForcedMode(OperatingMode mode, uint32_t now);
+        void updateLed();
+        void flashLed();
+
+        OpenKNX::Led::FunctionGroup* mLedAll = nullptr;
+        OpenKNX::Led::FunctionGroup* mLedFaults = nullptr;
+        uint8_t mLedShown = 0xFF;
+
+        /// Die Rueckrufe der Taste laufen im Timer-Interrupt. Sie setzen nur ein
+        /// Flag; die Wirkung passiert in loop(), wo KNX und Raeume erlaubt sind.
+        volatile uint8_t mButtonPending = 0; ///< 1 kurz, 2 lang, 3 doppelt
+        ButtonAction mButtonShort = ButtonAction::None;
+        ButtonAction mButtonLong = ButtonAction::None;
+        ButtonAction mButtonDouble = ButtonAction::None;
 
         /// Rolle eines Verbunds: 0 intern, 1 Master (sendet), 2 Slave (folgt).
         enum class GroupRole : uint8_t

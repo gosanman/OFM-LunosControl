@@ -336,6 +336,28 @@ namespace Kwl
         }
     }
 
+    // ------------------------------------------------------------ Geraet
+
+    void KwlRoom::forceModeFromDevice(OperatingMode mode, uint32_t now)
+    {
+        if (mActive)
+            mArbiter.setForcedMode(mode, now);
+    }
+
+    void KwlRoom::clearForcedModeFromDevice(uint32_t now)
+    {
+        if (mActive)
+            mArbiter.clearForcedMode(now);
+    }
+
+    bool KwlRoom::forcedModeActive(OperatingMode mode) const
+    {
+        // Rang 9 ist die Zwangsbetriebsart. Steht dort gerade diese Betriebsart,
+        // ist "die Taste" der Grund - oder ein KO, das dasselbe gesagt hat; fuer
+        // das Umschalten ist das gleichwertig.
+        return mActive && mStage.modeRank == 9 && mStage.mode == mode;
+    }
+
     // ------------------------------------------------------------ Ablauf
 
     void KwlRoom::expireSensors(uint32_t now)
@@ -790,6 +812,54 @@ namespace Kwl
     }
 
     // ------------------------------------------------------------ Konsole
+
+    void KwlRoom::printDiagnose(bool detail)
+    {
+#ifdef BASE_KoDiagnose
+        const unsigned no = _channelIndex + 1;
+        if (!mActive)
+        {
+            openknx.console.writeDiagnoseKo("R%u inaktiv", no);
+            return;
+        }
+
+        // "R8 S4 Rg6 M7" = 12: Stufe, Rang der Quelle, Betriebsart.
+        const StageResult& r = mStage;
+        openknx.console.writeDiagnoseKo("R%u S%u Rg%u M%u", no, (unsigned)r.stage,
+                                        (unsigned)static_cast<uint8_t>(r.source),
+                                        (unsigned)static_cast<uint8_t>(r.mode));
+        if (!detail)
+            return;
+
+        // Messwerte, "--" wenn keiner da ist - das ist beim Suchen die haeufigste
+        // Antwort. "rF100 C4000" = 11, "V5000 Ti-10" = 11.
+        char rf[6] = "--", co2[6] = "--", voc[6] = "--", ti[6] = "--";
+        if (mHumIn.valid)
+            snprintf(rf, sizeof(rf), "%d", (int)mHumIn.value);
+        if (mCo2Val.valid)
+            snprintf(co2, sizeof(co2), "%d", (int)mCo2Val.value);
+        if (mVocVal.valid)
+            snprintf(voc, sizeof(voc), "%d", (int)mVocVal.value);
+        if (mTempIn.valid)
+            snprintf(ti, sizeof(ti), "%d", (int)mTempIn.value);
+        openknx.console.writeDiagnoseKo("rF%s C%s", rf, co2);
+        openknx.console.writeDiagnoseKo("V%s Ti%s", voc, ti);
+
+        // Nur die Befunde, die anliegen - eine Zeile je Befund, keine Kuerzel.
+        if (mLocked)
+            openknx.console.writeDiagnoseKo("R%u Sperre", no);
+        if (mProtection)
+            openknx.console.writeDiagnoseKo("R%u Schutz", no);
+        if (mSensorsMissing)
+            openknx.console.writeDiagnoseKo("R%u Wert fehlt", no);
+        if (mDehumBlocked)
+            openknx.console.writeDiagnoseKo("R%u rF gesperrt", no);
+        if (!mIntervalRunning)
+            openknx.console.writeDiagnoseKo("R%u Pause", no);
+#else
+        (void)detail;
+#endif
+    }
 
     void KwlRoom::printDetail()
     {

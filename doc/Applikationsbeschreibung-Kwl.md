@@ -287,6 +287,31 @@ es an den Fenstern.
 
 ---
 
+## LED und Funktionstaste am Gerät
+
+Die Platine hat **eine** LED und **eine** Taste. Beide wirken aufs ganze Gerät.
+
+**Info-LED** — unter *Allgemein → Info-LED* wählbar:
+
+| Funktion | Verhalten |
+|---|---|
+| Lüftung | Alarm → Blinkcode des kleinsten anliegenden Codes (so viele Blitze wie der Code, dann Pause). Meldung → langsames Blinken. Sonst an, wenn ein Lüfter läuft. |
+| Lüftung, nur Störungen | wie oben, aber dunkel im Normalbetrieb — für den Schlafzimmerflur |
+
+**Funktionstaste** — je Geste wählbar unter *Allgemein → Funktionstaste*:
+
+| Geste | Vorgabe | Wirkung |
+|---|---|---|
+| kurz | Stoßlüften ein/aus | in allen Räumen, mit der Laufzeit der Zwangsbetriebsart. Nochmal: aus. |
+| lang (ab 1 s) | Ruhe ein/aus | alles steht. Nochmal: zurück. |
+| doppelt (2 Klicks in 0,5 s) | Filterwechsel quittieren | nur bei Lüftern mit **fälligem** Filter |
+
+Die LED blitzt einmal, wenn eine Geste angekommen ist. Stoßlüften und Ruhe laufen
+über die Zwangsbetriebsart — also mit Rücksetz-Semantik und ohne die Sperre
+anzufassen.
+
+---
+
 ## Kommunikationsobjekte
 
 ### Je Raum (Block 40, ab KO 20)
@@ -377,6 +402,20 @@ Liegen mehrere an, gewinnt der kleinste.
 `kwl r1` ist der schnellste Weg zur Antwort auf „warum läuft der nicht": Es zeigt
 den Rang, aus dem die Stufe kommt, welche Messwerte fehlen, ob der
 Feuchtevergleich sperrt und in welchem Zustand die Abluftanforderung steht.
+
+**Ohne Kabel — über das Diagnose-Objekt.** Dieselben Befehle lassen sich auf das
+Objekt *Diagnose* des Geräts schreiben (Gruppenmonitor der ETS, DPT 16). Die
+Antwort kommt auf demselben Objekt zurück, in Zeilen zu 14 Zeichen:
+
+| Zeile | Bedeutung |
+|---|---|
+| `F1 S2 Z 5012` | Lüfter 1: Stufe 2, Zuluft (A = Abluft), 5012 mV am Ausgang |
+| `F1 E4 ALARM` | Lüfter 1: Fehlercode 4 — nur wenn einer anliegt |
+| `Kal9975 Fi87%` | Kalibrierfaktor, Filter-Restlaufzeit (nur bei `kwl f1`) |
+| `R1 S2 Rg6 M2` | Raum 1: Stufe 2 aus Rang 6, Betriebsart 2 |
+| `rF52 C850` / `V-- Ti21` | Messwerte; `--` heißt: keiner da (nur bei `kwl r1`) |
+| `R1 Wert fehlt` | Befunde, eine Zeile je Befund: Sperre, Schutz, Wert fehlt, rF gesperrt, Pause |
+| `G1 S2 Z 70 T` | Verbund 1: Stufe 2, Zuluft, 70 s Zyklus; T = Totzeit, K = Richtungskonflikt |
 
 ---
 

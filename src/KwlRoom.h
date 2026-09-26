@@ -63,12 +63,21 @@ namespace Kwl
         /// Betriebsart fuer Raeume, die sie von Raum 1 uebernehmen.
         OperatingMode activeMode() const { return mStage.mode; }
 
+        /// Zwangsbetriebsart vom Geraet aus (Funktionstaste). Laeuft ueber
+        /// denselben Weg wie das KO - mit Laufzeit und Ruecksetz-Semantik.
+        void forceModeFromDevice(OperatingMode mode, uint32_t now);
+        void clearForcedModeFromDevice(uint32_t now);
+        bool forcedModeActive(OperatingMode mode) const;
+
         /// Eine Zeile fuer die Uebersicht.
         void printStatusLine();
 
         /// Ausfuehrliche Einzelansicht fuer "kwl rNN": warum die Stufe so ist,
         /// wie sie ist. Beim Inbetriebnehmen die eigentliche Frage.
         void printDetail();
+
+        /// Dasselbe fuers Diagnose-KO, in Zeilen zu 14 Zeichen.
+        void printDiagnose(bool detail);
 
       private:
         /// Ein Messwert vom Bus samt Alter. Ein Wert, der nie kam, ist nicht

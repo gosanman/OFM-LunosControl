@@ -170,6 +170,13 @@ namespace Kwl
         // muessen die Luefter den Fehlercode trotzdem auf den Bus bringen koennen.
         setupChannels();
         setupGroups();
+        setupButton();
+
+        // Beide Gruppen existieren immer; ob die LED der Platine an einer haengt,
+        // entscheidet die ETS. active() ist sonst falsch, und updateLed() tut nichts.
+        mLedAll = openknx.ledFunctions.get(kLedFunctionAll);
+        mLedFaults = openknx.ledFunctions.get(kLedFunctionFaultsOnly);
+        mLedShown = 0xFF;
 
         if (!checkHardware())
         {
@@ -206,10 +213,21 @@ namespace Kwl
             for (uint8_t i = 0; i < FAN_ChannelCount; i++)
                 if (mFan[i] != nullptr)
                     mFan[i]->sendFault(false, mError, ErrorCode::None);
+            updateLed();
             return;
         }
 
         const uint32_t now = millis();
+
+        // Geste der Funktionstaste, gesetzt im Interrupt, ausgefuehrt hier.
+        const uint8_t pending = mButtonPending;
+        if (pending != 0)
+        {
+            mButtonPending = 0;
+            handleButton(pending == 1 ? mButtonShort
+                       : pending == 2 ? mButtonLong
+                                      : mButtonDouble, now);
+        }
 
         // Zaehler und Filterueberwachung laufen unabhaengig vom Verbund.
         for (uint8_t i = 0; i < FAN_ChannelCount; i++)
@@ -222,6 +240,148 @@ namespace Kwl
                 continue;
             driveGroup(g, now);
         }
+
+        updateLed();
+    }
+
+    // ------------------------------------------------------------ LED
+
+    void KwlFanModule::updateLed()
+    {
+        const bool all = mLedAll != nullptr && mLedAll->active();
+        const bool faultsOnly = mLedFaults != nullptr && mLedFaults->active();
+        if (!all && !faultsOnly)
+            return;
+
+        // Der schlimmste Zustand ueber alle Luefter - dieselbe Regel wie beim
+        // Fehlercode: der kleinste anliegende Code gewinnt.
+        ErrorCode worst = mError;
+        bool running = false;
+        for (uint8_t i = 0; i < FAN_ChannelCount; i++)
+        {
+            const KwlFan* fan = mFan[i];
+            if (fan == nullptr || !fan->isActive())
+                continue;
+            worst = lowestError(worst, fan->lastError());
+            if (fan->stage() > 0)
+                running = true;
+        }
+
+        // 0 aus, 1 an, 2 Meldung (blinkt), 0x80|Code Alarm (Blinkcode).
+        uint8_t want;
+        if (isAlarm(worst))
+            want = 0x80 | static_cast<uint8_t>(worst);
+        else if (worst != ErrorCode::None)
+            want = 2;
+        else
+            want = (all && running) ? 1 : 0;
+
+        if (want == mLedShown)
+            return;
+        mLedShown = want;
+
+        OpenKNX::Led::FunctionGroup* led = all ? mLedAll : mLedFaults;
+        if (want & 0x80)
+        {
+            // Die "rote LED" der Invariante 10: OpenKNX zeigt den Code als
+            // Blinkfolge - so viele Blitze wie der Code, dann Pause.
+            led->errorCode(want & 0x7F);
+            return;
+        }
+        led->errorCode(0);
+        if (want == 2)
+            led->blinking();
+        else if (want == 1)
+            led->on();
+        else
+            led->off();
+    }
+
+    void KwlFanModule::flashLed()
+    {
+        // Quittung fuer eine Geste. Danach den gemerkten Zustand vergessen, damit
+        // updateLed() die Anzeige wieder aufbaut.
+        OpenKNX::Led::FunctionGroup* led =
+            (mLedAll != nullptr && mLedAll->active()) ? mLedAll
+          : (mLedFaults != nullptr && mLedFaults->active()) ? mLedFaults
+          : nullptr;
+        if (led == nullptr)
+            return;
+        led->flash(1);
+        mLedShown = 0xFF;
+    }
+
+    // ------------------------------------------------------------ Funktionstaste
+
+    void KwlFanModule::setupButton()
+    {
+        mButtonShort = static_cast<ButtonAction>(ParamFAN_ButtonShort);
+        mButtonLong = static_cast<ButtonAction>(ParamFAN_ButtonLong);
+        mButtonDouble = static_cast<ButtonAction>(ParamFAN_ButtonDouble);
+
+#ifdef FUNC1_BUTTON_PIN
+        // Die Rueckrufe laufen im Timer-Interrupt: nur merken, nichts tun.
+        openknx.func1Button.onShortClick([this] { mButtonPending = 1; });
+        openknx.func1Button.onLongClick([this] { mButtonPending = 2; });
+        openknx.func1Button.onDoubleClick([this] { mButtonPending = 3; });
+#endif
+    }
+
+    void KwlFanModule::toggleForcedMode(OperatingMode mode, uint32_t now)
+    {
+        // Steht die Betriebsart in irgendeinem Raum schon als Zwang, nimmt die
+        // Geste sie ueberall zurueck - sonst setzt sie sie ueberall. So kommt man
+        // mit einer Taste immer in beide Richtungen.
+        bool anyActive = false;
+        for (uint8_t r = 1; r <= ROOM_ChannelCount; r++)
+        {
+            KwlRoom* room = openknxKwlRoomModule.room(r);
+            if (room != nullptr && room->forcedModeActive(mode))
+                anyActive = true;
+        }
+        for (uint8_t r = 1; r <= ROOM_ChannelCount; r++)
+        {
+            KwlRoom* room = openknxKwlRoomModule.room(r);
+            if (room == nullptr)
+                continue;
+            if (anyActive)
+                room->clearForcedModeFromDevice(now);
+            else
+                room->forceModeFromDevice(mode, now);
+        }
+        logInfoP("Taste: %s %s", mode == OperatingMode::Boost ? "Stosslueften" : "Ruhe",
+                 anyActive ? "aus" : "ein");
+    }
+
+    void KwlFanModule::handleButton(ButtonAction action, uint32_t now)
+    {
+        switch (action)
+        {
+            case ButtonAction::Boost:
+                toggleForcedMode(OperatingMode::Boost, now);
+                break;
+            case ButtonAction::Quiet:
+                toggleForcedMode(OperatingMode::Quiet, now);
+                break;
+            case ButtonAction::FilterAck:
+            {
+                // Nur faellige Filter: ein versehentlicher Druck setzt keinen
+                // Zaehler zurueck, der noch laeuft.
+                uint8_t count = 0;
+                for (uint8_t i = 0; i < FAN_ChannelCount; i++)
+                    if (mFan[i] != nullptr && mFan[i]->isActive() && mFan[i]->filterDue())
+                    {
+                        mFan[i]->acknowledgeFilter();
+                        count++;
+                    }
+                logInfoP("Taste: %u Filter quittiert", (unsigned)count);
+                break;
+            }
+            case ButtonAction::None:
+            default:
+                return; // keine Quittung fuer eine Geste ohne Wirkung
+        }
+        flashLed();
     }
 
     void KwlFanModule::collectMembers(uint8_t group)
@@ -546,34 +706,66 @@ namespace Kwl
 
     void KwlFanModule::showHelp()
     {
-        openknx.console.printHelpLine("kwl", "Lueftersteuerung anzeigen");
+        openknx.console.printHelpLine("kwl st", "Alle Luefterkanaele je eine Zeile");
+        openknx.console.printHelpLine("kwl grp", "Verbuende mit Takt und Richtung");
+        openknx.console.printHelpLine("kwl fNN", "Luefter NN ausfuehrlich, z.B. kwl f1");
+        openknx.console.printHelpLine("kwl rNN", "Raum NN ausfuehrlich, z.B. kwl r1");
+    }
+
+    void KwlFanModule::printGroupsDiagnose()
+    {
+#ifdef BASE_KoDiagnose
+        // "G8 S4 Z 3600 K" = 14. K = Richtungskonflikt, T = Totzeit.
+        for (uint8_t g = 0; g < kGroupsMax; g++)
+        {
+            if (!mGroupActive[g])
+                continue;
+            const GroupResult r = mGroup[g].result();
+            openknx.console.writeDiagnoseKo("G%u S%u %c %u%s", (unsigned)(g + 1),
+                                            (unsigned)r.stage,
+                                            r.phase0Direction == Direction::Supply ? 'Z' : 'A',
+                                            (unsigned)r.cycleSeconds,
+                                            r.conflict ? " K" : r.inDeadTime ? " T" : "");
+            // Bei Massenausgabe verschluckt der Bus sonst jede zweite Zeile -
+            // dieselbe Abhilfe wie im Logikmodul.
+            openknx.console.writeDiagnoseKo("");
+        }
+#endif
     }
 
     bool KwlFanModule::processCommand(const std::string cmd, bool debugKo)
     {
-        (void)debugKo;
+        // debugKo: der Befehl kam ueber das Diagnose-KO, die Antwort geht dorthin
+        // zurueck - in Telegrammen zu 14 Zeichen. Ohne USB-Kabel der einzige Weg
+        // in ein Geraet im Schacht.
 
         if (cmd.rfind("kwl", 0) != 0)
             return false;
 
-        if (cmd == "kwl")
-        {
-            openknx.console.printHelpLine("kwl st", "Alle Luefterkanaele je eine Zeile");
-            openknx.console.printHelpLine("kwl grp", "Verbuende mit Takt und Richtung");
-            openknx.console.printHelpLine("kwl fNN", "Luefter NN ausfuehrlich, z.B. kwl f1");
-            openknx.console.printHelpLine("kwl rNN", "Raum NN ausfuehrlich, z.B. kwl r1");
-            return true;
-        }
-
         if (cmd == "kwl st")
         {
+            if (debugKo)
+            {
+                for (uint8_t i = 0; i < FAN_ChannelCount; i++)
+                    if (mFan[i] != nullptr && mFan[i]->isActive())
+                    {
+                        mFan[i]->printDiagnose(false);
+#ifdef BASE_KoDiagnose
+                        openknx.console.writeDiagnoseKo("");
+#endif
+                    }
+                return true;
+            }
             printStatus();
             return true;
         }
 
         if (cmd == "kwl grp")
         {
-            printGroups();
+            if (debugKo)
+                printGroupsDiagnose();
+            else
+                printGroups();
             return true;
         }
 
@@ -588,7 +780,10 @@ namespace Kwl
                          (unsigned)FAN_ChannelCount);
                 return true;
             }
-            mFan[no - 1]->printDetail();
+            if (debugKo)
+                mFan[no - 1]->printDiagnose(true);
+            else
+                mFan[no - 1]->printDetail();
             return true;
         }
 
@@ -602,7 +797,10 @@ namespace Kwl
                          (unsigned)ROOM_ChannelCount);
                 return true;
             }
-            room->printDetail();
+            if (debugKo)
+                room->printDiagnose(true);
+            else
+                room->printDetail();
             return true;
         }
 

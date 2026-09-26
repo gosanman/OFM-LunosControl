@@ -125,16 +125,11 @@ namespace Kwl
                 break;
 
             case FAN_KoFilterAck:
-                // Nur das eigene Quittungsobjekt setzt die Zaehler zurueck. Eine 0
-                // auf "Filterwechsel faellig" unterdrueckt die Meldung bloss.
+                // Nur die Quittung setzt die Zaehler zurueck - vom Objekt oder von
+                // der Taste. Eine 0 auf "Filterwechsel faellig" unterdrueckt die
+                // Meldung bloss.
                 if (ko.value(DPT_Ack))
-                {
-                    mFilterSeconds = 0;
-                    mFilterVolume = 0;
-                    mFilterDue = false;
-                    mFilterMuted = false;
-                    logInfoP("Filterzaehler zurueckgesetzt");
-                }
+                    acknowledgeFilter();
                 break;
 
             case FAN_KoFilterDue:
@@ -149,6 +144,16 @@ namespace Kwl
             default:
                 break;
         }
+    }
+
+    void KwlFan::acknowledgeFilter()
+    {
+        mFilterSeconds = 0;
+        mFilterVolume = 0;
+        mFilterVolumeRemainder = 0;
+        mFilterDue = false;
+        mFilterMuted = false;
+        logInfoP("Filterzaehler zurueckgesetzt");
     }
 
     // ------------------------------------------------------------ Sperren
@@ -257,12 +262,7 @@ namespace Kwl
         // Restlaufzeit in Prozent, fuer die Anzeige.
         if (mFilterMode != 0)
         {
-            const uint32_t used = mFilterMode == 1 ? mFilterSeconds : mFilterVolume;
-            const uint32_t limit =
-                mFilterMode == 1 ? mFilterLimitSeconds : mFilterLimitVolume;
-            uint8_t left = 0;
-            if (limit > 0 && used < limit)
-                left = static_cast<uint8_t>(((limit - used) * 100u) / limit);
+            const uint8_t left = filterLeftPercent();
             if (mSentFilterLeft.due(left, now, mSendCycleStatusMs))
             {
                 KoFAN_FilterLeft.value(left, DPT_Scaling);
@@ -342,7 +342,9 @@ namespace Kwl
         mStatusValid = true;
 
         if (changed)
+        {
             sendStatus();
+        }
         return true;
     }
 
@@ -392,6 +394,48 @@ namespace Kwl
         KoFAN_GroupTact.value(tact, DPT_Start);
         // Lebenszeichen: der Slave misst die Abstaende, nicht den Inhalt.
         KoFAN_GroupAlive.value(true, DPT_Switch);
+    }
+
+    uint8_t KwlFan::filterLeftPercent() const
+    {
+        if (mFilterMode == 0)
+            return 0;
+        const uint32_t used = mFilterMode == 1 ? mFilterSeconds : mFilterVolume;
+        const uint32_t limit = mFilterMode == 1 ? mFilterLimitSeconds : mFilterLimitVolume;
+        if (limit == 0 || used >= limit)
+            return 0;
+        return static_cast<uint8_t>(((limit - used) * 100u) / limit);
+    }
+
+    void KwlFan::printDiagnose(bool detail)
+    {
+#ifdef BASE_KoDiagnose
+        // 14 Zeichen je Telegramm. Die Zeilen sind so gebaut, dass auch die
+        // laengsten Werte hineinpassen: "F12 S4 Z 10025" sind genau 14.
+        const unsigned no = _channelIndex + 1;
+        if (!mActive)
+        {
+            openknx.console.writeDiagnoseKo("F%u inaktiv", no);
+            return;
+        }
+        openknx.console.writeDiagnoseKo("F%u S%u %c %d", no, (unsigned)mStage,
+                                        mDirection == Direction::Supply ? 'Z' : 'A',
+                                        (int)(mLastVolt * 1000.0f));
+        if (mLastError != ErrorCode::None)
+            openknx.console.writeDiagnoseKo("F%u E%u%s", no, (unsigned)mLastError,
+                                            isAlarm(mLastError) ? " ALARM" : "");
+        if (detail)
+        {
+            // "Kal9975 Fi100%" = 14
+            openknx.console.writeDiagnoseKo("Kal%d Fi%u%%", (int)(mCalib * 10000.0f),
+                                            (unsigned)filterLeftPercent());
+            // "Bh65535 Frei" = 12
+            openknx.console.writeDiagnoseKo("Bh%u %s", (unsigned)(mRunSeconds / 3600u),
+                                            blocked() ? "GESPERRT" : "Frei");
+        }
+#else
+        (void)detail;
+#endif
     }
 
     void KwlFan::printDetail()

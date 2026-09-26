@@ -258,30 +258,35 @@
                    fuehrt die Enumerationen zusammen, sodass unsere Kanaele zusaetzlich zu
                    den Eintraegen von BASE in den Info-LED-Dropdowns erscheinen. Deshalb hier
                    nur die eigenen Werte und op:headerExport="none" - der Typ gehoert BASE.
-                   Die Werte muessen zur Basis 110 in KwlTypes.h passen. -->
+                   Die Werte muessen zu kLedFunctionAll/-FaultsOnly in KwlFanModule.h passen. -->
               <ParameterType Id="%AID%_PT-SLEDFunc" Name="SLEDFunc" op:headerExport="none">
                 <TypeRestriction Base="Value" SizeInBit="16" UIHint="DropDown">
-                  <Enumeration Text="Lüfter 1" Value="110" Id="%ENID%" />
-                  <Enumeration Text="Lüfter 2" Value="111" Id="%ENID%" />
-                  <Enumeration Text="Lüfter 3" Value="112" Id="%ENID%" />
-                  <Enumeration Text="Lüfter 4" Value="113" Id="%ENID%" />
-                  <Enumeration Text="Lüfter 5" Value="114" Id="%ENID%" />
-                  <Enumeration Text="Lüfter 6" Value="115" Id="%ENID%" />
-                  <Enumeration Text="Lüfter 7" Value="116" Id="%ENID%" />
-                  <Enumeration Text="Lüfter 8" Value="117" Id="%ENID%" />
-                  <Enumeration Text="Lüfter 9" Value="118" Id="%ENID%" />
-                  <Enumeration Text="Lüfter 10" Value="119" Id="%ENID%" />
-                  <Enumeration Text="Lüfter 11" Value="120" Id="%ENID%" />
-                  <Enumeration Text="Lüfter 12" Value="121" Id="%ENID%" />
+                  <Enumeration Text="Lüftung" Value="110" Id="%ENID%" />
+                  <Enumeration Text="Lüftung, nur Störungen" Value="111" Id="%ENID%" />
+                </TypeRestriction>
+              </ParameterType>
+
+              <!-- Funktionstaste: je Geste eine Wirkung, waehlbar. Die Werte muessen zu
+                   ButtonAction in KwlFanModule.h passen. -->
+              <ParameterType Id="%AID%_PT-FanButtonAction" Name="FanButtonAction">
+                <TypeRestriction Base="Value" SizeInBit="2">
+                  <Enumeration Text="keine" Value="0" Id="%ENID%" />
+                  <Enumeration Text="Stoßlüften ein/aus (alle Räume)" Value="1" Id="%ENID%" />
+                  <Enumeration Text="Ruhe ein/aus (alle Räume)" Value="2" Id="%ENID%" />
+                  <Enumeration Text="Filterwechsel quittieren (fällige Filter)" Value="3" Id="%ENID%" />
                 </TypeRestriction>
               </ParameterType>
 
             </ParameterTypes>
             <Parameters>
-              <Union SizeInBit="16">
+              <Union SizeInBit="24">
                 <Memory CodeSegment="%AID%_RS-04-00000" Offset="0" BitOffset="0" />
                 <Parameter Id="%AID%_UP-%TT%00001" Name="Hardware" Offset="0" BitOffset="0" ParameterType="%AID%_PT-FanHardware" Text="Platine" Value="4" />
                 <Parameter Id="%AID%_UP-%TT%00002" Name="StartupDelay" Offset="1" BitOffset="0" ParameterType="%AID%_PT-FanStartupDelay" Text="Wartezeit nach Busspannungswiederkehr" SuffixText=" s" Value="3" />
+                <!-- Funktionstaste, drei Gesten je 2 Bit in Byte 2. Byte 3 bleibt frei. -->
+                <Parameter Id="%AID%_UP-%TT%00003" Name="ButtonShort"  Offset="2" BitOffset="0" ParameterType="%AID%_PT-FanButtonAction" Text="Funktionstaste kurz" Value="1" />
+                <Parameter Id="%AID%_UP-%TT%00004" Name="ButtonLong"   Offset="2" BitOffset="2" ParameterType="%AID%_PT-FanButtonAction" Text="Funktionstaste lang" Value="2" />
+                <Parameter Id="%AID%_UP-%TT%00005" Name="ButtonDouble" Offset="2" BitOffset="4" ParameterType="%AID%_PT-FanButtonAction" Text="Funktionstaste doppelt" Value="3" />
               </Union>
               <Parameter Id="%AID%_P-%TT%00020" Name="OverviewFilter" ParameterType="%AID%_PT-FanOverviewFilter" Text="Anzeigen" Value="0" />
               <Parameter Id="%AID%_P-%TT%00010" Name="BoardPic2" ParameterType="%AID%_PT-BoardPic2" Text="" Access="Read" Value="" />
@@ -292,6 +297,9 @@
             <ParameterRefs>
               <ParameterRef Id="%AID%_UP-%TT%00001_R-%TT%0000101" RefId="%AID%_UP-%TT%00001" />
               <ParameterRef Id="%AID%_UP-%TT%00002_R-%TT%0000201" RefId="%AID%_UP-%TT%00002" />
+              <ParameterRef Id="%AID%_UP-%TT%00003_R-%TT%0000301" RefId="%AID%_UP-%TT%00003" />
+              <ParameterRef Id="%AID%_UP-%TT%00004_R-%TT%0000401" RefId="%AID%_UP-%TT%00004" />
+              <ParameterRef Id="%AID%_UP-%TT%00005_R-%TT%0000501" RefId="%AID%_UP-%TT%00005" />
               <ParameterRef Id="%AID%_P-%TT%00020_R-%TT%0002001" RefId="%AID%_P-%TT%00020" />
               <ParameterRef Id="%AID%_P-%TT%00010_R-%TT%0001001" RefId="%AID%_P-%TT%00010" />
               <ParameterRef Id="%AID%_P-%TT%00011_R-%TT%0001101" RefId="%AID%_P-%TT%00011" />
@@ -318,6 +326,13 @@
                 <ParameterRefRef RefId="%AID%_UP-%TT%00002_R-%TT%0000201" IndentLevel="1" HelpContext="%DOC%" />
                 <ParameterRefRef RefId="%AID%_UP-2000003_R-200000301" IndentLevel="1" HelpContext="%DOC%" />
                 <ParameterRefRef RefId="%AID%_UP-2000002_R-200000201" IndentLevel="1" HelpContext="%DOC%" />
+
+                <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
+                <ParameterSeparator Id="%AID%_PS-nnn" Text="Funktionstaste" UIHint="Headline" />
+                <ParameterSeparator Id="%AID%_PS-nnn" Text="Die Taste am Gerät wirkt auf alle Räume bzw. alle Lüfter. Lang = ab 1 s, doppelt = zwei Klicks innerhalb 0,5 s. Die LED blitzt zur Bestätigung." UIHint="Information" />
+                <ParameterRefRef RefId="%AID%_UP-%TT%00003_R-%TT%0000301" IndentLevel="1" HelpContext="%DOC%" />
+                <ParameterRefRef RefId="%AID%_UP-%TT%00004_R-%TT%0000401" IndentLevel="1" HelpContext="%DOC%" />
+                <ParameterRefRef RefId="%AID%_UP-%TT%00005_R-%TT%0000501" IndentLevel="1" HelpContext="%DOC%" />
 
                 <!-- Klemmenbild der gewaehlten Platine. Frueher eine eigene Seite
                      "Anschluss"; sie trug nach dem Streichen der Texte nur noch dieses
