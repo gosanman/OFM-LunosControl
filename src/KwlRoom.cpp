@@ -3,6 +3,8 @@
 #include "KwlRoomModule.h"
 #include "knxprod.h"
 
+#include <cmath>
+
 namespace Kwl
 {
     namespace
@@ -59,6 +61,8 @@ namespace Kwl
         f.leadTemp = ParamROOM_r##prefix##LeadTemp; \
         f.dehum = ParamROOM_r##prefix##Dehum;       \
         f.frost = ParamROOM_r##prefix##Frost;       \
+        f.interval = ParamROOM_r##prefix##Interval; \
+        f.runOn = ParamROOM_r##prefix##RunOn;       \
         f.cycleWish = ParamROOM_r##prefix##Cycle;   \
         break;
 
@@ -179,6 +183,7 @@ namespace Kwl
         mExhaustLagMs = minutesToMs(ParamROOM_rExhaustLag);
         mExhaustIntervalIdx = ParamROOM_rExhaustInterval;
         mSendSupplyReq = ParamROOM_rExhaustSupply;
+        mDehumStage = ParamROOM_rDehumStage;
 
         // --- Intervallbetrieb ------------------------------------------------
         mIntervalPeriodMs = static_cast<uint32_t>(ParamROOM_rIntervalPeriod) * 60000u;
@@ -203,7 +208,7 @@ namespace Kwl
         // --- Rang 1: Sperre ---------------------------------------------
         case ROOM_KoLock:
             mLocked = ko.value(DPT_Switch);
-            mArbiter.setLock(mLocked && !mLockKeepsBase);
+            mArbiter.setLock(mLocked, mLockKeepsBase);
             break;
 
         // --- Rang 5: Handstufe ------------------------------------------
@@ -438,7 +443,11 @@ namespace Kwl
         // Zuluftanforderung an die Partner: solange dieser Knoten Abluft faehrt,
         // muss anderswo nachstroemen, sonst pfeift es an den Fenstern.
         mSupplyReq = running && mSendSupplyReq;
-        KoROOM_SupplyReq.value(mSupplyReq, DPT_Switch);
+        if (mSentSupplyReq.due(mSupplyReq, now, 0))
+        {
+            KoROOM_SupplyReq.value(mSupplyReq, DPT_Switch);
+            mSentSupplyReq.mark(mSupplyReq, now);
+        }
     }
 
     uint8_t KwlRoom::runGuidance(OperatingMode mode, uint32_t now)
@@ -461,8 +470,10 @@ namespace Kwl
         // --- Feuchtevergleich ------------------------------------------------
         // Er entscheidet, ob Lueften ueberhaupt trocknet. Ohne Aussenwerte bleibt
         // er gesperrt: nicht gemessen heisst nicht entfeuchten.
+        const bool dehumInputs =
+            mHumIn.valid && mTempIn.valid && mHumOut.valid && mTempOut.valid;
         bool dehumAllowed = false;
-        if (f.dehum && mHumIn.valid && mTempIn.valid && mHumOut.valid && mTempOut.valid)
+        if (f.dehum && dehumInputs)
         {
             const float eIn = MoistAir::vapourPressure(mTempIn.value, mHumIn.value);
             const float eOut = MoistAir::vapourPressure(mTempOut.value, mHumOut.value);
@@ -472,16 +483,28 @@ namespace Kwl
         {
             mCompare.reset();
         }
-        mDehumBlocked = f.dehum && !dehumAllowed;
+        // "Sperrt" heisst: gemessen, und draussen ist es feuchter. Fehlende
+        // Messwerte sind ein anderer Befund (Fehlercode 8, nicht 7).
+        mDehumBlocked = f.dehum && dehumInputs && !dehumAllowed;
 
         // --- Grenzwert-Treppen -----------------------------------------------
-        // Die rF-Treppe laeuft nur, wenn Lueften auch trocknet. Steht draussen
-        // feuchtere Luft, macht mehr Lueften den Raum feuchter statt trockener.
-        if (f.leadHum && mLeadHumKo && mHumIn.valid && dehumAllowed)
+        // Mit Feuchtevergleich laeuft die rF-Treppe nur, wenn Lueften auch
+        // trocknet - steht draussen feuchtere Luft, macht mehr Lueften den Raum
+        // feuchter. OHNE Feuchtevergleich (Bad ohne Aussensensor) laeuft sie
+        // frei: die beiden Funktionen sind in der ETS unabhaengig voneinander.
+        const bool humidityMayRun = f.dehum ? dehumAllowed : true;
+        if (f.leadHum && mLeadHumKo && mHumIn.valid && humidityMayRun)
         {
             const uint8_t s = mHumidity.update(mHumIn.value);
             if (s > wish)
                 wish = s;
+
+            // Stufe bei Entfeuchtung: solange die Entfeuchtung wirkt UND es etwas
+            // zu trocknen gibt (Treppe ueber 0), mindestens diese Stufe. Ohne die
+            // zweite Bedingung liefe jeder Raum den ganzen Winter auf ihr - im
+            // Winter ist Lueften praktisch immer "trocknend".
+            if (dehumAllowed && s > 0 && mDehumStage > wish)
+                wish = mDehumStage;
         }
         else
         {
@@ -512,16 +535,11 @@ namespace Kwl
 
         // --- Temperaturfuehrung und Schutz ------------------------------------
         uint8_t cycleWish = f.cycleWish;
-        if (mTempIn.valid && mTempOut.valid && mTempSet.valid)
+        const bool tempComplete = mTempIn.valid && mTempOut.valid && mTempSet.valid;
+        if (tempComplete)
         {
             const TempResult t =
                 mTemp.update(mTempIn.value, mTempOut.value, mTempSet.value);
-
-            // Frostschutz gilt nur, wenn die Betriebsart ihn zulaesst - im
-            // Gebaeudeschutz immer.
-            mProtection = (t.frostProtection && (f.frost || mode == OperatingMode::Protection)) ||
-                          t.heatProtection;
-
             if (f.leadTemp && mLeadTempKo)
             {
                 if (t.stageRequest > wish)
@@ -534,8 +552,28 @@ namespace Kwl
         }
         else
         {
-            mProtection = false;
+            // Ohne Sollwert keine Fuehrung - aber der Schutz braucht nur die
+            // Innentemperatur. Ein Raum bei 5 Grad darf nicht weiterlueften,
+            // bloss weil der Thermostat schweigt.
+            mTemp.updateProtection(mTempIn.valid ? mTempIn.value : NAN,
+                                   mTempOut.valid ? mTempOut.value : NAN);
         }
+
+        // Frostschutz gilt nur, wenn die Betriebsart ihn zulaesst - im
+        // Gebaeudeschutz immer. Der Hitzeschutz gilt unabhaengig davon.
+        const TempResult t = mTemp.result();
+        mProtection = (t.frostProtection &&
+                       (f.frost || mode == OperatingMode::Protection)) ||
+                      t.heatProtection;
+
+        // "Bei fehlenden Messwerten" meint Messwerte, die eine EINGESCHALTETE
+        // Fuehrung braucht - nicht jeden Sensor, der zufaellig nicht verknuepft
+        // ist. Einem Raum ohne Fuehrungen fehlt nichts.
+        mSensorsMissing = (f.leadHum && mLeadHumKo && !mHumIn.valid) ||
+                          (f.leadCo2 && mLeadCo2Ko && !mCo2Val.valid) ||
+                          (f.leadVoc && mLeadVocKo && !mVocVal.valid) ||
+                          (f.leadTemp && mLeadTempKo && !tempComplete) ||
+                          (f.dehum && !dehumInputs);
 
         applyCycleWish(cycleWish);
         return wish;
@@ -555,15 +593,19 @@ namespace Kwl
             break;
         case 3:
         case 4:
-            // Feste Richtung ist kein Takt, sondern eine Forderung an den
-            // Verbund. Der Takt bleibt WRG, damit die Zykluszeit definiert ist.
+            // Feste Richtung ist kein Takt, sondern eine Richtungsvorgabe an den
+            // Arbiter (Rang 3). Der Takt bleibt WRG, damit die Zykluszeit
+            // definiert ist. 3 = Zuluft, 4 = Abluft; das Betriebsweise-KO zaehlt
+            // 2 = Zuluft, 3 = Abluft - daher die Umrechnung.
             mCycleWish = CycleRule::Wrg;
-            break;
+            mModeDirection = (wish == 3) ? 2 : 3;
+            return;
         case 0:
         default:
             mCycleWish = mSummer ? CycleRule::Summer : CycleRule::Wrg;
             break;
         }
+        mModeDirection = 0;
     }
 
     void KwlRoom::loop()
@@ -593,23 +635,32 @@ namespace Kwl
         const ModeFlags flags = readModeFlags(mode);
         uint8_t guidance = runGuidance(mode, ms);
 
-        // Fehlen Messwerte, gilt der Parameter "bei fehlenden Messwerten":
-        // Grundstufe weiterfahren oder Stillstand.
-        mSensorsMissing = !mHumIn.valid && !mCo2Val.valid && !mVocVal.valid;
-        if (mSensorsMissing && mStopOnMissing)
-            guidance = 0;
-
+        // Fehlen ALLE Fuehrungsgroessen, gilt der Parameter "bei fehlenden
+        // Messwerten". Faellt nur eine aus, rechnen die uebrigen weiter - dafuer
+        // sind es mehrere.
+        // mSensorsMissing hat runGuidance() gesetzt: eine eingeschaltete Fuehrung
+        // hat ihren Messwert nicht. Die uebrigen rechnen weiter - der Wunsch wird
+        // NICHT verworfen, sonst verloere ein Raum mit Temperaturfuehrung seine
+        // Kuehlung, bloss weil kein CO2-Sensor verknuepft ist.
         guidance = applyRunOn(guidance, flags.runOn, ms);
 
-        // Intervallbetrieb: in der Pause gibt Rang 6 nichts aus, Grundstufe
-        // eingeschlossen. Hand, Schutz und Sperre bleiben davon unberuehrt.
+        // Rang 6 stilllegen - Grundstufe eingeschlossen. Zwei Gruende fuehren
+        // dorthin: die Intervallpause und "bei fehlenden Messwerten: Stillstand".
+        //
+        // Den Fuehrungswunsch auf 0 zu setzen reicht dafuer NICHT: Rang 6 rechnet
+        // max(Grundstufe, Fuehrung), und die Grundstufe liefe weiter. Der
+        // Parameter haette in seiner Stellung "Stillstand" nichts getan.
         mIntervalRunning = !flags.interval || intervalActive(ms);
-        mArbiter.setAutomaticSuppressed(!mIntervalRunning);
+        const bool stopForMissing = mSensorsMissing && mStopOnMissing;
+        mArbiter.setAutomaticSuppressed(!mIntervalRunning || stopForMissing);
 
         // Betriebsweise-KO: 2 und 3 erzwingen eine Richtung, 1 bleibt beim Takt.
-        mArbiter.setDirectionOverride(mDirMode >= 2,
-                                      mDirMode == 2 ? Direction::Supply
-                                                    : Direction::Exhaust);
+        // Das Betriebsweise-KO (Bedienung) geht vor der Zyklusregel der
+        // Betriebsart (Parameter). Beide zaehlen 2 = Zuluft, 3 = Abluft.
+        const uint8_t direction = (mDirMode >= 2) ? mDirMode : mModeDirection;
+        mArbiter.setDirectionOverride(direction >= 2,
+                                      direction == 2 ? Direction::Supply
+                                                     : Direction::Exhaust);
         if (mDirMode == 1)
             mCycleWish = CycleRule::Wrg;
 
@@ -618,22 +669,9 @@ namespace Kwl
         mArbiter.setGuidanceStage(guidance);
         mArbiter.setProtection(mProtection);
 
-        StageResult now = mArbiter.update(ms);
-
-        // Sperrverhalten "Grundstufe der Betriebsart": der Arbiter bleibt
-        // unangetastet, die Ausgabe wird auf die Grundstufe begrenzt. So bleibt
-        // Rang 1 eine einzige Stelle, und nach dem Entsperren steht wieder das
-        // da, was ohne die Sperre gegolten haette.
-        if (mLocked && mLockKeepsBase)
-        {
-            const uint8_t base = mArbiter.modeParams(now.mode).baseStage;
-            if (now.stage > base)
-            {
-                now.stage = base;
-                now.source = StageSource::Lock;
-            }
-        }
-        mStage = now;
+        // Das Sperrverhalten liegt im Arbiter (setLock mit keepBase) - hier wird
+        // nichts nachgebessert. Rang 1 ist eine Stelle (Invariante 9).
+        mStage = mArbiter.update(ms);
 
         (void)before;
         sendStage();
@@ -697,6 +735,18 @@ namespace Kwl
                 mSentAbsOut.mark(raw, ms);
             }
         }
+    }
+
+    ErrorCode KwlRoom::errorCode() const
+    {
+        // Die Reihenfolge der Codes IST die Prioritaet, der kleinste gewinnt.
+        // Keiner der drei ist ein Alarm: die Anlage laeuft weiter, sie tut nur
+        // nicht, was ohne die Einschraenkung gelte.
+        ErrorCode e = ErrorCode::None;
+        e = lowestError(e, mDehumBlocked ? ErrorCode::HumidityBlocks : ErrorCode::None);
+        e = lowestError(e, mSensorsMissing ? ErrorCode::SensorsMissing : ErrorCode::None);
+        e = lowestError(e, mProtection ? ErrorCode::ProtectionActive : ErrorCode::None);
+        return e;
     }
 
     void KwlRoom::sendStage()

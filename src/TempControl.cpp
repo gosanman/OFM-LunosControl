@@ -69,6 +69,23 @@ namespace Kwl
         return r;
     }
 
+    void TempControl::updateProtection(float tempInside, float tempOutside)
+    {
+        if (isNan(tempInside))
+            return;
+
+        if (tempInside < mFrostLimit)
+            mFrost = true;
+        else if (tempInside >= mFrostLimit + kFrostReturn)
+            mFrost = false;
+
+        if (!isNan(tempOutside))
+            mHeat = tempInside > mHeatLimit && tempOutside > tempInside;
+
+        // Ohne Sollwert gibt es keine Fuehrung, nur Schutz.
+        mMode = TempMode::None;
+    }
+
     TempResult TempControl::update(float tempInside, float tempOutside,
                                    float tempSetpoint)
     {

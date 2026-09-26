@@ -160,6 +160,31 @@ static void test_rang1_sperre_gewinnt_gegen_alles(void)
     TEST_ASSERT_FALSE(r.directionForced);
 }
 
+static void test_sperre_mit_grundstufe(void)
+{
+    // ETS-Sperrverhalten "Grundstufe der Betriebsart": nicht Stillstand, sondern
+    // die Grundstufe - und zwar aus dem Arbiter heraus, nicht nachtraeglich im
+    // Raum gedeckelt. Rang 1 bleibt eine Stelle (Invariante 9).
+    StageArbiter a;
+    a.setGuidanceStage(2);
+    a.setManualStage(4, 0);
+    a.setLock(true, true);
+
+    StageResult r = a.update(0);
+    TEST_ASSERT_EQUAL_UINT8(1, r.stage); // Standby-Grundstufe
+    TEST_ASSERT_EQUAL(StageSource::Lock, r.source);
+    TEST_ASSERT_FALSE(r.directionForced);
+
+    // Grundstufe 0 bleibt 0 - gedeckelt, nicht erzwungen.
+    a.setModeParams(OperatingMode::Standby, {0, 2});
+    TEST_ASSERT_EQUAL_UINT8(0, a.update(0).stage);
+
+    // Ohne keepBase weiterhin Stillstand.
+    a.setModeParams(OperatingMode::Standby, {1, 2});
+    a.setLock(true, false);
+    TEST_ASSERT_EQUAL_UINT8(0, a.update(0).stage);
+}
+
 static void test_sperre_faellt_weg_und_die_ebene_darunter_uebernimmt(void)
 {
     StageArbiter a;
@@ -247,6 +272,26 @@ static void test_automatik_stillgelegt(void)
 
     a.setAutomaticSuppressed(false);
     TEST_ASSERT_EQUAL_UINT8(2, a.update(0).stage);
+}
+
+static void test_fuehrung_null_ist_kein_stillstand(void)
+{
+    // Die Falle: wer "Stillstand" erreichen will, darf nicht den Fuehrungswunsch
+    // auf 0 setzen. Rang 6 rechnet max(Grundstufe, Fuehrung), und die Grundstufe
+    // laeuft weiter - genau das war der Fehler bei "bei fehlenden Messwerten".
+    StageArbiter a;
+    a.setGuidanceStage(0);
+    TEST_ASSERT_EQUAL_UINT8(1, a.update(0).stage); // Standby-Grundstufe
+
+    // Nur das Stilllegen von Rang 6 erreicht wirklich Stufe 0.
+    a.setAutomaticSuppressed(true);
+    TEST_ASSERT_EQUAL_UINT8(0, a.update(0).stage);
+
+    // Und bei einer Betriebsart mit Grundstufe 0 sieht man den Unterschied nicht -
+    // deshalb steht hier Standby und nicht Ruhe.
+    a.setAutomaticSuppressed(false);
+    a.setModeParams(OperatingMode::Standby, {0, 2});
+    TEST_ASSERT_EQUAL_UINT8(0, a.update(0).stage);
 }
 
 static void test_stilllegung_schlaegt_nicht_hand_und_schutz(void)
@@ -591,12 +636,14 @@ int main(int, char**)
     RUN_TEST(test_rang2_schutz_schlaegt_alles_darunter);
     RUN_TEST(test_schutzstufe_ist_parametrierbar);
     RUN_TEST(test_rang1_sperre_gewinnt_gegen_alles);
+    RUN_TEST(test_sperre_mit_grundstufe);
     RUN_TEST(test_sperre_faellt_weg_und_die_ebene_darunter_uebernimmt);
     RUN_TEST(test_richtungsvorgabe_ohne_stufe);
     RUN_TEST(test_richtungsvorgabe_gilt_auch_fuer_hand_und_verbund);
     RUN_TEST(test_anforderung_schlaegt_die_richtungsvorgabe);
     RUN_TEST(test_sperre_hat_keine_richtung);
     RUN_TEST(test_automatik_stillgelegt);
+    RUN_TEST(test_fuehrung_null_ist_kein_stillstand);
     RUN_TEST(test_stilllegung_schlaegt_nicht_hand_und_schutz);
     RUN_TEST(test_rangfolge_der_betriebsartebenen);
     RUN_TEST(test_auto_faellt_auf_die_standard_betriebsart);

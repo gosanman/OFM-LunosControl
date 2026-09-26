@@ -63,12 +63,15 @@ namespace Kwl
         /// suspendiert, gibt es keine Stufe - das gewinnt gegen jede Bedienung.
         bool blocked() const;
 
-        /// Anliegender Fehlercode, kleinster gewinnt. `groupConflict` kommt vom
-        /// Modul, weil nur der Verbund ihn kennt.
-        ErrorCode errorCode(bool groupConflict, ErrorCode moduleError) const;
+        /// Anliegender Fehlercode, kleinster gewinnt. `moduleError` kommt vom
+        /// Modul (Konfiguration, DAC, Master-Timeout), `roomError` vom Raum
+        /// (Feuchtevergleich, fehlende Messwerte, Schutz) - der Luefter sieht
+        /// weder das eine noch das andere.
+        ErrorCode errorCode(bool groupConflict, ErrorCode moduleError,
+                            ErrorCode roomError) const;
 
         /// Fehlercode und Stoerungs-KO senden, wenn sie sich geaendert haben.
-        void sendFault(bool groupConflict, ErrorCode moduleError);
+        void sendFault(bool groupConflict, ErrorCode moduleError, ErrorCode roomError);
 
         /// Verbundzustand auf den Bus geben. Nur der Luefter mit der kleinsten
         /// Nummer eines Verbunds tut das - er traegt dessen KOs.
@@ -134,6 +137,7 @@ namespace Kwl
         uint32_t mRunSeconds = 0;
         uint32_t mFilterSeconds = 0;
         uint32_t mFilterVolume = 0;
+        uint32_t mFilterVolumeRemainder = 0; ///< m³·s, noch keine volle m³
         uint32_t mLastTick = 0;
 
         uint8_t mFilterMode = 0;

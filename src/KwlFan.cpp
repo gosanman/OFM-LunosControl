@@ -158,30 +158,32 @@ namespace Kwl
         return (mUseEnable && !mEnableLatched) || mSuspended;
     }
 
-    ErrorCode KwlFan::errorCode(bool groupConflict, ErrorCode moduleError) const
+    ErrorCode KwlFan::errorCode(bool groupConflict, ErrorCode moduleError,
+                                ErrorCode roomError) const
     {
         // Die Reihenfolge der Codes IST die Prioritaet: der kleinste anliegende
-        // Wert groesser 0 gewinnt. Deshalb wird hier nicht sortiert, sondern von
-        // oben nach unten gefragt.
-        if (mUseEnable && !mEnableLatched)
-            return ErrorCode::NoRelease;
-        if (moduleError != ErrorCode::None)
-            return moduleError;
-        if (mSuspended)
-            return ErrorCode::MonitoringPaused;
-        if (mFilterDue)
-            return ErrorCode::FilterDue;
-        if (groupConflict)
-            return ErrorCode::DirectionConflict;
-        return ErrorCode::None;
+        // Wert groesser 0 gewinnt. Deshalb wird das Minimum gebildet und keine
+        // if-Kette gepflegt - in die setzt man einen neuen Code frueher oder
+        // spaeter an der falschen Stelle ein, und der Fehler faellt nie auf.
+        ErrorCode best = ErrorCode::None;
+        best = lowestError(best, mUseEnable && !mEnableLatched ? ErrorCode::NoRelease
+                                                               : ErrorCode::None);
+        best = lowestError(best, moduleError);
+        best = lowestError(best, roomError);
+        best = lowestError(best, mSuspended ? ErrorCode::MonitoringPaused : ErrorCode::None);
+        best = lowestError(best, mFilterDue ? ErrorCode::FilterDue : ErrorCode::None);
+        best = lowestError(best, groupConflict ? ErrorCode::DirectionConflict
+                                               : ErrorCode::None);
+        return best;
     }
 
-    void KwlFan::sendFault(bool groupConflict, ErrorCode moduleError)
+    void KwlFan::sendFault(bool groupConflict, ErrorCode moduleError,
+                           ErrorCode roomError)
     {
         if (!mActive)
             return;
 
-        const ErrorCode code = errorCode(groupConflict, moduleError);
+        const ErrorCode code = errorCode(groupConflict, moduleError, roomError);
         if (mFaultValid && code == mLastError)
             return;
 
@@ -215,9 +217,13 @@ namespace Kwl
             mRunSeconds += seconds;
             mFilterSeconds += seconds;
 
-            // Durchgesetzte Luftmenge: Volumenstrom der Stufe mal Zeit. In m³,
-            // damit der Zaehler auch nach Jahren in 32 Bit passt.
-            mFilterVolume += (static_cast<uint32_t>(mFlow[mStage]) * seconds) / 3600u;
+            // Durchgesetzte Luftmenge. In m³·s aufsummiert und erst beim
+            // Uebertrag durch 3600 geteilt: 60 m³/h mal eine Sekunde sind 0,017 m³,
+            // und eine Division je Sekunde haette das jedes Mal auf 0 gerundet -
+            // der Zaehler waere nie vorangekommen.
+            mFilterVolumeRemainder += static_cast<uint32_t>(mFlow[mStage]) * seconds;
+            mFilterVolume += mFilterVolumeRemainder / 3600u;
+            mFilterVolumeRemainder %= 3600u;
         }
 
         // --- Filterueberwachung ----------------------------------------------

@@ -108,7 +108,11 @@ namespace Kwl
 
     // ------------------------------------------------------------ Raenge 1 bis 4
 
-    void StageArbiter::setLock(bool active) { mLock = active; }
+    void StageArbiter::setLock(bool active, bool keepBase)
+    {
+        mLock = active;
+        mLockKeepsBase = keepBase;
+    }
     void StageArbiter::setProtection(bool active) { mProtection = active; }
 
     void StageArbiter::setAirDemand(bool active, Direction direction, uint8_t stage)
@@ -365,7 +369,9 @@ namespace Kwl
         // 5,00 V beim bipolaren Kanal - nicht Code 0.
         if (mLock)
         {
-            mResult.stage = 0;
+            // Sperrverhalten "Grundstufe der Betriebsart": gedeckelt auf die
+            // Grundstufe, nicht darunter erzwungen - eine Grundstufe 0 bleibt 0.
+            mResult.stage = mLockKeepsBase ? p.baseStage : 0;
             mResult.source = StageSource::Lock;
             // Stillstand hat keine Richtung.
             mResult.directionForced = false;

@@ -81,6 +81,17 @@ namespace Kwl
         DirectionConflict = 11 ///< Richtungskonflikt im Verbund, kein Alarm
     };
 
+    /// Der kleinere von zwei Codes - "None" zaehlt dabei nicht mit. Die Regel
+    /// "kleinster anliegender Code gewinnt" steht damit an EINER Stelle, statt in
+    /// jeder Klasse als if-Kette nachgebaut zu werden, in die man einen neuen
+    /// Code frueher oder spaeter an der falschen Stelle einsetzt.
+    constexpr ErrorCode lowestError(ErrorCode a, ErrorCode b)
+    {
+        return a == ErrorCode::None ? b
+             : b == ErrorCode::None ? a
+             : static_cast<uint8_t>(a) < static_cast<uint8_t>(b) ? a : b;
+    }
+
     /// Loest dieser Code den Stoerungsausgang (DPT 1.005) aus?
     /// Nur die Codes, bei denen der Knoten nicht mehr das tut, was er soll.
     constexpr bool isAlarm(ErrorCode code)

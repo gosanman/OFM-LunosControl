@@ -56,6 +56,10 @@ namespace Kwl
         float humidityOut() const { return mHumOut.value; }
         float tempOut() const { return mTempOut.value; }
 
+        /// Was dieser Raum an Einschraenkungen meldet. Die Luefter dieses Raums
+        /// geben es als Fehlercode aus - der Raum hat selbst keines.
+        ErrorCode errorCode() const;
+
         /// Betriebsart fuer Raeume, die sie von Raum 1 uebernehmen.
         OperatingMode activeMode() const { return mStage.mode; }
 
@@ -133,6 +137,13 @@ namespace Kwl
         bool mStopOnMissing = false;
         bool mSensorsMissing = false;
 
+        /// Stufe bei Entfeuchtung (ETS), Vorgabe 2.
+        uint8_t mDehumStage = 2;
+
+        /// Feste Richtung aus der Zyklusregel der Betriebsart: 0 keine,
+        /// 2 Zuluft, 3 Abluft - dieselbe Zaehlung wie das Betriebsweise-KO.
+        uint8_t mModeDirection = 0;
+
         /// true: Aussenwerte und/oder Betriebsart kommen von Raum 1.
         bool mOutdoorFromRoom1 = false;
         bool mModeFromRoom1 = false;
@@ -197,6 +208,7 @@ namespace Kwl
         Sent<bool> mSentProtect;
         Sent<bool> mSentDehumBlock;
         Sent<bool> mSentInterval;
+        Sent<bool> mSentSupplyReq;
         Sent<int32_t> mSentAbsIn;  ///< in 1/100 g/kg, fuer das Totband
         Sent<int32_t> mSentAbsOut;
 

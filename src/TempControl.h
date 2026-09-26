@@ -72,6 +72,13 @@ namespace Kwl
         /// wird Schutz ausgeloest noch ein laufender Schutz aufgehoben.
         TempResult update(float tempInside, float tempOutside, float tempSetpoint);
 
+        /// Nur den Schutz bewerten - fuer den Fall, dass Sollwert oder Aussenwert
+        /// fehlen. Frostschutz braucht allein die Innentemperatur; ein Raum bei
+        /// 5 Grad darf nicht weiterlueften, bloss weil der Thermostat schweigt.
+        /// Hitzeschutz braucht zusaetzlich die Aussentemperatur; fehlt sie
+        /// (NaN), bleibt er, wie er war.
+        void updateProtection(float tempInside, float tempOutside);
+
         /// Letztes Ergebnis ohne neue Bewertung.
         TempResult result() const;
 

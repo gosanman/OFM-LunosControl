@@ -46,6 +46,10 @@ namespace Kwl
             {
 #define KWL_READ_GROUP(n)                                                              \
     case n:                                                                            \
+        p.role = ParamFAN_Grp##n##Role;                                                \
+        p.heartbeat = ParamFAN_Grp##n##Heartbeat;                                      \
+        p.masterTimeout = ParamFAN_Grp##n##MasterTimeout;                              \
+        p.followSupply = ParamFAN_Grp##n##FollowSupply;                                \
         p.stageRule = ParamFAN_Grp##n##StageRule;                                      \
         p.cycleConflict = ParamFAN_Grp##n##CycleRule;                                  \
         p.active = ParamFAN_Grp##n##Active;                                            \
@@ -162,15 +166,17 @@ namespace Kwl
             return;
         }
 
+        // Kanaele und Verbuende VOR der Hardwarepruefung: schlaegt sie fehl,
+        // muessen die Luefter den Fehlercode trotzdem auf den Bus bringen koennen.
+        setupChannels();
+        setupGroups();
+
         if (!checkHardware())
         {
             mOutput.begin();
             mOutput.safeAll();
             return;
         }
-
-        setupChannels();
-        setupGroups();
 
         // Reihenfolge nach Sicherheitsinvariante 3: Bereichsregister, sicherer
         // Zustand, erst danach Sollwerte. begin() macht genau das.
@@ -189,8 +195,19 @@ namespace Kwl
 
     void KwlFanModule::loop(bool configured)
     {
-        if (!configured || mError != ErrorCode::None || !mOutput.ready())
+        if (!configured)
             return;
+
+        // Ein Fehler aus setup() oder aus dem Betrieb (Konfiguration, DAC) laesst
+        // die Ausgaenge im sicheren Zustand - aber er wird GEMELDET, nicht
+        // verschwiegen (Invariante 10). Der Fehlercode geht an jeden Luefter.
+        if (mError != ErrorCode::None || !mOutput.ready())
+        {
+            for (uint8_t i = 0; i < FAN_ChannelCount; i++)
+                if (mFan[i] != nullptr)
+                    mFan[i]->sendFault(false, mError, ErrorCode::None);
+            return;
+        }
 
         const uint32_t now = millis();
 
@@ -357,16 +374,38 @@ namespace Kwl
 
         if (!mOutput.ready())
         {
+            // Die Luefter, die vor dem Fehler noch geschrieben wurden, stehen auf
+            // ihrer Stufe - und ohne weiteren Durchlauf blieben sie dort. Also
+            // alles in den sicheren Zustand, so gut es der Bus noch hergibt.
             mError = mOutput.error();
             logErrorP("Ausgabe fehlgeschlagen - Fehlercode %u", (unsigned)mError);
+            mOutput.safeAll();
         }
 
         const ErrorCode groupError =
             mGroupTimedOut[group] ? ErrorCode::MasterTimeout : mError;
         for (uint8_t i = 0; i < FAN_ChannelCount; i++)
-            if (mFan[i] != nullptr && mFan[i]->groupNo() == group + 1)
-                mFan[i]->sendFault(r.conflict && r.conflictRoom == mFan[i]->roomNo(),
-                                   groupError);
+        {
+            KwlFan* fan = mFan[i];
+            if (fan == nullptr || fan->groupNo() != group + 1)
+                continue;
+
+            // Der Raum meldet Einschraenkungen (Feuchtevergleich, fehlende
+            // Messwerte, Schutz) - er hat aber kein eigenes Stoerungsobjekt.
+            // Ausgegeben werden sie an seinen Lueftern.
+            // Ein Slave folgt dem Bus, nicht seinem Raum - dessen Befunde
+            // (fehlende Sensoren, Schutz) haben mit dem Antrieb nichts zu tun.
+            ErrorCode roomError = ErrorCode::None;
+            if (mGroupRole[group] != GroupRole::Slave)
+            {
+                KwlRoom* room = openknxKwlRoomModule.room(fan->roomNo());
+                if (room != nullptr && room->isActive())
+                    roomError = room->errorCode();
+            }
+
+            fan->sendFault(r.conflict && r.conflictRoom == fan->roomNo(), groupError,
+                           roomError);
+        }
     }
 
     int8_t KwlFanModule::groupOf(GroupObject& ko) const

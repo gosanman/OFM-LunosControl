@@ -103,7 +103,10 @@ namespace Kwl
         void setManualRuntime(uint32_t runtimeMs);
 
         // --- Raenge 1 bis 4 -------------------------------------------------
-        void setLock(bool active);
+        /// Sperre (Rang 1). `keepBase`: statt Stillstand die Grundstufe der
+        /// aktiven Betriebsart - das ETS-Sperrverhalten. Es liegt HIER und nicht
+        /// im Raum, damit Rang 1 eine einzige Stelle bleibt (Invariante 9).
+        void setLock(bool active, bool keepBase = false);
         void setProtection(bool active);
         void setAirDemand(bool active, Direction direction, uint8_t stage);
 
@@ -183,6 +186,7 @@ namespace Kwl
 
         // Raenge 1…4
         bool mLock = false;
+        bool mLockKeepsBase = false;
         bool mProtection = false;
         bool mAirDemand = false;
         bool mDirectionOverride = false;

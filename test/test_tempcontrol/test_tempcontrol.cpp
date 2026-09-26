@@ -190,6 +190,41 @@ static void test_frostschutz_schlaegt_die_fuehrung(void)
     TEST_ASSERT_EQUAL(TempMode::HeatRetention, t.update(10.0f, 0.0f, 20.0f).mode);
 }
 
+static void test_frostschutz_ohne_sollwert(void)
+{
+    // Der Fehler, den es festzuhalten gilt: Frostschutz wurde nur bewertet, wenn
+    // auch Sollwert und Aussenwert da waren. Ein Raum bei 5 Grad lueftete weiter,
+    // bloss weil der Thermostat schwieg.
+    TempControl t;
+    t.updateProtection(5.0f, std::nanf(""));
+    TEST_ASSERT_TRUE(t.result().frostProtection);
+    TEST_ASSERT_EQUAL(TempMode::None, t.result().mode);
+
+    // Rueckkehr bei +2 K gilt auch auf diesem Weg.
+    t.updateProtection(9.9f, std::nanf(""));
+    TEST_ASSERT_TRUE(t.result().frostProtection);
+    t.updateProtection(10.0f, std::nanf(""));
+    TEST_ASSERT_FALSE(t.result().frostProtection);
+}
+
+static void test_hitzeschutz_ohne_aussenwert_bleibt_stehen(void)
+{
+    // Hitzeschutz braucht die Aussentemperatur. Fehlt sie, bleibt er, wie er war
+    // - er wird weder ausgeloest noch aufgehoben.
+    TempControl t;
+    t.updateProtection(31.0f, 33.0f);
+    TEST_ASSERT_TRUE(t.result().heatProtection);
+    t.updateProtection(31.0f, std::nanf(""));
+    TEST_ASSERT_TRUE(t.result().heatProtection);
+    t.updateProtection(31.0f, 25.0f);
+    TEST_ASSERT_FALSE(t.result().heatProtection);
+
+    // Ohne Innentemperatur passiert gar nichts.
+    t.updateProtection(31.0f, 33.0f);
+    t.updateProtection(std::nanf(""), 20.0f);
+    TEST_ASSERT_TRUE(t.result().heatProtection);
+}
+
 static void test_eigener_frostgrenzwert(void)
 {
     TempControl t;
@@ -303,6 +338,8 @@ int main(int, char**)
     RUN_TEST(test_negativer_abstand_wird_abgefangen);
     RUN_TEST(test_frostschutz_mit_rueckkehr_bei_2K);
     RUN_TEST(test_frostschutz_schlaegt_die_fuehrung);
+    RUN_TEST(test_frostschutz_ohne_sollwert);
+    RUN_TEST(test_hitzeschutz_ohne_aussenwert_bleibt_stehen);
     RUN_TEST(test_eigener_frostgrenzwert);
     RUN_TEST(test_hitzeschutz_nur_wenn_draussen_waermer);
     RUN_TEST(test_hitzeschutz_schlaegt_die_fuehrung);
