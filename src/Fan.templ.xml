@@ -470,7 +470,8 @@
                           </choose>
                           <ComObjectRefRef RefId="%AID%_O-%TT%%CC%016_R-%TT%%CC%01601" />
                           <ComObjectRefRef RefId="%AID%_O-%TT%%CC%017_R-%TT%%CC%01701" />
-                          <ComObjectRefRef RefId="%AID%_O-%TT%%CC%023_R-%TT%%CC%02301" />
+                          <!-- Index 23 ist Reserve und bleibt ausgeblendet (2026-09-26); er
+                               haelt nur die Blockgroesse auf 24. -->
 
                         </ParameterBlock>
                       </when>

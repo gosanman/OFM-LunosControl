@@ -489,6 +489,11 @@
                     <choose ParamRefId="%AID%_UP-%TT%%CC%001_R-%TT%%CC%00101">
                       <when test="=1">
                         <ParameterBlock Id="%AID%_PB-nnn" Name="r%C%Page" Text="Raum %C%: {{0: ...}}" TextParameterRefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" Icon="floor-plan" HelpContext="Empty" ShowInComObjectTree="true">
+                          <!-- ConstOne muss im Dynamic-Teil vorkommen, sonst gilt er in der ETS
+                               als nicht vorhanden und jedes choose darauf nimmt keinen Zweig -
+                               auch nicht den Default. Folge war: "Quellen" leer, Raum 1 ohne
+                               KO 36/37. Access="None" haelt ihn unsichtbar. (2026-09-26) -->
+                          <ParameterRefRef RefId="%AID%_P-%TT%00004_R-%TT%0000401" />
 
                                                     <!-- ===== Allgemein ===== -->
                           <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
@@ -709,7 +714,28 @@
                             <ParameterSeparator Id="%AID%_PS-nnn" Text="Die Sperre gewinnt gegen alles andere. KNX ist kein Sicherheitsbus — für den Verbund mit einer Feuerstätte ist zusätzlich ein fest verdrahteter Kontakt gefordert." UIHint="Information" />
                           </ParameterBlock>
 
-                          <!-- ===== Kommunikationsobjekte ===== -->
+                          <!-- ===== Kommunikationsobjekte =====
+                               Index 0..13, 27..29, 34, 35 (Betriebsarten, Bedienung,
+                               Status) fehlten hier seit Woche 1 Tag 4: im Static-Teil
+                               angelegt, aber nie eingeblendet - die ETS zeigte sie nicht.
+                               Nachgetragen 2026-09-26. Index 39 ist Reserve und bleibt
+                               ausgeblendet; er haelt nur die Blockgroesse auf 40. -->
+                          <!-- Betriebsarten und Bedienung (Eingaenge) -->
+                          <ComObjectRefRef RefId="%AID%_O-%TT%%CC%000_R-%TT%%CC%00001" />
+                          <ComObjectRefRef RefId="%AID%_O-%TT%%CC%001_R-%TT%%CC%00101" />
+                          <ComObjectRefRef RefId="%AID%_O-%TT%%CC%002_R-%TT%%CC%00201" />
+                          <ComObjectRefRef RefId="%AID%_O-%TT%%CC%003_R-%TT%%CC%00301" />
+                          <ComObjectRefRef RefId="%AID%_O-%TT%%CC%004_R-%TT%%CC%00401" />
+                          <ComObjectRefRef RefId="%AID%_O-%TT%%CC%005_R-%TT%%CC%00501" />
+                          <ComObjectRefRef RefId="%AID%_O-%TT%%CC%006_R-%TT%%CC%00601" />
+                          <ComObjectRefRef RefId="%AID%_O-%TT%%CC%007_R-%TT%%CC%00701" />
+                          <ComObjectRefRef RefId="%AID%_O-%TT%%CC%008_R-%TT%%CC%00801" />
+                          <ComObjectRefRef RefId="%AID%_O-%TT%%CC%009_R-%TT%%CC%00901" />
+                          <ComObjectRefRef RefId="%AID%_O-%TT%%CC%010_R-%TT%%CC%01001" />
+                          <ComObjectRefRef RefId="%AID%_O-%TT%%CC%011_R-%TT%%CC%01101" />
+                          <ComObjectRefRef RefId="%AID%_O-%TT%%CC%012_R-%TT%%CC%01201" />
+                          <ComObjectRefRef RefId="%AID%_O-%TT%%CC%013_R-%TT%%CC%01301" />
+                          <!-- Sensorik und Fuehrungen -->
                           <ComObjectRefRef RefId="%AID%_O-%TT%%CC%014_R-%TT%%CC%01401" />
                           <ComObjectRefRef RefId="%AID%_O-%TT%%CC%015_R-%TT%%CC%01501" />
                           <!-- Aussenwert-Objekte nur, wenn der Raum sie selbst empfaengt.
@@ -759,11 +785,16 @@
                           <ComObjectRefRef RefId="%AID%_O-%TT%%CC%024_R-%TT%%CC%02401" />
                           <ComObjectRefRef RefId="%AID%_O-%TT%%CC%025_R-%TT%%CC%02501" />
                           <ComObjectRefRef RefId="%AID%_O-%TT%%CC%026_R-%TT%%CC%02601" />
+                          <!-- Status (Ausgaenge) -->
+                          <ComObjectRefRef RefId="%AID%_O-%TT%%CC%027_R-%TT%%CC%02701" />
+                          <ComObjectRefRef RefId="%AID%_O-%TT%%CC%028_R-%TT%%CC%02801" />
+                          <ComObjectRefRef RefId="%AID%_O-%TT%%CC%029_R-%TT%%CC%02901" />
                           <ComObjectRefRef RefId="%AID%_O-%TT%%CC%030_R-%TT%%CC%03001" />
                           <ComObjectRefRef RefId="%AID%_O-%TT%%CC%031_R-%TT%%CC%03101" />
                           <ComObjectRefRef RefId="%AID%_O-%TT%%CC%032_R-%TT%%CC%03201" />
                           <ComObjectRefRef RefId="%AID%_O-%TT%%CC%033_R-%TT%%CC%03301" />
-                          <ComObjectRefRef RefId="%AID%_O-%TT%%CC%039_R-%TT%%CC%03901" />
+                          <ComObjectRefRef RefId="%AID%_O-%TT%%CC%034_R-%TT%%CC%03401" />
+                          <ComObjectRefRef RefId="%AID%_O-%TT%%CC%035_R-%TT%%CC%03501" />
 
                         </ParameterBlock>
                       </when>

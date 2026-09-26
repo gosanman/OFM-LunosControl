@@ -43,7 +43,8 @@
                    Kanalnummer - %C% ist eine Textersetzung des Producers. Der Test
                    <when test="&lt;%C%"> wird dadurch je Kanal zu "1 &lt; 1" (falsch, Raum 1)
                    bzw. "1 &lt; n" (wahr, Raum 2..8) und damit zu einer konstanten
-                   Kanalbedingung. Dasselbe Muster wie PT-LOGNumChannels im Logikmodul. -->
+                   Kanalbedingung. (Frueher stand hier "dasselbe Muster wie PT-LOGNumChannels
+                   im Logikmodul" - dort ist es inzwischen auskommentiert und kein Vorbild.) -->
               <ParameterType Id="%AID%_PT-RoomConstOne" Name="RoomConstOne">
                 <TypeNumber SizeInBit="8" Type="unsignedInt" minInclusive="1" maxInclusive="1" />
               </ParameterType>
@@ -237,7 +238,12 @@
                 <Parameter Id="%AID%_UP-%TT%00002" Name="PercentHysteresis" Offset="0" BitOffset="0" ParameterType="%AID%_PT-RoomPctHyst" Text="Hysterese Prozent → Stufe" SuffixText=" %" Value="3" />
                 <Parameter Id="%AID%_UP-%TT%00003" Name="Altitude" Offset="1" BitOffset="0" ParameterType="%AID%_PT-RoomAltitude" Text="Höhe über Meer" SuffixText=" m" Value="500" />
               </Union>
-              <Parameter Id="%AID%_P-%TT%00004" Name="ConstOne" ParameterType="%AID%_PT-RoomConstOne" Text="" Value="1" Access="Read" />
+              <!-- Access="None" haelt ihn unsichtbar. Er MUSS zusaetzlich im Dynamic-Teil
+                   per ParameterRefRef vorkommen (Room.templ.xml, Kopf der Raumseite):
+                   sonst gilt er in der ETS als nicht vorhanden, und jedes choose darauf
+                   nimmt keinen Zweig, auch nicht den Default. Raum 1 verlor dadurch seine
+                   Aussenwert-Objekte KO 36/37, und "Quellen" blieb leer (2026-09-26). -->
+              <Parameter Id="%AID%_P-%TT%00004" Name="ConstOne" ParameterType="%AID%_PT-RoomConstOne" Text="" Value="1" Access="None" />
             </Parameters>
             <ParameterRefs>
               <ParameterRef Id="%AID%_P-%TT%00004_R-%TT%0000401" RefId="%AID%_P-%TT%00004" />

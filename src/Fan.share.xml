@@ -340,6 +340,9 @@
                 <!-- Platinenkennung -> Kanalzahl. Die einzige Stelle, an der die ETS
                      die Kanalzahl einer Platine kennt; alle Luefterseiten fragen
                      HardwareChannels ab, nie die Kennung direkt. -->
+                <!-- Im Dynamic-Teil einblenden (unsichtbar, Access="None"), damit die
+                     ETS den Parameter fuer die Bedingungen der Luefterseiten kennt. -->
+                <ParameterRefRef RefId="%AID%_P-%TT%00006_R-%TT%0000601" />
                 <choose ParamRefId="%AID%_UP-%TT%00001_R-%TT%0000101">
                   <when test="0"><Assign TargetParamRefRef="%AID%_P-%TT%00006_R-%TT%0000601" Value="2" /></when>
                   <when test="1"><Assign TargetParamRefRef="%AID%_P-%TT%00006_R-%TT%0000601" Value="4" /></when>
