@@ -287,15 +287,18 @@ namespace Kwl
             break;
 
         case ROOM_KoVOC:
-            // ppb als 9.008. Steht der Parameter auf Index, gilt das andere KO.
+            // Das 2-Byte-Objekt traegt zwei Formate (Room.templ.xml: Ref 01 = 9.008,
+            // Ref 02 = 7.001). Format 2 wurde bis 2026-09-26 am Byte-Objekt gelesen,
+            // das nie einen 16-Bit-Wert tragen kann - der Index kam nie an.
             if (mVocUnit == 0)
                 mVocVal.set(ko.value(DPT_Value_AirQuality), now);
-            break;
-        case ROOM_KoVOCByte:
-            if (mVocUnit == 1)
-                mVocVal.set(ko.value(DPT_Value_1_Ucount), now);
             else if (mVocUnit == 2)
                 mVocVal.set(ko.value(DPT_Value_2_Ucount), now);
+            break;
+        case ROOM_KoVOCByte:
+            // 1-Byte-Objekt, nur fuer Index 0..255 (5.010).
+            if (mVocUnit == 1)
+                mVocVal.set(ko.value(DPT_Value_1_Ucount), now);
             break;
 
         // --- Freigaben der Fuehrungen (Arcus Obj 13/16/18) ----------------
