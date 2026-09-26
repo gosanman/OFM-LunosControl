@@ -35,6 +35,45 @@ namespace Kwl
         uint8_t modeRank;     ///< 7…11: welche Ebene diese Betriebsart gesetzt hat
     };
 
+    /// Deckel, den ein Raum in die Verbundregel "Maximum, begrenzt durch kleinsten
+    /// Raumdeckel" (PLAN 0.6) einbringt.
+    ///
+    /// Entscheidung 2026-09-27, Variante (a): die Maximalstufe der aktiven
+    /// Betriebsart - aber nie unter der eigenen Stufe des Raums. Ein Raum deckelt
+    /// den Verbund also nie unter seine eigene Anforderung: Nacht mit Automatik
+    /// deckelt auf 1, eine Handstufe 3 im selben Raum hebt seinen Deckel auf 3
+    /// ("Hand wird nicht gedeckelt"). Der Deckel eines NACHBARRAUMS gilt dagegen
+    /// auch gegen fremde Handstufen - das ist der Zweck der Regel.
+    ///
+    /// @param roomStage  endgueltige Stufe des Raums (nach Intervall und Messwertausfall)
+    /// @param modeMaxStage  Maximalstufe der aktiven Betriebsart
+    inline uint8_t groupCapFor(uint8_t roomStage, uint8_t modeMaxStage)
+    {
+        return roomStage > modeMaxStage ? roomStage : modeMaxStage;
+    }
+
+    /// Sperre (Rang 1) und Schutz (Rang 2) wirken JE LUEFTER, nicht nur auf die
+    /// Raumanforderung (PLAN 4c, Sicherheitsinvariante 9). Bis 2026-09-27 senkten
+    /// sie nur die Raumanforderung; im Verbund fuhr der Luefter eines gesperrten
+    /// Raums dann die Stufe des Nachbarn weiter - Fenster offen, Kamin an.
+    inline bool roomOverridesGroup(StageSource source)
+    {
+        return source == StageSource::Lock || source == StageSource::Protection;
+    }
+
+    /// Stufe eines Luefters im Verbund. Ist sein Raum gesperrt oder im Schutz,
+    /// gilt die Raumstufe (meist 0, bei "Sperre mit Grundstufe" oder einer
+    /// parametrierten Schutzstufe deren Wert) statt der Verbundstufe. Die Richtung
+    /// kommt weiter aus dem Takt, damit Totzeit und Pendeln stimmen.
+    ///
+    /// @param groupStageForFan  Verbundstufe, schon mit dem Anteil des Luefters
+    /// @param roomSource  Herkunft der Stufe seines Raums
+    /// @param roomStage  endgueltige Stufe seines Raums
+    inline uint8_t fanStageInGroup(uint8_t groupStageForFan, StageSource roomSource, uint8_t roomStage)
+    {
+        return roomOverridesGroup(roomSource) ? roomStage : groupStageForFan;
+    }
+
     // ========================================================================
     // Die Vorfahrt. EINE Stelle, an der eine Stufe entsteht (Sicherheitsinvariante 9).
     //

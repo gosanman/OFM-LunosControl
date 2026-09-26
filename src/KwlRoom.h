@@ -40,6 +40,12 @@ namespace Kwl
         /// in-process ab, nie ueber den Bus.
         const StageResult& stage() const { return mStage; }
 
+        /// Deckel, den dieser Raum in die Verbundregel einbringt (groupCapFor,
+        /// Variante a): Maximalstufe der aktiven Betriebsart, nie unter der eigenen
+        /// Stufe. Bis 2026-09-27 ging an den Verbund immer kStageMax, und der
+        /// Nachtdeckel eines Raums erreichte den Verbund nie.
+        uint8_t groupCap() const { return groupCapFor(mStage.stage, mArbiter.modeParams(mStage.mode).maxStage); }
+
         /// Welchen Takt dieser Raum wuenscht. Der Verbund entscheidet bei
         /// Uneinigkeit nach seiner eigenen Regel.
         CycleRule cycleWish() const { return mCycleWish; }

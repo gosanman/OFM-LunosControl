@@ -432,7 +432,11 @@ namespace Kwl
             GroupMember m;
             m.roomNo = fan->roomNo();
             m.stage = rs.stage;
-            m.maxStage = kStageMax; // Deckel steckt schon in rs.stage
+            // Deckel des Raums fuer die Regel "Maximum, begrenzt durch kleinsten
+            // Raumdeckel". rs.stage enthaelt nur den Deckel des EIGENEN Raums; bis
+            // 2026-09-27 stand hier kStageMax, und der Nachtdeckel des Schlafzimmers
+            // hielt den Nachbarn nie auf (Testplan T4).
+            m.maxStage = room->groupCap();
             m.cycleWish = room->cycleWish();
             m.directionDemanded = rs.directionForced;
             m.direction = rs.direction;
@@ -533,6 +537,15 @@ namespace Kwl
 
             DriveCommand cmd;
             cmd.stage = KwlGroup::stageForShare(r.stage, fan->share());
+
+            // Sperre und Schutz des eigenen Raums gelten je Luefter, auch im
+            // Verbund (Invariante 9, PLAN 4c): dann die Raumstufe statt der
+            // Verbundstufe. Die Richtung bleibt aus dem Takt. Gilt auch beim Slave -
+            // das Fenster in diesem Raum kennt der Master nicht.
+            const KwlRoom* room = openknxKwlRoomModule.room(fan->roomNo());
+            if (room != nullptr && room->isActive())
+                cmd.stage = fanStageInGroup(cmd.stage, room->stage().source, room->stage().stage);
+
             cmd.direction = KwlGroup::directionFor(r, fan->phase());
             cmd.hrv = r.hrv;
             fan->drive(mOutput, cmd, mBelow5vIsSupply);

@@ -64,6 +64,36 @@ static void test_abnahme_standby_gibt_zwei_frei(void)
     TEST_ASSERT_EQUAL_UINT8(2, g.update(0).stage);
 }
 
+// Abnahme am Geraet, Testplan T2/T4 (2026-09-27). Die Deckel kommen so an, wie
+// KwlFanModule sie mit groupCapFor() bildet (Variante a).
+
+static void test_t4_nachtdeckel_schlaegt_fremde_handstufe(void)
+{
+    // Raum 1 Nacht, Automatik: Stufe 1, Deckel 1. Raum 2 Hand 3: Stufe 3, Deckel 3.
+    KwlGroup g;
+    fill(g, 1, 1, 3, 3);
+    TEST_ASSERT_EQUAL_UINT8(1, g.update(0).stage);
+}
+
+static void test_t2_hand_null_im_raum_eins_nachbar_standby(void)
+{
+    // Raum 1 Hand 0: Stufe 0, Deckel 2. Raum 2 Standby: Stufe 1, Deckel 2.
+    // Beobachtet an S1/S2: Stufe 1 - richtig, der Nachbar will 1.
+    KwlGroup g;
+    fill(g, 0, 2, 1, 2);
+    TEST_ASSERT_EQUAL_UINT8(1, g.update(0).stage);
+}
+
+static void test_eigene_hand_wird_vom_nachbardeckel_begrenzt(void)
+{
+    // Raum 1 Hand 4 (Deckel 4), Raum 2 Standby (Stufe 1, Deckel 2): der Verbund
+    // laeuft 2. Das ist die Regel "begrenzt durch kleinsten Raumdeckel", nicht ein
+    // Fehler - im Nachbarraum laeuft derselbe Takt.
+    KwlGroup g;
+    fill(g, 4, 4, 1, 2);
+    TEST_ASSERT_EQUAL_UINT8(2, g.update(0).stage);
+}
+
 static void test_abnahme_ein_raum_fuehrt(void)
 {
     KwlGroup g;
@@ -438,6 +468,9 @@ int main(int, char**)
 {
     UNITY_BEGIN();
     RUN_TEST(test_abnahme_nachtdeckel_zieht_den_verbund_herunter);
+    RUN_TEST(test_t4_nachtdeckel_schlaegt_fremde_handstufe);
+    RUN_TEST(test_t2_hand_null_im_raum_eins_nachbar_standby);
+    RUN_TEST(test_eigene_hand_wird_vom_nachbardeckel_begrenzt);
     RUN_TEST(test_abnahme_standby_gibt_zwei_frei);
     RUN_TEST(test_abnahme_ein_raum_fuehrt);
     RUN_TEST(test_stufenregel_minimum);

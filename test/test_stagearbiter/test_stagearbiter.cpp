@@ -622,9 +622,112 @@ static void test_reset(void)
     TEST_ASSERT_EQUAL(OperatingMode::Standby, r.mode);
 }
 
+// ---------------------------------------------------------------- Verbunddeckel
+// Entscheidung 2026-09-27 (a): Deckel = Maximalstufe der Betriebsart, nie unter
+// der eigenen Stufe. Vorher ging an den Verbund immer kStageMax - der Nachtdeckel
+// des Schlafzimmers erreichte den Verbund nie.
+
+static uint8_t capOf(const StageArbiter& a, const StageResult& r)
+{
+    return groupCapFor(r.stage, a.modeParams(r.mode).maxStage);
+}
+
+static void test_verbunddeckel_nacht_automatik_deckelt_auf_eins(void)
+{
+    StageArbiter a;
+    a.setNight(true, 0); // Eco {1,1}
+    const StageResult r = a.update(0);
+    TEST_ASSERT_EQUAL_UINT8(1, r.stage);
+    TEST_ASSERT_EQUAL_UINT8(1, capOf(a, r));
+}
+
+static void test_verbunddeckel_eigene_hand_hebt_den_deckel(void)
+{
+    // Handstufe 3 im Nachtraum: der Raum deckelt den Verbund nicht unter 3.
+    StageArbiter a;
+    a.setNight(true, 0);
+    a.setManualStage(3, 0);
+    const StageResult r = a.update(0);
+    TEST_ASSERT_EQUAL_UINT8(3, r.stage);
+    TEST_ASSERT_EQUAL_UINT8(3, capOf(a, r));
+}
+
+static void test_verbunddeckel_nie_unter_der_maximalstufe(void)
+{
+    // Hand 0 in Standby {1,2}: Stufe 0, aber der Deckel bleibt 2 - ein Raum, der
+    // selbst nichts will, drueckt den Nachbarn nicht auf 0.
+    StageArbiter a;
+    a.setManualStage(0, 0);
+    const StageResult r = a.update(0);
+    TEST_ASSERT_EQUAL_UINT8(0, r.stage);
+    TEST_ASSERT_EQUAL_UINT8(2, capOf(a, r));
+}
+
+static void test_verbunddeckel_sperre_deckelt_den_verbund_nicht(void)
+{
+    StageArbiter a;
+    a.setLock(true);
+    const StageResult r = a.update(0);
+    TEST_ASSERT_EQUAL_UINT8(0, r.stage);
+    TEST_ASSERT_EQUAL_UINT8(2, capOf(a, r));
+}
+
+// ---------------------------------------------------------------- je Luefter
+// Sperre und Schutz wirken je Luefter, auch im Verbund (2026-09-27). Vorher fuhr
+// der Luefter eines gesperrten Raums die Verbundstufe des Nachbarn weiter.
+
+static void test_sperre_stoppt_den_luefter_trotz_verbund(void)
+{
+    StageArbiter a;
+    a.setLock(true);
+    const StageResult r = a.update(0);
+    TEST_ASSERT_EQUAL(StageSource::Lock, r.source);
+    // Nachbar haelt den Verbund auf 3 - der gesperrte Raum steht trotzdem.
+    TEST_ASSERT_EQUAL_UINT8(0, fanStageInGroup(3, r.source, r.stage));
+}
+
+static void test_sperre_mit_grundstufe_faehrt_die_grundstufe(void)
+{
+    StageArbiter a;
+    a.setLock(true, true); // Standby-Grundstufe 1
+    const StageResult r = a.update(0);
+    TEST_ASSERT_EQUAL_UINT8(1, r.stage);
+    TEST_ASSERT_EQUAL_UINT8(1, fanStageInGroup(4, r.source, r.stage));
+}
+
+static void test_schutz_stoppt_den_luefter_trotz_verbund(void)
+{
+    StageArbiter a;
+    a.setProtection(true);
+    const StageResult r = a.update(0);
+    TEST_ASSERT_EQUAL(StageSource::Protection, r.source);
+    TEST_ASSERT_EQUAL_UINT8(r.stage, fanStageInGroup(3, r.source, r.stage));
+}
+
+static void test_ohne_sperre_gilt_die_verbundstufe(void)
+{
+    // Hand, Automatik, Anforderung und Verbund selbst: der Luefter folgt dem Verbund.
+    StageArbiter a;
+    a.setManualStage(0, 0);
+    const StageResult r = a.update(0);
+    TEST_ASSERT_EQUAL(StageSource::Manual, r.source);
+    TEST_ASSERT_EQUAL_UINT8(2, fanStageInGroup(2, r.source, r.stage));
+    TEST_ASSERT_FALSE(roomOverridesGroup(StageSource::Automatic));
+    TEST_ASSERT_FALSE(roomOverridesGroup(StageSource::AirDemand));
+    TEST_ASSERT_FALSE(roomOverridesGroup(StageSource::Group));
+}
+
 int main(int, char**)
 {
     UNITY_BEGIN();
+    RUN_TEST(test_sperre_stoppt_den_luefter_trotz_verbund);
+    RUN_TEST(test_sperre_mit_grundstufe_faehrt_die_grundstufe);
+    RUN_TEST(test_schutz_stoppt_den_luefter_trotz_verbund);
+    RUN_TEST(test_ohne_sperre_gilt_die_verbundstufe);
+    RUN_TEST(test_verbunddeckel_nacht_automatik_deckelt_auf_eins);
+    RUN_TEST(test_verbunddeckel_eigene_hand_hebt_den_deckel);
+    RUN_TEST(test_verbunddeckel_nie_unter_der_maximalstufe);
+    RUN_TEST(test_verbunddeckel_sperre_deckelt_den_verbund_nicht);
     RUN_TEST(test_grundstufe_laeuft_immer);
     RUN_TEST(test_fuehrung_hebt_an_maximalstufe_deckelt);
     RUN_TEST(test_nachtdeckel_ist_der_zweck_des_projekts);
