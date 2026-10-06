@@ -17,16 +17,65 @@ Stellsignal von 0 V bedeutet **nicht** „aus", sondern volle Drehzahl.
 
 **Nach dem Einschalten der 12 V laufen die Lüfter kurz mit voller Drehzahl.** Die
 verwendeten Wandler halten keinen Einschaltwert; die Ausgänge führen 0 V, bis die
-Firmware hochgelaufen ist und den sicheren Zustand geschrieben hat. Das dauert
-unter einer Sekunde.
+Firmware den sicheren Zustand geschrieben hat. Das dauert unter einer Sekunde.
+Die Firmware läuft am KNX-Bus, nicht an den 12 V. Kommen die 12 V zu einem
+laufenden Gerät, schreibt sie den sicheren Zustand nach höchstens etwa 0,3 s.
 
 > **Liegen 12 V an, ohne dass der KNX-Bus da ist, bleibt es dabei.** Die Lüfter
 > laufen dann dauerhaft mit voller Drehzahl. Versorgen Sie die 12 V nicht
 > unabhängig vom Bus, oder schalten Sie sie mit.
 
+> **Lüfter erst anschließen, wenn das Gerät mit der ETS programmiert ist.** Ein
+> neues Gerät kennt die Lüftertypen noch nicht. Es gibt deshalb an allen Kanälen
+> 5,00 V aus: Stillstand für e²60 und ego, aber **halbe Drehzahl für RA 15-60**.
+> Der Ablauf steht im nächsten Abschnitt. Denselben Hinweis zeigt die ETS auf der
+> Seite *Allgemein* beim Klemmenbild.
+
 **KNX ist kein Sicherheitsbus.** Für den Verbund mit einer Feuerstätte ist
 zusätzlich ein fest verdrahteter Kontakt gefordert. Das Objekt „Sperre" ersetzt
 ihn nicht.
+
+---
+
+## Erstinbetriebnahme — die Zeit bis zur ETS
+
+Die Firmware wird in der Werkstatt aufgespielt, das Gerät eingebaut und versorgt.
+Parametriert wird oft erst Tage später. Für diese Zeit, für den ETS-Download und
+für Ausfälle der Versorgung gilt:
+
+| Zustand | Was die Firmware tut | S1…S4 | e²60 / ego | RA 15-60 |
+|---|---|---|---|---|
+| 12 V an, kein KNX-Bus | läuft nicht | 0 V (Werkswert) | **Volllast** | **Volllast** |
+| KNX-Bus an, nie programmiert | schreibt alle 250 ms Bereich und 5,00 V | 5,00 V | Stillstand | halbe Drehzahl |
+| 12 V kommen nach dem Bus | wie oben, beim nächsten Durchgang | ≤ ~0,3 s 0 V, dann 5,00 V | kurz Volllast-Signal | kurz Volllast-Signal |
+| ETS-Download beginnt | sicherer Zustand, sofort | Stillstand | Stillstand | Stillstand |
+| Neustart nach dem Download | sicherer Zustand vor dem Neustart; die DACs halten ihn | Stillstand | Stillstand | Stillstand |
+| Nach dem Neustart | Bereich, sicherer Zustand, dann Sollwerte | Betrieb | Betrieb | Betrieb |
+| KNX-Bus fällt aus, 12 V bleiben | sicherer Zustand, bevor der Prozessor ausgeht | Stillstand | Stillstand | Stillstand |
+| 12 V fallen aus, Bus bleibt | Fehlercode 4, Alarm, LED | — | — | — |
+| 12 V kommen zurück | Bereich, sicherer Zustand, dann Sollwerte | ≤ ~0,3 s 0 V, dann Betrieb | kurz Volllast-Signal | kurz Volllast-Signal |
+| Falsche Platine gewählt | Fehlercode 3 an allen Lüftern | Stillstand | Stillstand | Stillstand |
+
+„Stillstand“ heißt 5,00 V bei den bipolaren Geräten und 0 V beim RA 15-60. Das
+gilt erst, wenn das Gerät den Typ aus der ETS kennt. Vorher nimmt es für jeden
+Kanal ein bipolares Gerät an, weil 5,00 V für einen bipolaren Lüfter Stillstand
+ist und 0 V Volllast wäre.
+
+Ein „kurzes Volllast-Signal“ bringt einen Lüfter nicht auf Drehzahl. Die Motoren
+brauchen deutlich länger als 0,3 s zum Hochlaufen. Das Fenster lässt sich ohne
+gespeicherten Einschaltwert nicht schließen, und den gibt es auf dieser Platine
+nicht (siehe *Was das Gerät nicht kann*).
+
+**Empfohlener Ablauf beim Einbau:**
+
+1. Gerät einbauen, KNX-Bus und 12 V anschließen. Die Lüfter bleiben abgeklemmt.
+2. Physikalische Adresse vergeben, Applikation programmieren.
+3. Prüfen: Konsole `kwl st` oder Diagnose-Objekt. Alle Lüfter Fehlercode 0, alle
+   Kanäle im Stillstand.
+4. 12 V aus, Lüfter anklemmen, 12 V ein.
+
+Ein Gerät, das schon in der Werkstatt programmiert wurde, darf gleich mit Lüftern
+eingebaut werden. Dann muss aber der KNX-Bus vor oder mit den 12 V kommen.
 
 ---
 
@@ -139,6 +188,14 @@ durchfrierender Raum ist kein Bedienfall.
 **Die Maximalstufe deckelt die Handstufe nicht.** Sie ist der Deckel für die
 Automatik. Wer nachts bewusst Stufe 3 drückt, bekommt Stufe 3.
 
+**Im Verbund gelten Rang 1 bis 3 je Lüfter.** Ein Lüfter im Verbund fährt die
+Verbundstufe. Verlangt sein eigener Raum aber Sperre, Schutz oder eine
+Zu-/Abluftanforderung, fährt er die Stufe seines Raums. Der Deckel eines
+Nachbarraums begrenzt sie nicht. Die Richtung bleibt beim Verbund, damit beide
+Lüfter weiter gegenläufig laufen und die Totzeit eingehalten wird. Der
+Anteilsfaktor gilt danach für beide Wege gleich. Ein Lüfter mit 50 % fährt bei
+*Sperre: Grundstufe* in Stoßlüften also Stufe 2, nicht 4.
+
 ### Rücksetzen
 
 Ändert sich ein Objekt der Ränge 5 bis 11, werden alle Ebenen höheren Rangs bis
@@ -240,6 +297,12 @@ Frischluft.
 **Vor jedem Richtungswechsel** stehen alle Kanäle des Verbunds für die *Totzeit*
 (Vorgabe 2 s) auf 5,00 V. Beim ego gilt das für beide Motoren gleichzeitig.
 
+**Eigenständige Lüfter.** Ein Lüfter mit Verbund *eigenständig (eigener Takt)*
+bildet einen Verbund für sich allein. Er fährt die Stufe seines Raums und pendelt
+mit festen Vorgaben: 70 s je Stufe, Sommer 3600 s, Totzeit 2 s. Es gibt keine
+Verbund-Objekte und keine Stufenregel. Für ein Pendelpaar mit Luftaustausch
+gehören zwei Lüfter in einen gemeinsamen Verbund.
+
 ### Wenn die Räume uneins sind
 
 | Konflikt | Regel |
@@ -266,12 +329,20 @@ welcher Halbwelle der Verbund steht, und Weiterlaufen hieße raten.
 Die Verbund-Objekte liegen beim Lüfter mit der **kleinsten Kanalnummer** des
 jeweiligen Verbunds.
 
+Auch am Slave gelten Sperre und Schutz des eigenen Raums. Der Master kennt das
+offene Fenster in diesem Raum nicht. Ein Slave-Lüfter im Schutz steht still und
+meldet Fehlercode 9. Er folgt dem Master dann nicht, und das soll man sehen.
+
 ---
 
 ## Abluftanforderung — die Badlüftung
 
 Das Objekt *Abluftanforderung* fährt den Raum in Abluft mit der parametrierten
 Stufe (Vorgabe 4; beim ego ist Stufe 4 der Abluftstoß beider Motoren).
+
+Im Verbund gilt diese Stufe für die Lüfter des anfordernden Raums, auch wenn ein
+Nachbarraum im Verbund gerade auf Standby oder Nacht steht. Die übrigen Lüfter des
+Verbunds fahren die Verbundstufe mit dem Deckel des Nachbarn.
 
 - **Vorlaufzeit** (0 s…5 min): erst nach dieser Zeit wird gefördert. Wird die
   Anforderung vorher zurückgenommen, passiert nichts — es gibt keinen Nachlauf für
@@ -318,7 +389,7 @@ anzufassen.
 
 | Nr. | Objekt | Richtung | DPT |
 |---|---|---|---|
-| 0 | Betriebsart (0 = Automatik) | Ein | 20.102 |
+| 0 | Betriebsart (0 = Automatik). Ab Raum 2 nur sichtbar bei *eigene Kommunikationsobjekte* | Ein | 20.102 |
 | 1 | Zwangsbetriebsart, mit Laufzeit | Ein | 20.102 |
 | 2 | Nacht | Ein | 1.003 |
 | 3–5 | Zwangsobjekt 1 / 2 / 3 | Ein | 1.003 |
@@ -330,7 +401,7 @@ anzufassen.
 | 11 | Betriebsweise (0 auto / 1 WRG / 2 Zuluft / 3 Abluft) | Ein | 5.010 |
 | 12 | Abluftanforderung | Ein | 1.003 |
 | 13 | Sperre | Ein | 1.003 |
-| 14–20 | rF innen, T innen, rF außen, T außen, CO₂, Luftgüte, Solltemperatur | Ein | 9.007 / 9.001 / 9.008 |
+| 14–20 | rF innen, T innen, rF außen, T außen, CO₂, Luftgüte, Solltemperatur | Ein | 9.007 / 9.001 / 9.008; Luftgüte je nach Format 9.008 oder 7.001 |
 | 21–24 | Führungen aktiv: Temperatur, Feuchte, CO₂, Luftgüte (0 sperrt) | Ein | 1.003 |
 | 21 | *oder* Freie Kühlung aktiv (Heizungssperre) | Aus | 1.003 |
 | 28 | Betriebsart Status erweitert (1…7) | Aus | 5.010 |
@@ -341,7 +412,7 @@ anzufassen.
 | 30 | Schutzbetrieb aktiv | Aus | 1.001 |
 | 31 | Feuchtevergleich sperrt | Aus | 1.001 |
 | 32 / 33 | Absolute Feuchte innen / außen | Aus | 9.029 |
-| 34 | Zuluftanforderung | Aus | 1.003 |
+| 34 | Zuluftanforderung. Nur sichtbar bei *Zuluftanforderung senden = Ja* | Aus | 1.003 |
 | 35 | Intervall aktiv | Aus | 1.001 |
 | 36 | Luftgüte als Index | Ein | 5.010 |
 
@@ -386,6 +457,10 @@ Liegen mehrere an, gewinnt der kleinste.
 | 9 | Schutzbetrieb aktiv | nein |
 | 10 | Filterwechsel fällig | nein |
 | 11 | Richtungskonflikt im Verbund | nein |
+
+Code 4 heilt von selbst. Fallen die 12 V weg, meldet das Gerät Code 4. Kommen sie
+zurück, schreibt es selbst Bereich und sicheren Zustand und fährt weiter. Code 3
+heilt nicht von selbst, er braucht eine korrigierte Parametrierung.
 
 ---
 
