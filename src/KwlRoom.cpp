@@ -134,9 +134,11 @@ namespace Kwl
         mArbiter.setNightMode(static_cast<OperatingMode>(ParamROOM_rNightMode));
 
         // --- Schutz (Rang 2) und Sperre (Rang 1) ----------------------------
-        // Sperrverhalten: 0 = Stillstand, 1 = Grundstufe der Betriebsart. Der
-        // Arbiter kennt nur Stillstand; die zweite Spielart wird in loop()
-        // nachgebildet, damit Rang 1 eine einzige Stelle bleibt.
+        // Sperrverhalten: 0 = Stillstand, 1 = Grundstufe der Betriebsart. Beides
+        // entscheidet der Arbiter selbst (StageArbiter::setLock(active, keepBase)),
+        // damit Rang 1 eine einzige Stelle bleibt - loop() bessert daran nichts
+        // nach. Im Verbund setzt KwlFanModule::driveGroup() die Stufe dieses Raums
+        // je Luefter ein (fanStageInGroup), auch die Grundstufe.
         mLockKeepsBase = ParamROOM_rLockBehaviour;
 
         mTemp.setFrostLimit(static_cast<float>(ParamROOM_rFrostTemp));

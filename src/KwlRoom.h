@@ -141,8 +141,9 @@ namespace Kwl
 
         bool mActive = false;
 
-        // Sperre: 0 = Stillstand (geht in den Arbiter), 1 = Grundstufe der
-        // Betriebsart (wird in loop() begrenzt, damit Rang 1 eine Stelle bleibt).
+        // Sperre (Rang 1). Beide Spielarten - Stillstand oder Grundstufe der
+        // Betriebsart - rechnet der Arbiter: StageArbiter::setLock(active,
+        // keepBase). Hier stehen nur die Eingangswerte, kein zweiter Rang-1-Pfad.
         bool mLocked = false;
         bool mLockKeepsBase = false;
 

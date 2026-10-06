@@ -52,26 +52,41 @@ namespace Kwl
         return roomStage > modeMaxStage ? roomStage : modeMaxStage;
     }
 
-    /// Sperre (Rang 1) und Schutz (Rang 2) wirken JE LUEFTER, nicht nur auf die
-    /// Raumanforderung (PLAN 4c, Sicherheitsinvariante 9). Bis 2026-09-27 senkten
-    /// sie nur die Raumanforderung; im Verbund fuhr der Luefter eines gesperrten
-    /// Raums dann die Stufe des Nachbarn weiter - Fenster offen, Kamin an.
+    /// Sperre (Rang 1), Schutz (Rang 2) und Zu-/Abluftanforderung (Rang 3) wirken
+    /// JE LUEFTER, nach der Verbundbildung (PLAN 0.6 und 4c, Invariante 9).
+    ///
+    /// Geschichte: Bis 2026-09-27 senkten Sperre und Schutz nur die
+    /// Raumanforderung; im Verbund fuhr der Luefter eines gesperrten Raums dann
+    /// die Stufe des Nachbarn weiter - Fenster offen, Kamin an. Mit dem Raumdeckel
+    /// (groupCapFor) kam am selben Tag der umgekehrte Fehler: die Badlueftung
+    /// (Rang 3, Stufe 4) wurde vom Standby-Deckel des Nachbarn auf 2 begrenzt.
+    /// Deshalb steht Rang 3 hier mit drin.
+    ///
+    /// Rang 4 (Verbund) ist der Verbund selbst und uebersteuert sich nicht.
     inline bool roomOverridesGroup(StageSource source)
     {
-        return source == StageSource::Lock || source == StageSource::Protection;
+        return source == StageSource::Lock || source == StageSource::Protection ||
+               source == StageSource::AirDemand;
     }
 
-    /// Stufe eines Luefters im Verbund. Ist sein Raum gesperrt oder im Schutz,
-    /// gilt die Raumstufe (meist 0, bei "Sperre mit Grundstufe" oder einer
-    /// parametrierten Schutzstufe deren Wert) statt der Verbundstufe. Die Richtung
-    /// kommt weiter aus dem Takt, damit Totzeit und Pendeln stimmen.
+    /// Stufe eines Luefters im Verbund, VOR dem Anteil. Verlangt sein Raum einen
+    /// der Raenge 1-3, gilt die Raumstufe statt der Verbundstufe: meist 0 bei
+    /// Sperre, die Grundstufe bei "Sperre: Grundstufe", die Schutzstufe, oder die
+    /// Stufe der Anforderung - ohne Deckel eines Nachbarraums. Die Richtung kommt
+    /// weiter aus dem Takt, damit Totzeit und Pendeln stimmen; eine
+    /// Richtungsforderung des Raums hat der Verbund dort schon eingerechnet.
     ///
-    /// @param groupStageForFan  Verbundstufe, schon mit dem Anteil des Luefters
+    /// Der Anteil des Luefters (KwlGroup::stageForShare) wird DANACH angewendet,
+    /// auf beide Wege gleich. Bis 2026-09-27 kam er vorher und ging bei Sperre und
+    /// Schutz verloren: ein 50-%-Luefter fuhr bei "Sperre: Grundstufe" in
+    /// Stosslueften Stufe 4 statt 2.
+    ///
+    /// @param groupStage  Verbundstufe, noch ohne Anteil
     /// @param roomSource  Herkunft der Stufe seines Raums
     /// @param roomStage  endgueltige Stufe seines Raums
-    inline uint8_t fanStageInGroup(uint8_t groupStageForFan, StageSource roomSource, uint8_t roomStage)
+    inline uint8_t fanStageInGroup(uint8_t groupStage, StageSource roomSource, uint8_t roomStage)
     {
-        return roomOverridesGroup(roomSource) ? roomStage : groupStageForFan;
+        return roomOverridesGroup(roomSource) ? roomStage : groupStage;
     }
 
     // ========================================================================

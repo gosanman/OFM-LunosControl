@@ -120,8 +120,40 @@ namespace Kwl
         }
     }
 
+    bool KwlFanModule::inSlot(uint8_t fan, uint8_t slot) const
+    {
+        const KwlFan* f = mFan[fan];
+        if (f == nullptr)
+            return false;
+        if (slot < kGroupsMax)
+            return f->groupNo() == slot + 1;
+        // Eigenstaendig: Verbundnummer 0 und genau dieser Platz.
+        return f->groupNo() == 0 && fan == slot - kGroupsMax;
+    }
+
     void KwlFanModule::setupGroups()
     {
+        // Eigenstaendige Luefter: ein Platz je Luefter mit Verbund 0. Rolle intern,
+        // keine Gruppen-KOs, kein Lebenszeichen, Taktvorgaben aus KwlGroup. Die
+        // Stufenregel ist mit einem Mitglied belanglos: die Stufe des Raums.
+        for (uint8_t i = 0; i < FAN_ChannelCount; i++)
+        {
+            const uint8_t slot = kGroupsMax + i;
+            const KwlFan* fan = mFan[i];
+            mGroupActive[slot] = fan != nullptr && fan->isActive() && fan->groupNo() == 0;
+            mGroupRole[slot] = GroupRole::Internal;
+            mGroupSpeaker[slot] = -1;
+            mGroupFollowSupply[slot] = 0;
+            mGroupHeartbeatMs[slot] = 0;
+            mGroupTimeoutMs[slot] = 0;
+            mGroupTimedOut[slot] = false;
+            if (mGroupActive[slot])
+            {
+                mGroupLeadRoom[slot] = fan->roomNo();
+                mGroup[slot].setLeadRoom(fan->roomNo());
+            }
+        }
+
         for (uint8_t g = 0; g < kGroupsMax; g++)
         {
             const GroupParams p = readGroup(g + 1);
@@ -141,8 +173,7 @@ namespace Kwl
             // Die Gruppen-KOs haengen am Luefter mit der kleinsten Nummer in
             // diesem Verbund - deterministisch und ohne eigenen Parameter.
             for (uint8_t i = 0; i < FAN_ChannelCount; i++)
-                if (mFan[i] != nullptr && mFan[i]->isActive() &&
-                    mFan[i]->groupNo() == g + 1)
+                if (mFan[i] != nullptr && mFan[i]->isActive() && inSlot(i, g))
                 {
                     mGroupSpeaker[g] = static_cast<int8_t>(i);
                     break;
@@ -166,8 +197,11 @@ namespace Kwl
         if (!configured)
         {
             // Ohne gueltige Parametrierung wird nicht gefahren - aber die Ausgaenge
-            // muessen trotzdem definiert stehen.
-            mOutput.begin();
+            // muessen trotzdem definiert stehen. begin() schreibt Bereich und
+            // 5,00 V; scheitert es (12 V fehlen noch), holt holdSafeUnconfigured()
+            // das nach, sobald die DACs antworten.
+            if (!mOutput.begin())
+                logErrorP("Ohne Parametrierung: DAC nicht erreichbar (12 V fehlen?)");
             mOutput.safeAll();
             return;
         }
@@ -209,12 +243,38 @@ namespace Kwl
     void KwlFanModule::loop(bool configured)
     {
         if (!configured)
+        {
+            // Zwei Faelle, beide ohne gueltige Parameter:
+            //  - nie parametriert (neues Board): setup(false) hat 5,00 V
+            //    geschrieben, holdSafeUnconfigured() haelt sie - auch ueber ein
+            //    12-V-Aus/Ein hinweg und wenn die 12 V erst nach dem Bus kommen;
+            //  - die ETS laedt gerade (knx.configured() faellt waehrend des
+            //    Downloads auf false). Die Ausgaenge stuenden sonst bis zum
+            //    Neustart auf der letzten Stufe, ungefuehrt. Also sofort der
+            //    sichere Zustand; processBeforeRestart() schreibt ihn danach noch
+            //    einmal (Invariante 8).
+            if (mWasConfigured)
+            {
+                mWasConfigured = false;
+                mOutput.safeAll();
+                logInfoP("Parametrierung ungueltig (ETS-Download?) - sicherer Zustand");
+            }
+            holdSafeUnconfigured(millis());
+            return;
+        }
+        mWasConfigured = true;
+
+        // Busausfall (SAVE-Interrupt): savePower() hat 5,00 V geschrieben. Bis
+        // restorePower() bleibt es dabei, auch wenn die Modulschleife weiterlaeuft.
+        if (mPowerSaved)
             return;
 
         // Ein Fehler aus setup() oder aus dem Betrieb (Konfiguration, DAC) laesst
         // die Ausgaenge im sicheren Zustand - aber er wird GEMELDET, nicht
         // verschwiegen (Invariante 10). Der Fehlercode geht an jeden Luefter.
-        if (mError != ErrorCode::None || !mOutput.ready())
+        // Einzige Ausnahme vom Stehenbleiben: kommen die 12 V zurueck, nimmt
+        // tryRecoverOutput() die DACs wieder auf.
+        if ((mError != ErrorCode::None || !mOutput.ready()) && !tryRecoverOutput(millis()))
         {
             for (uint8_t i = 0; i < FAN_ChannelCount; i++)
                 if (mFan[i] != nullptr)
@@ -240,7 +300,8 @@ namespace Kwl
             if (mFan[i] != nullptr)
                 mFan[i]->loop();
 
-        for (uint8_t g = 0; g < kGroupsMax; g++)
+        // Alle Takt-Plaetze: die ETS-Verbuende und die eigenstaendigen Luefter.
+        for (uint8_t g = 0; g < kSlotsMax; g++)
         {
             if (!mGroupActive[g])
                 continue;
@@ -420,7 +481,7 @@ namespace Kwl
         for (uint8_t i = 0; i < FAN_ChannelCount; i++)
         {
             KwlFan* fan = mFan[i];
-            if (fan == nullptr || !fan->isActive() || fan->groupNo() != group + 1)
+            if (fan == nullptr || !fan->isActive() || !inSlot(i, group))
                 continue;
 
             KwlRoom* room = openknxKwlRoomModule.room(fan->roomNo());
@@ -436,6 +497,9 @@ namespace Kwl
             // Raumdeckel". rs.stage enthaelt nur den Deckel des EIGENEN Raums; bis
             // 2026-09-27 stand hier kStageMax, und der Nachtdeckel des Schlafzimmers
             // hielt den Nachbarn nie auf (Testplan T4).
+            // Was die Raenge 1-3 dieses Raums verlangen (Sperre, Schutz,
+            // Zu-/Abluftanforderung), wird davon NICHT begrenzt: das setzt
+            // driveGroup() je Luefter nach der Verbundbildung ein (PLAN 0.6).
             m.maxStage = room->groupCap();
             m.cycleWish = room->cycleWish();
             m.directionDemanded = rs.directionForced;
@@ -522,7 +586,7 @@ namespace Kwl
         for (uint8_t i = 0; i < FAN_ChannelCount; i++)
         {
             KwlFan* fan = mFan[i];
-            if (fan == nullptr || !fan->isActive() || fan->groupNo() != group + 1)
+            if (fan == nullptr || !fan->isActive() || !inSlot(i, group))
                 continue;
 
             // Fehlende Freigabe, Suspendierung oder ein fehlender Master schlagen
@@ -535,16 +599,22 @@ namespace Kwl
                 continue;
             }
 
-            DriveCommand cmd;
-            cmd.stage = KwlGroup::stageForShare(r.stage, fan->share());
-
-            // Sperre und Schutz des eigenen Raums gelten je Luefter, auch im
-            // Verbund (Invariante 9, PLAN 4c): dann die Raumstufe statt der
-            // Verbundstufe. Die Richtung bleibt aus dem Takt. Gilt auch beim Slave -
-            // das Fenster in diesem Raum kennt der Master nicht.
+            // Raenge 1-3 des eigenen Raums (Sperre, Schutz, Zu-/Abluftanforderung)
+            // gelten je Luefter, auch im Verbund (Invariante 9, PLAN 0.6 und 4c):
+            // dann die Raumstufe statt der Verbundstufe, ohne Deckel des Nachbarn.
+            // Die Richtung bleibt aus dem Takt - die Richtungsforderung des Raums
+            // ist dort schon eingerechnet. Gilt auch beim Slave: das Fenster in
+            // diesem Raum kennt der Master nicht.
+            uint8_t stage = r.stage;
             const KwlRoom* room = openknxKwlRoomModule.room(fan->roomNo());
             if (room != nullptr && room->isActive())
-                cmd.stage = fanStageInGroup(cmd.stage, room->stage().source, room->stage().stage);
+                stage = fanStageInGroup(stage, room->stage().source, room->stage().stage);
+
+            // Der Anteil gilt immer, auch fuer die uebersteuerte Stufe: ein Luefter
+            // mit 50 % faehrt bei "Sperre: Grundstufe" in Stosslueften Stufe 2,
+            // nicht 4. Bis 2026-09-27 ging der Anteil bei Sperre und Schutz verloren.
+            DriveCommand cmd;
+            cmd.stage = KwlGroup::stageForShare(stage, fan->share());
 
             cmd.direction = KwlGroup::directionFor(r, fan->phase());
             cmd.hrv = r.hrv;
@@ -566,20 +636,25 @@ namespace Kwl
         for (uint8_t i = 0; i < FAN_ChannelCount; i++)
         {
             KwlFan* fan = mFan[i];
-            if (fan == nullptr || fan->groupNo() != group + 1)
+            if (fan == nullptr || !inSlot(i, group))
                 continue;
 
             // Der Raum meldet Einschraenkungen (Feuchtevergleich, fehlende
             // Messwerte, Schutz) - er hat aber kein eigenes Stoerungsobjekt.
             // Ausgegeben werden sie an seinen Lueftern.
-            // Ein Slave folgt dem Bus, nicht seinem Raum - dessen Befunde
-            // (fehlende Sensoren, Schutz) haben mit dem Antrieb nichts zu tun.
+            // Beim Slave nur der Schutz: seine Stufe kommt vom Master, also sind
+            // Feuchtevergleich und fehlende Sensoren des eigenen Raums fuer den
+            // Antrieb belanglos. Der Schutz dagegen haelt den Luefter an (siehe
+            // oben) - und ein Luefter, der dem Master nicht folgt, muss das sagen.
+            // Die Sperre meldet sich ueber den Status (Stufe 0), nicht als Fehler.
             ErrorCode roomError = ErrorCode::None;
-            if (mGroupRole[group] != GroupRole::Slave)
+            KwlRoom* room = openknxKwlRoomModule.room(fan->roomNo());
+            if (room != nullptr && room->isActive())
             {
-                KwlRoom* room = openknxKwlRoomModule.room(fan->roomNo());
-                if (room != nullptr && room->isActive())
+                if (mGroupRole[group] != GroupRole::Slave)
                     roomError = room->errorCode();
+                else if (room->stage().source == StageSource::Protection)
+                    roomError = ErrorCode::ProtectionActive;
             }
 
             fan->sendFault(r.conflict && r.conflictRoom == fan->roomNo(), groupError,
@@ -690,6 +765,89 @@ namespace Kwl
         // Vollgas-Moment erzeugen.
         mOutput.safeAll();
         logInfoP("Sicherer Zustand vor Neustart geschrieben");
+    }
+
+    void KwlFanModule::holdSafeUnconfigured(uint32_t now)
+    {
+        // Ohne Parametrierung gibt es keinen Sollwert, also schreibt auch niemand
+        // - und ein 12-V-Aus/Ein bliebe unbemerkt: die DACs kaemen mit 0 V =
+        // Volllast zurueck (Invariante 7). Genau das passiert bei der
+        // Erstinbetriebnahme, wenn der KNX-Bus vor den 12 V anliegt, oder wenn
+        // jemand vor dem Programmieren die 12 V aus- und wieder einschaltet.
+        //
+        // Deshalb alle 250 ms die volle Startsequenz: Adressabfrage,
+        // Bereichsregister, 5,00 V (Invariante 3). Sie ist idempotent; ein paar
+        // I2C-Frames je Viertelsekunde stoeren auch einen laufenden ETS-Download
+        // nicht. Bei einem neuen Board sind die Kanaltypen unbekannt, also gilt
+        // ueberall bipolar 5,00 V; waehrend eines ETS-Downloads gelten noch die
+        // Typen der alten Parametrierung (RA 15-60 bleibt auf 0 V).
+        if ((now - mRecoverLastMs) < kRecoverIntervalMs)
+            return;
+        mRecoverLastMs = now;
+
+        const bool wasReady = mOutput.ready();
+        const bool ok = mOutput.begin();
+        if (ok != wasReady)
+        {
+            if (ok)
+                logInfoP("Ohne Parametrierung: DAC erreichbar, alle Kanaele 5,00 V");
+            else
+                logErrorP("Ohne Parametrierung: DAC nicht erreichbar (12 V fehlen?)");
+        }
+    }
+
+    bool KwlFanModule::tryRecoverOutput(uint32_t now)
+    {
+        // 12-V-Ausfall bei stehendem KNX-Bus (PLAN Phase 4, "Busausfall"): der
+        // RP2040 laeuft weiter, die DACs sind stromlos, jeder Schreibversuch endet
+        // ohne ACK -> Fehlercode 4. Kommen die 12 V zurueck, starten die DACs mit
+        // ihrem Werkswert 0 V = VOLLLAST (Invariante 7, kein EEPROM). Ohne diesen
+        // Weg blieben sie dort bis zum naechsten Neustart, denn im Fehlerzweig
+        // schreibt niemand mehr.
+        //
+        // Also alle 250 ms dieselbe Startsequenz wie in setup(): Adressabfrage,
+        // Bereichsregister, sicherer Zustand (Invariante 3). Erst wenn sie ganz
+        // durchlaeuft, gilt der Fehler als behoben. Zwischen Wiederkehr der 12 V
+        // und Wiederaufnahme liegen also hoechstens gut 250 ms Werkswert.
+        //
+        // Nur DacUnreachable: ein Konfigurations- oder Hardwarefehler (Code 3)
+        // heilt nicht von selbst, und ein Parametrierfehler beim ego darf nicht in
+        // eine Schleife aus begin() und erneutem Scheitern laufen.
+        // Bewusst nur mError: nach einem Platinenfehler steht dort Configuration,
+        // auch wenn begin() danach zusaetzlich am DAC scheiterte - ein
+        // erfolgreiches begin() darf die falsche Platine nicht "heilen".
+        if (mError != ErrorCode::DacUnreachable)
+            return false;
+        if ((now - mRecoverLastMs) < kRecoverIntervalMs)
+            return false;
+        mRecoverLastMs = now;
+
+        if (!mOutput.begin())
+            return false;
+
+        mError = ErrorCode::None;
+        logInfoP("DAC wieder erreichbar - Bereich und sicherer Zustand neu geschrieben");
+        return true;
+    }
+
+    void KwlFanModule::savePower()
+    {
+        // KNX-Bus weg, 12 V noch da: der RP2040 geht gleich aus, die DACs nicht.
+        // Sie halten den letzten Wert, bis der Bus zurueck ist - ohne diesen
+        // Aufruf liefe eine Badlueftung auf Stufe 4 stundenlang weiter. Vier
+        // kurze I2C-Frames, das passt in das Zeitfenster des SAVE-Interrupts.
+        mPowerSaved = true;
+        mOutput.safeAll();
+    }
+
+    bool KwlFanModule::restorePower()
+    {
+        // Kurzer Einbruch ohne Neustart: die DACs hatten die ganze Zeit Strom und
+        // stehen auf 5,00 V. loop() schreibt ab dem naechsten Durchlauf wieder
+        // Sollwerte. Der Takt stand in der Zwischenzeit, und von 5,00 V aus ist
+        // jede Richtung ein Anlauf, kein Wechsel.
+        mPowerSaved = false;
+        return true;
     }
 
     // ------------------------------------------------------------ Konsole

@@ -14,6 +14,7 @@
 #include <unity.h>
 
 #include "StageArbiter.h"
+#include "KwlGroup.h"
 
 using namespace Kwl;
 
@@ -713,8 +714,35 @@ static void test_ohne_sperre_gilt_die_verbundstufe(void)
     TEST_ASSERT_EQUAL(StageSource::Manual, r.source);
     TEST_ASSERT_EQUAL_UINT8(2, fanStageInGroup(2, r.source, r.stage));
     TEST_ASSERT_FALSE(roomOverridesGroup(StageSource::Automatic));
-    TEST_ASSERT_FALSE(roomOverridesGroup(StageSource::AirDemand));
     TEST_ASSERT_FALSE(roomOverridesGroup(StageSource::Group));
+}
+
+static void test_abluftanforderung_wird_vom_nachbardeckel_nicht_begrenzt(void)
+{
+    // Aufbau B, T10: Raum 1 fordert Abluft Stufe 4, Raum 2 steht auf Standby
+    // (Deckel 2). Der Verbund rechnet min(4, 2) = 2 - der Luefter im Bad faehrt
+    // trotzdem 4 (PLAN 0.6: Rang 1-4 je Luefter nach der Verbundbildung).
+    StageArbiter bad;
+    bad.setAirDemand(true, Direction::Exhaust, 4);
+    const StageResult r = bad.update(0);
+    TEST_ASSERT_EQUAL(StageSource::AirDemand, r.source);
+    TEST_ASSERT_TRUE(roomOverridesGroup(StageSource::AirDemand));
+    TEST_ASSERT_EQUAL_UINT8(4, fanStageInGroup(2, r.source, r.stage));
+}
+
+static void test_anteil_gilt_auch_bei_sperre_mit_grundstufe(void)
+{
+    // Unpaariger Aufbau (3 x e2 60): ein Luefter mit 50 % Anteil. Raum gesperrt
+    // mit "Grundstufe", Betriebsart Stosslueften (Grundstufe 4). Erst die
+    // Uebersteuerung, dann der Anteil: 4 -> 2. Die Reihenfolge ist die aus
+    // KwlFanModule::driveGroup().
+    StageArbiter a;
+    a.setForcedMode(OperatingMode::Boost, 0);
+    a.setLock(true, true);
+    const StageResult r = a.update(0);
+    TEST_ASSERT_EQUAL(StageSource::Lock, r.source);
+    TEST_ASSERT_EQUAL_UINT8(4, r.stage);
+    TEST_ASSERT_EQUAL_UINT8(2, KwlGroup::stageForShare(fanStageInGroup(3, r.source, r.stage), 50));
 }
 
 int main(int, char**)
@@ -724,6 +752,8 @@ int main(int, char**)
     RUN_TEST(test_sperre_mit_grundstufe_faehrt_die_grundstufe);
     RUN_TEST(test_schutz_stoppt_den_luefter_trotz_verbund);
     RUN_TEST(test_ohne_sperre_gilt_die_verbundstufe);
+    RUN_TEST(test_abluftanforderung_wird_vom_nachbardeckel_nicht_begrenzt);
+    RUN_TEST(test_anteil_gilt_auch_bei_sperre_mit_grundstufe);
     RUN_TEST(test_verbunddeckel_nacht_automatik_deckelt_auf_eins);
     RUN_TEST(test_verbunddeckel_eigene_hand_hebt_den_deckel);
     RUN_TEST(test_verbunddeckel_nie_unter_der_maximalstufe);
