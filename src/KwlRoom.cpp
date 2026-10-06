@@ -235,18 +235,32 @@ namespace Kwl
             break;
 
         // --- Raenge 7…10: Betriebsart -----------------------------------
+        // Betriebsart als rohes Byte lesen, NICHT mit DPT_HVACMode: die
+        // KNX-Bibliothek kennt die Hauptgruppe 20 nicht, die Dekodierung
+        // scheitert und liefert 0 = Auto. Bis 2026-10-06 setzte deshalb jede
+        // Betriebsart ueber KNX den Raum auf die Standard-Betriebsart (Befund B,
+        // Simulator). Am Bus ist 20.102 ein Byte; 1...4 nach Norm, 5...7 der
+        // "erweiterte HVAC-Modus" wie bei der LUNOS-/Arcus-Steuerung.
         case ROOM_KoMode:
         {
-            // KNXValue laesst sich nicht direkt casten - erst in den
-            // Zahlenwert, dann in die Betriebsart.
-            const uint8_t mode = ko.value(DPT_HVACMode);
+            const uint8_t mode = ko.value(DPT_Value_1_Ucount);
+            if (mode > kModeCount)
+            {
+                logErrorP("Betriebsart %u ungueltig - ignoriert", (unsigned)mode);
+                break;
+            }
             mArbiter.setMode(static_cast<OperatingMode>(mode), now);
             break;
         }
 
         case ROOM_KoForcedMode:
         {
-            const uint8_t mode = ko.value(DPT_HVACMode);
+            const uint8_t mode = ko.value(DPT_Value_1_Ucount);
+            if (mode > kModeCount)
+            {
+                logErrorP("Zwangsbetriebsart %u ungueltig - ignoriert", (unsigned)mode);
+                break;
+            }
             if (mode == 0)
                 mArbiter.clearForcedMode(now);
             else
@@ -589,9 +603,8 @@ namespace Kwl
         // Frostschutz gilt nur, wenn die Betriebsart ihn zulaesst - im
         // Gebaeudeschutz immer. Der Hitzeschutz gilt unabhaengig davon.
         const TempResult t = mTemp.result();
-        mProtection = (t.frostProtection &&
-                       (f.frost || mode == OperatingMode::Protection)) ||
-                      t.heatProtection;
+        mFrostActive = t.frostProtection && (f.frost || mode == OperatingMode::Protection);
+        mProtection = mFrostActive || t.heatProtection;
 
         // "Bei fehlenden Messwerten" meint Messwerte, die eine EINGESCHALTETE
         // Fuehrung braucht - nicht jeden Sensor, der zufaellig nicht verknuepft
@@ -795,25 +808,29 @@ namespace Kwl
 
     void KwlRoom::sendMode()
     {
+        // Wie die Eingaenge als Byte: 1...4 nach 20.102, 5 Stossluefen,
+        // 6 Absenkung, 7 Ruhe ("erweiterter HVAC-Modus"). Mit DPT_HVACMode
+        // scheiterte die Kodierung, und der Stack sendete gar nicht (Befund B).
         const uint32_t ms = millis();
         const uint8_t mode = static_cast<uint8_t>(mStage.mode);
         if (!mSentMode.due(mode, ms, 0))
             return;
-        KoROOM_ModeAct.value(mode, DPT_HVACMode);
+        KoROOM_ModeAct.value(mode, DPT_Value_1_Ucount);
         mSentMode.mark(mode, ms);
     }
 
     void KwlRoom::sendModeExt()
     {
-        // DPT 20.102 kennt nur vier Betriebsarten. Stosslueften, Absenkung und
-        // Ruhe passen dort nicht hinein - dafuer gibt es das zweite Objekt mit
-        // den Werten 1…7.
+        // HVAC-Status als Bitfeld (MDT-Schema, hvacStatusByte) fuer
+        // Visualisierungen, die den erweiterten HVAC-Modus nicht kennen. Bis
+        // 2026-10-06 sendete dieses Objekt die Betriebsart 1...7 - das macht
+        // jetzt das Statusobjekt 27 selbst.
         const uint32_t ms = millis();
-        const uint8_t mode = static_cast<uint8_t>(mStage.mode);
-        if (!mSentModeExt.due(mode, ms, 0))
+        const uint8_t status = hvacStatusByte(mStage.mode, mFrostActive);
+        if (!mSentModeExt.due(status, ms, 0))
             return;
-        KoROOM_ModeActExt.value(mode, DPT_Value_1_Ucount);
-        mSentModeExt.mark(mode, ms);
+        KoROOM_HvacStatus.value(status, DPT_Value_1_Ucount);
+        mSentModeExt.mark(status, ms);
     }
 
     // ------------------------------------------------------------ Konsole

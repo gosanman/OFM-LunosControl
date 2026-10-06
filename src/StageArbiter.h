@@ -52,6 +52,40 @@ namespace Kwl
         return roomStage > modeMaxStage ? roomStage : modeMaxStage;
     }
 
+    /// HVAC-Status als Bitfeld nach dem MDT-Schema ("Visualisierung des HVAC
+    /// Status"): Bit 0 Komfort, Bit 1 Standby, Bit 2 Nacht, Bit 3 Frost-/
+    /// Hitzeschutz, Bit 7 Frostschutz aktiv. Fuer Visualisierungen, die den
+    /// "erweiterten HVAC-Modus" (5 Stossluefen, 6 Absenkung, 7 Ruhe) nicht
+    /// kennen: die erweiterten Betriebsarten setzen das Bit der naechstliegenden
+    /// Grundart. Entschieden 2026-10-06 (Befund B).
+    inline uint8_t hvacStatusByte(OperatingMode mode, bool frostActive)
+    {
+        uint8_t bits = 0;
+        switch (mode)
+        {
+            case OperatingMode::Comfort:
+            case OperatingMode::Boost:
+                bits = 0x01;
+                break;
+            case OperatingMode::Standby:
+                bits = 0x02;
+                break;
+            case OperatingMode::Eco:
+            case OperatingMode::Reduction:
+                bits = 0x04;
+                break;
+            case OperatingMode::Protection:
+            case OperatingMode::Quiet:
+                bits = 0x08;
+                break;
+            case OperatingMode::Auto:
+                break;
+        }
+        if (frostActive)
+            bits |= 0x80;
+        return bits;
+    }
+
     /// Sperre (Rang 1), Schutz (Rang 2) und Zu-/Abluftanforderung (Rang 3) wirken
     /// JE LUEFTER, nach der Verbundbildung (PLAN 0.6 und 4c, Invariante 9).
     ///

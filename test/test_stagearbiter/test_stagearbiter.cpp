@@ -745,6 +745,31 @@ static void test_anteil_gilt_auch_bei_sperre_mit_grundstufe(void)
     TEST_ASSERT_EQUAL_UINT8(2, KwlGroup::stageForShare(fanStageInGroup(3, r.source, r.stage), 50));
 }
 
+// ---------------------------------------------------------------- HVAC-Status
+// Befund B (2026-10-06): Objekt 28 meldet das Bitfeld nach MDT-Schema.
+
+static void test_hvac_status_grundarten(void)
+{
+    TEST_ASSERT_EQUAL_HEX8(0x01, hvacStatusByte(OperatingMode::Comfort, false));
+    TEST_ASSERT_EQUAL_HEX8(0x02, hvacStatusByte(OperatingMode::Standby, false));
+    TEST_ASSERT_EQUAL_HEX8(0x04, hvacStatusByte(OperatingMode::Eco, false));
+    TEST_ASSERT_EQUAL_HEX8(0x08, hvacStatusByte(OperatingMode::Protection, false));
+}
+
+static void test_hvac_status_erweiterte_arten(void)
+{
+    // Stossluefen -> Komfort, Absenkung -> Nacht, Ruhe -> Schutz.
+    TEST_ASSERT_EQUAL_HEX8(0x01, hvacStatusByte(OperatingMode::Boost, false));
+    TEST_ASSERT_EQUAL_HEX8(0x04, hvacStatusByte(OperatingMode::Reduction, false));
+    TEST_ASSERT_EQUAL_HEX8(0x08, hvacStatusByte(OperatingMode::Quiet, false));
+}
+
+static void test_hvac_status_frostbit(void)
+{
+    TEST_ASSERT_EQUAL_HEX8(0x82, hvacStatusByte(OperatingMode::Standby, true));
+    TEST_ASSERT_EQUAL_HEX8(0x80, hvacStatusByte(OperatingMode::Auto, true));
+}
+
 int main(int, char**)
 {
     UNITY_BEGIN();
@@ -754,6 +779,9 @@ int main(int, char**)
     RUN_TEST(test_ohne_sperre_gilt_die_verbundstufe);
     RUN_TEST(test_abluftanforderung_wird_vom_nachbardeckel_nicht_begrenzt);
     RUN_TEST(test_anteil_gilt_auch_bei_sperre_mit_grundstufe);
+    RUN_TEST(test_hvac_status_grundarten);
+    RUN_TEST(test_hvac_status_erweiterte_arten);
+    RUN_TEST(test_hvac_status_frostbit);
     RUN_TEST(test_verbunddeckel_nacht_automatik_deckelt_auf_eins);
     RUN_TEST(test_verbunddeckel_eigene_hand_hebt_den_deckel);
     RUN_TEST(test_verbunddeckel_nie_unter_der_maximalstufe);

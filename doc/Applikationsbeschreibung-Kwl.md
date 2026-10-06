@@ -389,8 +389,8 @@ anzufassen.
 
 | Nr. | Objekt | Richtung | DPT |
 |---|---|---|---|
-| 0 | Betriebsart (0 = Automatik). Ab Raum 2 nur sichtbar bei *eigene Kommunikationsobjekte* | Ein | 20.102 |
-| 1 | Zwangsbetriebsart, mit Laufzeit | Ein | 20.102 |
+| 0 | Betriebsart (0 = Automatik, Werte siehe unten). Ab Raum 2 nur sichtbar bei *eigene Kommunikationsobjekte* | Ein | 20.102 |
+| 1 | Zwangsbetriebsart, mit Laufzeit, 0 beendet | Ein | 20.102 |
 | 2 | Nacht | Ein | 1.003 |
 | 3–5 | Zwangsobjekt 1 / 2 / 3 | Ein | 1.003 |
 | 6 | Stufe manuell | Ein | **5.100** |
@@ -404,10 +404,10 @@ anzufassen.
 | 14–20 | rF innen, T innen, rF außen, T außen, CO₂, Luftgüte, Solltemperatur | Ein | 9.007 / 9.001 / 9.008; Luftgüte je nach Format 9.008 oder 7.001 |
 | 21–24 | Führungen aktiv: Temperatur, Feuchte, CO₂, Luftgüte (0 sperrt) | Ein | 1.003 |
 | 21 | *oder* Freie Kühlung aktiv (Heizungssperre) | Aus | 1.003 |
-| 28 | Betriebsart Status erweitert (1…7) | Aus | 5.010 |
+| 28 | HVAC-Status, Bitfeld (siehe unten) | Aus | 1 Byte |
 | 25 | Raumanforderung Stufe | Aus | **5.100** |
 | 26 | Raumanforderung % | Aus | 5.001 |
-| 27 | Betriebsart Status | Aus | 20.102 |
+| 27 | Betriebsart Status (Werte siehe unten) | Aus | 20.102 |
 | 29 | Betriebsweise Status | Aus | 5.010 |
 | 30 | Schutzbetrieb aktiv | Aus | 1.001 |
 | 31 | Feuchtevergleich sperrt | Aus | 1.001 |
@@ -415,6 +415,25 @@ anzufassen.
 | 34 | Zuluftanforderung. Nur sichtbar bei *Zuluftanforderung senden = Ja* | Aus | 1.003 |
 | 35 | Intervall aktiv | Aus | 1.001 |
 | 36 | Luftgüte als Index | Ein | 5.010 |
+
+**Betriebsart (Objekte 0, 1, 27).** Die Werte 1…4 sind DPT 20.102: 1 Komfort,
+2 Standby, 3 Nacht, 4 Frost-/Gebäudeschutz. Wie beim „erweiterten HVAC-Modus“ der
+LUNOS-/Arcus-Steuerung kommen 5 Stoßlüften, 6 Absenkung und 7 Ruhe (Aus) dazu.
+Eingang und Status benutzen denselben Wertebereich. Eine Visualisierung, die nur
+1…4 kennt, zeigt 5…7 möglicherweise als unbekannt – dafür gibt es Objekt 28.
+
+**HVAC-Status (Objekt 28).** Ein Byte als Bitfeld nach dem MDT-Schema:
+
+| Bit | Bedeutung |
+|---|---|
+| 0 | Komfort (auch bei Stoßlüften) |
+| 1 | Standby |
+| 2 | Nacht (auch bei Absenkung) |
+| 3 | Frost-/Gebäudeschutz (auch bei Ruhe) |
+| 7 | Frostschutz wirkt |
+
+Bis 2026-10-06 meldete Objekt 28 die Betriebsart 1…7 als Zahl; das macht jetzt
+Objekt 27 selbst.
 
 ### Je Lüfter (Block 24, ab KO 340)
 

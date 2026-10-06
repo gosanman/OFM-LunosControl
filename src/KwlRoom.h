@@ -230,6 +230,7 @@ namespace Kwl
 
         StageResult mStage{};
         bool mProtection = false;
+        bool mFrostActive = false;  ///< Frostschutz wirkt (Bit 7 im HVAC-Status)
         bool mDehumBlocked = false;
     };
 } // namespace Kwl
