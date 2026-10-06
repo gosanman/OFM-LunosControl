@@ -109,6 +109,10 @@ namespace Kwl
         /// Sicherer Zustand dieses Luefters, unabhaengig von allem anderen.
         bool driveSafe(KwlOutput& output);
 
+        /// Totzeit im Pendeltakt: 5,00 V, aber Stufe und Status bleiben - die
+        /// Totzeit ist Teil der Pendelbewegung, kein Stillstand (Befund F).
+        bool driveHold(KwlOutput& output);
+
         /// Seite der Motoren unbekannt machen: nach Start und 12-V-Wiederkehr
         /// gilt die volle Totzeit bei 5,00 V, bevor eine Seite hinaus darf.
         void restartGuard(uint32_t now);
@@ -195,5 +199,14 @@ namespace Kwl
 
         /// Totzeit je Motor (Befund C): Motor 1 und beim ego Motor 2.
         DirectionGuard mGuard[2];
+
+        // Was zuletzt auf dem Bus war, je Statusobjekt. Gesendet wird nur bei
+        // Aenderung oder nach dem Zyklus "Status zyklisch senden" (Befund F).
+        Sent<uint8_t> mSentStage;
+        Sent<uint8_t> mSentStagePct;
+        Sent<bool> mSentDir;
+        Sent<bool> mSentHrv;
+        Sent<int32_t> mSentVoltMv;
+        Sent<int16_t> mSentFlow;
     };
 } // namespace Kwl

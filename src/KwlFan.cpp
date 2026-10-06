@@ -221,6 +221,11 @@ namespace Kwl
         const uint32_t seconds = elapsed / 1000;
         mLastTick += seconds * 1000;
 
+        // "Status zyklisch senden": bis 2026-10-06 wirkte der Parameter nur auf
+        // die Filter-Restlaufzeit. Jetzt prueft sendStatus() ihn je Objekt.
+        if (mStatusValid)
+            sendStatus();
+
         if (mStage > 0)
         {
             mRunSeconds += seconds;
@@ -355,17 +360,13 @@ namespace Kwl
         // Richtung) war der Status damit in jedem Durchlauf "geaendert", und alle
         // Statusobjekte sendeten in jeder Schleife (Befund A, Simulator).
         const bool hrv = (mType == FanType::EGO && stage > 0 && stage < kStageMax) ? true : cmd.hrv;
-        const bool changed = !mStatusValid || stage != mStage ||
-                             cmd.direction != mDirection || hrv != mHrv;
         mStage = stage;
         mDirection = cmd.direction;
         mHrv = hrv;
         mStatusValid = true;
 
-        if (changed)
-        {
-            sendStatus();
-        }
+        // sendStatus() entscheidet je Objekt selbst, ob es senden muss.
+        sendStatus();
         return true;
     }
 
@@ -386,13 +387,21 @@ namespace Kwl
 
         if (ok)
             noteSafe(millis());
-        if (ok && mStage != 0)
+        if (ok)
         {
             mStage = 0;
             mLastVolt = safe;
+            mStatusValid = true;
             sendStatus();
         }
         return ok;
+    }
+
+    bool KwlFan::driveHold(KwlOutput& output)
+    {
+        if (!mActive)
+            return true;
+        return holdSafe(output, millis());
     }
 
     bool KwlFan::holdSafe(KwlOutput& output, uint32_t now)
@@ -427,18 +436,55 @@ namespace Kwl
 
     void KwlFan::sendStatus()
     {
-        KoFAN_StageAct.value(mStage, DPT_Value_1_Ucount);
-        KoFAN_StageActPct.value(StageMap::stageToPercent(mStage), DPT_Scaling);
-        KoFAN_DirAct.value(mDirection == Direction::Exhaust, DPT_Switch);
-        KoFAN_HrvActive.value(mHrv, DPT_Switch);
+        // Je Objekt nur bei Aenderung oder nach dem Zyklus. Bis 2026-10-06
+        // gingen bei jeder Statusaenderung alle sechs Objekte hinaus, und die
+        // Totzeit galt als Stufe 0: 12 Telegramme je Pendelwechsel und Luefter
+        // (Befund F). Jetzt sind es beim Wechsel Richtung, Spannung und
+        // Volumenstrom.
+        const uint32_t now = millis();
+        const uint32_t cycle = mSendCycleStatusMs;
 
-        // Ausgangsspannung in mV (DPT 9.020).
-        KoFAN_OutVolt.value(mLastVolt * 1000.0f, Dpt(9, 20));
+        if (mSentStage.due(mStage, now, cycle))
+        {
+            KoFAN_StageAct.value(mStage, DPT_Value_1_Ucount);
+            mSentStage.mark(mStage, now);
+        }
+        const uint8_t pct = StageMap::stageToPercent(mStage);
+        if (mSentStagePct.due(pct, now, cycle))
+        {
+            KoFAN_StageActPct.value(pct, DPT_Scaling);
+            mSentStagePct.mark(pct, now);
+        }
+        const bool exhaust = mDirection == Direction::Exhaust;
+        if (mSentDir.due(exhaust, now, cycle))
+        {
+            KoFAN_DirAct.value(exhaust, DPT_Switch);
+            mSentDir.mark(exhaust, now);
+        }
+        if (mSentHrv.due(mHrv, now, cycle))
+        {
+            KoFAN_HrvActive.value(mHrv, DPT_Switch);
+            mSentHrv.mark(mHrv, now);
+        }
+
+        // Ausgangsspannung in mV (DPT 9.020), auf ganze mV verglichen.
+        const int32_t mv = static_cast<int32_t>(mLastVolt * 1000.0f + 0.5f);
+        if (mSentVoltMv.due(mv, now, cycle))
+        {
+            KoFAN_OutVolt.value(static_cast<float>(mv), Dpt(9, 20));
+            mSentVoltMv.mark(mv, now);
+        }
 
         // Volumenstrom, positiv = Zuluft. Die Vorzeichenregel steht im
         // ETS-Funktionstext und macht aus zwei Objekten eines.
-        const float flow = static_cast<float>(mFlow[mStage]);
-        KoFAN_Flow.value(mDirection == Direction::Supply ? flow : -flow, Dpt(9, 9));
+        const int16_t flow = static_cast<int16_t>(mDirection == Direction::Supply
+                                                      ? mFlow[mStage]
+                                                      : -static_cast<int16_t>(mFlow[mStage]));
+        if (mSentFlow.due(flow, now, cycle))
+        {
+            KoFAN_Flow.value(static_cast<float>(flow), Dpt(9, 9));
+            mSentFlow.mark(flow, now);
+        }
     }
 
     void KwlFan::sendGroupState(uint8_t stage, bool tact)

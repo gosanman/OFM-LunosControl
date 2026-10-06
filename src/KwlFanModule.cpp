@@ -590,12 +590,21 @@ namespace Kwl
                 continue;
 
             // Fehlende Freigabe, Suspendierung oder ein fehlender Master schlagen
-            // alles - sie sind der Grund, warum es Rang 1 gibt.
-            if (r.inDeadTime || fan->blocked() || mGroupTimedOut[group])
+            // alles - sie sind der Grund, warum es Rang 1 gibt. Das ist echter
+            // Stillstand: Stufe 0 und Status.
+            if (fan->blocked() || mGroupTimedOut[group])
             {
-                // Sicherheitsinvariante 5: waehrend des Wechsels steht alles auf
-                // 5,00 V, beim ego beide Motoren gleichzeitig.
                 fan->driveSafe(mOutput);
+                continue;
+            }
+
+            // Sicherheitsinvariante 5: waehrend des Wechsels steht alles auf
+            // 5,00 V, beim ego beide Motoren gleichzeitig. Die Totzeit ist Teil
+            // der Pendelbewegung - Stufe und Status bleiben (Befund F,
+            // entschieden 2026-10-06).
+            if (r.inDeadTime)
+            {
+                fan->driveHold(mOutput);
                 continue;
             }
 

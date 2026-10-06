@@ -464,6 +464,13 @@ Objekt 27 selbst.
 > Die Stufenobjekte sind **DPT 5.100 (Lüfterstufe)**, nicht 5.010. Wer sie mit
 > einem Zählerobjekt verknüpft, bekommt von der ETS eine Warnung.
 
+**Wann der Status sendet.** Jedes Statusobjekt (6 bis 11) sendet nur, wenn sich
+sein eigener Wert ändert, und zusätzlich im Abstand „Status zyklisch senden“.
+Die Totzeit im Pendeltakt ist Teil der Pendelbewegung: „Stufe Status“ zeigt
+dabei die laufende Stufe, nicht 0. Bei einem Pendelwechsel senden deshalb nur
+Richtung, Ausgangsspannung und Volumenstrom. Echter Stillstand – Freigabe fehlt,
+suspendiert, Master fehlt, Sperre – meldet Stufe 0.
+
 ---
 
 ## Fehlercodes
