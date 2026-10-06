@@ -332,13 +332,18 @@ namespace Kwl
         if (!ok)
             return false;
 
-        const bool changed = !mStatusValid || stage != mStage ||
-                             cmd.direction != mDirection || cmd.hrv != mHrv;
-        mStage = stage;
-        mDirection = cmd.direction;
         // Beim ego ist die Waermerueckgewinnung in den Stufen 1 bis 3 immer aktiv:
         // er pendelt mit seinen zwei Motoren fuer sich, unabhaengig vom Verbund.
-        mHrv = (mType == FanType::EGO && stage > 0 && stage < kStageMax) ? true : cmd.hrv;
+        // Erst den wirksamen Wert bilden, DANN vergleichen: bis 2026-10-06 stand
+        // hier cmd.hrv != mHrv - beim ego ohne WRG im Takt (Sommerzyklus, feste
+        // Richtung) war der Status damit in jedem Durchlauf "geaendert", und alle
+        // Statusobjekte sendeten in jeder Schleife (Befund A, Simulator).
+        const bool hrv = (mType == FanType::EGO && stage > 0 && stage < kStageMax) ? true : cmd.hrv;
+        const bool changed = !mStatusValid || stage != mStage ||
+                             cmd.direction != mDirection || hrv != mHrv;
+        mStage = stage;
+        mDirection = cmd.direction;
+        mHrv = hrv;
         mStatusValid = true;
 
         if (changed)
