@@ -231,6 +231,7 @@ namespace Kwl
         StageResult mStage{};
         bool mProtection = false;
         bool mFrostActive = false;  ///< Frostschutz wirkt (Bit 7 im HVAC-Status)
-        bool mDehumBlocked = false;
+        bool mDehumBlocked = false;      ///< Objekt 31: reiner Vergleich innen/aussen
+        bool mDehumBlockDemand = false;  ///< Fehlercode 7: Sperre unterdrueckt eine Anforderung
     };
 } // namespace Kwl

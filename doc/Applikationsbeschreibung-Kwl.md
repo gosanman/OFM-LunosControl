@@ -491,6 +491,12 @@ Liegen mehrere an, gewinnt der kleinste.
 | 10 | Filterwechsel fällig | nein |
 | 11 | Richtungskonflikt im Verbund | nein |
 
+Code 7 erscheint nur, wenn der Feuchtevergleich tatsächlich eine Anforderung
+unterdrückt: Feuchteführung an und die Raumfeuchte über dem Grenzwert, der
+Stufe 1 einschaltet (aus erst unter Grenzwert 0). Das Objekt „Feuchtevergleich
+sperrt“ meldet dagegen immer den reinen Vergleich innen/außen. So verdeckt die 7
+im Winter nicht dauerhaft die Codes 8 bis 11.
+
 Code 4 heilt von selbst. Fallen die 12 V weg, meldet das Gerät Code 4. Kommen sie
 zurück, schreibt es selbst Bereich und sicheren Zustand und fährt weiter. Code 3
 heilt nicht von selbst, er braucht eine korrigierte Parametrierung.

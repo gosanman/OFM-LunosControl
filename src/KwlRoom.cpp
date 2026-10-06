@@ -528,6 +528,20 @@ namespace Kwl
         // Messwerte sind ein anderer Befund (Fehlercode 8, nicht 7).
         mDehumBlocked = f.dehum && dehumInputs && !dehumAllowed;
 
+        // Fehlercode 7 nur, wenn die Sperre etwas unterdrueckt: Feuchtefuehrung
+        // an und die Raumfeuchte ueber der Einschaltgrenze von Stufe 1 (GW1),
+        // aus erst unter GW0 - dieselbe Hysterese wie die Treppe. Bis 2026-10-06
+        // stand die 7 im Winter fast dauernd an, auch bei 30 % rF, und
+        // verdeckte die Codes 8-11 (Befund E). Objekt 31 meldet weiter den
+        // reinen Vergleich (entschieden 2026-10-06).
+        const bool humLeadOn = f.leadHum && mLeadHumKo && mHumIn.valid;
+        if (!mDehumBlocked || !humLeadOn)
+            mDehumBlockDemand = false;
+        else if (mHumIn.value >= mHumidity.threshold(1))
+            mDehumBlockDemand = true;
+        else if (mHumIn.value < mHumidity.threshold(0))
+            mDehumBlockDemand = false;
+
         // --- Grenzwert-Treppen -----------------------------------------------
         // Mit Feuchtevergleich laeuft die rF-Treppe nur, wenn Lueften auch
         // trocknet - steht draussen feuchtere Luft, macht mehr Lueften den Raum
@@ -783,7 +797,7 @@ namespace Kwl
         // Keiner der drei ist ein Alarm: die Anlage laeuft weiter, sie tut nur
         // nicht, was ohne die Einschraenkung gelte.
         ErrorCode e = ErrorCode::None;
-        e = lowestError(e, mDehumBlocked ? ErrorCode::HumidityBlocks : ErrorCode::None);
+        e = lowestError(e, mDehumBlockDemand ? ErrorCode::HumidityBlocks : ErrorCode::None);
         e = lowestError(e, mSensorsMissing ? ErrorCode::SensorsMissing : ErrorCode::None);
         e = lowestError(e, mProtection ? ErrorCode::ProtectionActive : ErrorCode::None);
         return e;
