@@ -91,6 +91,7 @@ namespace Kwl
 
         /// Totzeit vor jedem Richtungswechsel, Vorgabe 2 s.
         void setDeadTime(uint16_t seconds);
+        uint16_t deadTime() const { return mDeadTime; }
 
         /// Zykluszeit je Stufe (1…4), Vorgabe 70 s.
         void setCycleTime(uint8_t stage, uint16_t seconds);

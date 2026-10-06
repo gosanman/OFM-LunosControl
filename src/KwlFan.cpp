@@ -26,6 +26,10 @@ namespace Kwl
             return;
 
         mType = static_cast<FanType>(ParamFAN_fType);
+
+        // Vor dem Start kann der Werkswert 0 V = Volllast angelegen haben: erst
+        // die Totzeit bei 5,00 V, dann eine Richtung (entschieden 2026-10-06).
+        restartGuard(millis());
         mDacChannel = ParamFAN_fChannel;
         mRoomNo = ParamFAN_fRoom;
         mGroupNo = ParamFAN_fGroup;
@@ -313,24 +317,36 @@ namespace Kwl
         const uint8_t stage = cmd.stage > kStageMax ? kStageMax : cmd.stage;
         const VoltPair nominal =
             Curve::stageVolt(mType, stage, cmd.direction, below5vIsSupply);
+        const bool pair = channelsNeeded() == 2;
+        const VoltPair v{condition(nominal.a, stage), pair ? condition(nominal.b, stage) : 0.0f};
+
+        // Sicherheitsinvariante 5 je Motor: wechselt die Spannung die Seite von
+        // 5 V, ohne dass der Kanal die Totzeit lang bei 5,00 V stand, wird
+        // gehalten - egal warum (Abluftstoss des ego, 12-V-Wiederkehr, Start).
+        // Beim ego beide Motoren gemeinsam: haelt einer, halten beide.
+        const uint32_t now = millis();
+        const bool bipolar = Curve::isBipolar(mType);
+        const int8_t sideA = DirectionGuard::sideOf(v.a);
+        const int8_t sideB = pair ? DirectionGuard::sideOf(v.b) : 0;
+        if (bipolar && (!mGuard[0].allow(sideA, now, cmd.deadTimeMs) ||
+                        (pair && !mGuard[1].allow(sideB, now, cmd.deadTimeMs))))
+            return holdSafe(output, now);
 
         bool ok;
-        if (channelsNeeded() == 2)
-        {
-            // Sicherheitsinvariante 6: beide Motoren in einem Frame.
-            const VoltPair v{condition(nominal.a, stage), condition(nominal.b, stage)};
-            ok = output.setEgo(mDacChannel, v);
-            mLastVolt = v.a;
-        }
+        if (pair)
+            ok = output.setEgo(mDacChannel, v); // Sicherheitsinvariante 6: ein Frame
         else
-        {
-            const float v = condition(nominal.a, stage);
-            ok = output.setVolt(mDacChannel, v);
-            mLastVolt = v;
-        }
+            ok = output.setVolt(mDacChannel, v.a);
+        mLastVolt = v.a;
 
         if (!ok)
             return false;
+        if (bipolar)
+        {
+            mGuard[0].written(sideA, now);
+            if (pair)
+                mGuard[1].written(sideB, now);
+        }
 
         // Beim ego ist die Waermerueckgewinnung in den Stufen 1 bis 3 immer aktiv:
         // er pendelt mit seinen zwei Motoren fuer sich, unabhaengig vom Verbund.
@@ -368,6 +384,8 @@ namespace Kwl
         else
             ok = output.setVolt(mDacChannel, safe);
 
+        if (ok)
+            noteSafe(millis());
         if (ok && mStage != 0)
         {
             mStage = 0;
@@ -375,6 +393,36 @@ namespace Kwl
             sendStatus();
         }
         return ok;
+    }
+
+    bool KwlFan::holdSafe(KwlOutput& output, uint32_t now)
+    {
+        // Totzeit-Halt je Kanal: 5,00 V schreiben, aber Stufe und Status stehen
+        // lassen - der Halt ist Teil des Wechsels, kein Stillstand.
+        const float safe = Curve::safeVolt(mType);
+        bool ok;
+        if (channelsNeeded() == 2)
+            ok = output.setEgo(mDacChannel, {safe, safe});
+        else
+            ok = output.setVolt(mDacChannel, safe);
+        if (ok)
+        {
+            noteSafe(now);
+            mLastVolt = safe;
+        }
+        return ok;
+    }
+
+    void KwlFan::restartGuard(uint32_t now)
+    {
+        mGuard[0].restart(now);
+        mGuard[1].restart(now);
+    }
+
+    void KwlFan::noteSafe(uint32_t now)
+    {
+        mGuard[0].written(0, now);
+        mGuard[1].written(0, now);
     }
 
     void KwlFan::sendStatus()

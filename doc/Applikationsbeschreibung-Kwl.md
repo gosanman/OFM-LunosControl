@@ -50,10 +50,10 @@ für Ausfälle der Versorgung gilt:
 | 12 V kommen nach dem Bus | wie oben, beim nächsten Durchgang | ≤ ~0,3 s 0 V, dann 5,00 V | kurz Volllast-Signal | kurz Volllast-Signal |
 | ETS-Download beginnt | sicherer Zustand, sofort | Stillstand | Stillstand | Stillstand |
 | Neustart nach dem Download | sicherer Zustand vor dem Neustart; die DACs halten ihn | Stillstand | Stillstand | Stillstand |
-| Nach dem Neustart | Bereich, sicherer Zustand, dann Sollwerte | Betrieb | Betrieb | Betrieb |
+| Nach dem Neustart | Bereich, sicherer Zustand, Totzeit, dann Sollwerte | Betrieb | Betrieb | Betrieb |
 | KNX-Bus fällt aus, 12 V bleiben | sicherer Zustand, bevor der Prozessor ausgeht | Stillstand | Stillstand | Stillstand |
 | 12 V fallen aus, Bus bleibt | Fehlercode 4, Alarm, LED | — | — | — |
-| 12 V kommen zurück | Bereich, sicherer Zustand, dann Sollwerte | ≤ ~0,3 s 0 V, dann Betrieb | kurz Volllast-Signal | kurz Volllast-Signal |
+| 12 V kommen zurück | Bereich, sicherer Zustand, Totzeit, dann Sollwerte | ≤ ~0,3 s 0 V, dann Betrieb | kurz Volllast-Signal | kurz Volllast-Signal |
 | Falsche Platine gewählt | Fehlercode 3 an allen Lüftern | Stillstand | Stillstand | Stillstand |
 
 „Stillstand“ heißt 5,00 V bei den bipolaren Geräten und 0 V beim RA 15-60. Das
@@ -296,6 +296,13 @@ Frischluft.
 
 **Vor jedem Richtungswechsel** stehen alle Kanäle des Verbunds für die *Totzeit*
 (Vorgabe 2 s) auf 5,00 V. Beim ego gilt das für beide Motoren gleichzeitig.
+
+Zusätzlich wacht jeder Kanal selbst über die Totzeit. Wechselt die Spannung die
+Seite von 5 V, ohne dass der Verbund die Richtung ändert, steht der Kanal erst
+die Totzeit lang auf 5,00 V. Das betrifft den Abluftstoß des ego, bei dem Stufe 4
+beide Motoren unabhängig von der Richtung belegt. Es betrifft auch jeden Start
+und jede Wiederkehr der 12 V, weil vorher 0 V = Volllast anliegen konnten. Nach
+dem Einschalten laufen die Lüfter deshalb erst nach der Totzeit an.
 
 **Eigenständige Lüfter.** Ein Lüfter mit Verbund *eigenständig (eigener Takt)*
 bildet einen Verbund für sich allein. Er fährt die Stufe seines Raums und pendelt

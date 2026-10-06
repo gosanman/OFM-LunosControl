@@ -1,5 +1,6 @@
 #pragma once
 
+#include "DirectionGuard.h"
 #include "KwlCurve.h"
 #include "KwlOutput.h"
 #include "KwlTypes.h"
@@ -15,6 +16,10 @@ namespace Kwl
         uint8_t stage;
         Direction direction;
         bool hrv; ///< Verbund pendelt im kurzen Zyklus
+        /// Totzeit des Takt-Platzes; der Luefter haelt sie auch je Kanal ein
+        /// (DirectionGuard), wenn die Spannung ohne Richtungswechsel des
+        /// Verbunds die Seite wechselt.
+        uint32_t deadTimeMs = 2000;
     };
 
     // ========================================================================
@@ -104,6 +109,14 @@ namespace Kwl
         /// Sicherer Zustand dieses Luefters, unabhaengig von allem anderen.
         bool driveSafe(KwlOutput& output);
 
+        /// Seite der Motoren unbekannt machen: nach Start und 12-V-Wiederkehr
+        /// gilt die volle Totzeit bei 5,00 V, bevor eine Seite hinaus darf.
+        void restartGuard(uint32_t now);
+
+        /// Die Ausgaenge stehen jetzt auf 5,00 V, ohne dass dieser Luefter sie
+        /// geschrieben hat (safeAll im SAVE-Interrupt).
+        void noteSafe(uint32_t now);
+
         /// Eine Zeile fuer "kwl st".
         void printStatusLine();
 
@@ -122,6 +135,7 @@ namespace Kwl
         float condition(float volt, uint8_t stage) const;
 
         void sendStatus();
+        bool holdSafe(KwlOutput& output, uint32_t now);
 
         bool mActive = false;
         FanType mType = FanType::E2_60;
@@ -178,5 +192,8 @@ namespace Kwl
         bool mHrv = false;
         float mLastVolt = 0.0f;
         bool mStatusValid = false;
+
+        /// Totzeit je Motor (Befund C): Motor 1 und beim ego Motor 2.
+        DirectionGuard mGuard[2];
     };
 } // namespace Kwl

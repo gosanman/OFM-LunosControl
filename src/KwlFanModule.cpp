@@ -615,6 +615,7 @@ namespace Kwl
             // nicht 4. Bis 2026-09-27 ging der Anteil bei Sperre und Schutz verloren.
             DriveCommand cmd;
             cmd.stage = KwlGroup::stageForShare(stage, fan->share());
+            cmd.deadTimeMs = static_cast<uint32_t>(grp.deadTime()) * 1000u;
 
             cmd.direction = KwlGroup::directionFor(r, fan->phase());
             cmd.hrv = r.hrv;
@@ -825,6 +826,12 @@ namespace Kwl
         if (!mOutput.begin())
             return false;
 
+        // Die DACs kamen mit 0 V = Volllast zurueck. Bis jeder Kanal die
+        // Totzeit bei 5,00 V stand, bleibt er dort (Befund C, 2026-10-06).
+        for (uint8_t i = 0; i < FAN_ChannelCount; i++)
+            if (mFan[i] != nullptr)
+                mFan[i]->restartGuard(now);
+
         mError = ErrorCode::None;
         logInfoP("DAC wieder erreichbar - Bereich und sicherer Zustand neu geschrieben");
         return true;
@@ -838,6 +845,10 @@ namespace Kwl
         // kurze I2C-Frames, das passt in das Zeitfenster des SAVE-Interrupts.
         mPowerSaved = true;
         mOutput.safeAll();
+        const uint32_t now = millis();
+        for (uint8_t i = 0; i < FAN_ChannelCount; i++)
+            if (mFan[i] != nullptr)
+                mFan[i]->noteSafe(now);
     }
 
     bool KwlFanModule::restorePower()
