@@ -71,6 +71,10 @@ namespace Kwl
 
       private:
         bool writeVolt(uint8_t channel, float volt);
+
+        /// Sicheren Zustand auf alle Kanaele, je Chip als Paar (Invariante 6).
+        /// Scheitert ein Chip, werden die uebrigen trotzdem geschrieben.
+        bool writeSafe();
         void fail(ErrorCode code);
 
         IDacDrive* mDrive = nullptr;

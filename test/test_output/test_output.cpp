@@ -37,7 +37,7 @@ static void test_startsequenz_bereich_vor_sollwert(void)
 
     const int16_t probe = drive.firstOf(Op::Probe);
     const int16_t configure = drive.firstOf(Op::Configure);
-    const int16_t write = drive.firstOf(Op::Write);
+    const int16_t write = drive.firstOf(Op::WritePair);
 
     TEST_ASSERT_TRUE(probe >= 0);
     TEST_ASSERT_TRUE(configure > probe);
@@ -55,7 +55,9 @@ static void test_startsequenz_schreibt_jeden_kanal_sicher(void)
     out.setChannelType(3, FanType::GENERIC_UNIPOLAR);
     TEST_ASSERT_TRUE(out.begin());
 
-    TEST_ASSERT_EQUAL_UINT8(4, drive.countOf(Op::Write));
+    // Je Chip ein Paar (Invariante 6), kein Einzelschreiben.
+    TEST_ASSERT_EQUAL_UINT8(2, drive.countOf(Op::WritePair));
+    TEST_ASSERT_EQUAL_UINT8(0, drive.countOf(Op::Write));
 
     // Bipolar: 5,00 V = 0x4000. Unipolar: 0 V = 0.
     TEST_ASSERT_EQUAL_UINT16(0x4000, drive.lastWire(0));
@@ -104,6 +106,7 @@ static void test_dac_antwortet_nicht(void)
     // Und es wurde nichts geschrieben - weder Bereich noch Sollwert.
     TEST_ASSERT_EQUAL_UINT8(0, drive.countOf(Op::Configure));
     TEST_ASSERT_EQUAL_UINT8(0, drive.countOf(Op::Write));
+    TEST_ASSERT_EQUAL_UINT8(0, drive.countOf(Op::WritePair));
 }
 
 static void test_bus_bricht_waehrend_des_betriebs_ab(void)
@@ -275,7 +278,45 @@ static void test_sicherer_zustand_auch_nach_einem_fehler(void)
     drive.setWritable(true);
     drive.clearLog();
     TEST_ASSERT_TRUE(out.safeAll());
-    TEST_ASSERT_EQUAL_UINT8(4, drive.countOf(Op::Write));
+    TEST_ASSERT_EQUAL_UINT8(2, drive.countOf(Op::WritePair));
+}
+
+static void test_sicherer_zustand_ego_in_einem_frame(void)
+{
+    // Befund D (2026-10-06): beide Motoren des ego gehen im sicheren Zustand
+    // in EINEM Frame auf 5,00 V - nicht erst Motor 1, dann Motor 2.
+    MockDacDrive drive(4);
+    KwlOutput out;
+    out.attach(&drive, true);
+    out.setChannelType(0, FanType::EGO);
+    out.setChannelType(1, FanType::EGO);
+    TEST_ASSERT_TRUE(out.begin());
+    out.setEgo(0, {2.09f, 8.00f});
+    drive.clearLog();
+
+    TEST_ASSERT_TRUE(out.safeAll());
+    TEST_ASSERT_EQUAL_UINT8(0, drive.countOf(Op::Write));
+    TEST_ASSERT_EQUAL(Op::WritePair, drive.at(0).op);
+    TEST_ASSERT_EQUAL_UINT8(0, drive.at(0).channel);
+    TEST_ASSERT_EQUAL_UINT16(0x8000, drive.at(0).wireA);
+    TEST_ASSERT_EQUAL_UINT16(0x8000, drive.at(0).wireB);
+    TEST_ASSERT_EQUAL_FLOAT(5.0f, out.lastVolt(0));
+    TEST_ASSERT_EQUAL_FLOAT(5.0f, out.lastVolt(1));
+}
+
+static void test_sicherer_zustand_ungerade_kanalzahl(void)
+{
+    // Drei Kanaele: ein Paar auf Chip 1, der Restkanal einzeln.
+    MockDacDrive drive(3);
+    KwlOutput out;
+    out.attach(&drive, false);
+    TEST_ASSERT_TRUE(out.begin());
+    drive.clearLog();
+
+    TEST_ASSERT_TRUE(out.safeAll());
+    TEST_ASSERT_EQUAL_UINT8(1, drive.countOf(Op::WritePair));
+    TEST_ASSERT_EQUAL_UINT8(1, drive.countOf(Op::Write));
+    TEST_ASSERT_EQUAL_UINT16(0x4000, drive.lastWire(2));
 }
 
 static void test_sicherer_zustand_ohne_treiber(void)
@@ -301,6 +342,8 @@ int main(int, char**)
     RUN_TEST(test_ego_abluftstoss_beide_motoren_gleich);
     RUN_TEST(test_sicherer_zustand_vor_neustart);
     RUN_TEST(test_sicherer_zustand_auch_nach_einem_fehler);
+    RUN_TEST(test_sicherer_zustand_ego_in_einem_frame);
+    RUN_TEST(test_sicherer_zustand_ungerade_kanalzahl);
     RUN_TEST(test_sicherer_zustand_ohne_treiber);
     return UNITY_END();
 }

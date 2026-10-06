@@ -72,14 +72,10 @@ namespace Kwl
 
         // 3. Sicherer Zustand auf alle Kanaele, und erst danach ist die Klasse
         //    bereit. Die Reihenfolge ist Sicherheitsinvariante 3.
-        const uint8_t channels = mDrive->channelCount();
-        for (uint8_t i = 0; i < channels && i < kOutputChannelsMax; i++)
+        if (!writeSafe())
         {
-            if (!writeVolt(i, Curve::safeVolt(mType[i])))
-            {
-                fail(ErrorCode::DacUnreachable);
-                return false;
-            }
+            fail(ErrorCode::DacUnreachable);
+            return false;
         }
 
         mReady = true;
@@ -146,17 +142,51 @@ namespace Kwl
             return false;
 
         // Absichtlich ohne `mReady`: vor einem Neustart oder nach einem Fehler ist
-        // der sichere Zustand genau das, was gebraucht wird. Scheitert ein Kanal,
+        // der sichere Zustand genau das, was gebraucht wird. Scheitert ein Chip,
         // werden die uebrigen trotzdem versucht.
-        bool ok = true;
-        const uint8_t channels = mDrive->channelCount();
-        for (uint8_t i = 0; i < channels && i < kOutputChannelsMax; i++)
-        {
-            if (!writeVolt(i, Curve::safeVolt(mType[i])))
-                ok = false;
-        }
+        const bool ok = writeSafe();
         if (!ok)
             fail(ErrorCode::DacUnreachable);
+        return ok;
+    }
+
+    bool KwlOutput::writeSafe()
+    {
+        // Je Chip EIN Frame mit beiden Kanaelen (Register 0x02, vier Datenbytes).
+        // Bis 2026-10-06 ging jeder Kanal einzeln hinaus; beim ego standen dann
+        // kurz Motor 1 auf 5,00 V und Motor 2 noch auf seinem alten Wert - gegen
+        // Invariante 6 (Befund D, Simulator). Nebeneffekt: halb so viele Frames
+        // im Zeitfenster des SAVE-Interrupts.
+        const uint8_t channels = mDrive->channelCount() < kOutputChannelsMax
+                                     ? mDrive->channelCount()
+                                     : kOutputChannelsMax;
+        const uint8_t perChip = mDrive->channelsPerChip();
+        bool ok = true;
+        uint8_t i = 0;
+        while (i < channels)
+        {
+            if (perChip == 2 && i % 2 == 0 && i + 1 < channels)
+            {
+                const float a = Curve::safeVolt(mType[i]);
+                const float b = Curve::safeVolt(mType[i + 1]);
+                if (mDrive->writePair(i, Curve::codeToWire(Curve::voltToCode(a), mLeftAligned),
+                                      Curve::codeToWire(Curve::voltToCode(b), mLeftAligned)))
+                {
+                    mLastVolt[i] = a;
+                    mLastVolt[i + 1] = b;
+                }
+                else
+                {
+                    ok = false;
+                }
+                i += 2;
+                continue;
+            }
+            // Einzelner Restkanal (ungerade Kanalzahl) oder Treiber ohne Paare.
+            if (!writeVolt(i, Curve::safeVolt(mType[i])))
+                ok = false;
+            i++;
+        }
         return ok;
     }
 
