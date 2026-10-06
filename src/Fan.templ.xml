@@ -46,7 +46,9 @@
                 <Parameter Id="%AID%_UP-%TT%%CC%012" Name="f%C%CableComp"   Offset="2" BitOffset="2" ParameterType="%AID%_PT-FanYesNo"        Text="Leitungskompensation" Value="0" />
                 <Parameter Id="%AID%_UP-%TT%%CC%013" Name="f%C%UseEnable"   Offset="2" BitOffset="3" ParameterType="%AID%_PT-FanYesNo"        Text="Freigabe über Objekt" Value="0" />
                 <Parameter Id="%AID%_UP-%TT%%CC%014" Name="f%C%SuspendAllowed" Offset="2" BitOffset="4" ParameterType="%AID%_PT-FanYesNo"     Text="Suspendieren erlauben" Value="1" />
-                <Parameter Id="%AID%_UP-%TT%%CC%015" Name="f%C%Direction5V" Offset="2" BitOffset="5" ParameterType="%AID%_PT-FanDirection5V"  Text="Zuordnung der Spannungshälften" Value="0" />
+                <!-- Offset 2, Bit 5 frei: bis 2026-10-06 "Zuordnung der Spannungshaelften"
+                     (f%C%Direction5V). Die Firmware las ihn nie; die Polaritaet gilt
+                     fuer alle Luefter ueber FANDRV_BELOW_5V_IS_SUPPLY (Befund G). -->
 <!-- %CC%016 "Einschaltwert ohne Bus (EEPROM)" gestrichen 2026-09-25: kein EEPROM-Store (Messprotokoll Phase 1, Befund B1). Offset 2, Bit 6-7 frei. -->
                 <Parameter Id="%AID%_UP-%TT%%CC%020" Name="f%C%Share"       Offset="3" BitOffset="0" ParameterType="%AID%_PT-FanShare"        Text="Anteil an der Verbundstufe" SuffixText=" %" Value="100" />
                 <Parameter Id="%AID%_UP-%TT%%CC%021" Name="f%C%CableLength" Offset="4" BitOffset="0" ParameterType="%AID%_PT-FanCableLength"  Text="Einfache Leitungslänge" SuffixText=" m" Value="10" />
@@ -106,7 +108,6 @@
               <ParameterRef Id="%AID%_UP-%TT%%CC%012_R-%TT%%CC%01201" RefId="%AID%_UP-%TT%%CC%012" />
               <ParameterRef Id="%AID%_UP-%TT%%CC%013_R-%TT%%CC%01301" RefId="%AID%_UP-%TT%%CC%013" />
               <ParameterRef Id="%AID%_UP-%TT%%CC%014_R-%TT%%CC%01401" RefId="%AID%_UP-%TT%%CC%014" />
-              <ParameterRef Id="%AID%_UP-%TT%%CC%015_R-%TT%%CC%01501" RefId="%AID%_UP-%TT%%CC%015" />
               <ParameterRef Id="%AID%_UP-%TT%%CC%020_R-%TT%%CC%02001" RefId="%AID%_UP-%TT%%CC%020" />
               <ParameterRef Id="%AID%_UP-%TT%%CC%021_R-%TT%%CC%02101" RefId="%AID%_UP-%TT%%CC%021" />
               <ParameterRef Id="%AID%_UP-%TT%%CC%022_R-%TT%%CC%02201" RefId="%AID%_UP-%TT%%CC%022" />

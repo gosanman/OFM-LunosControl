@@ -204,12 +204,6 @@
               <ParameterType Id="%AID%_PT-FanShare" Name="FanShare">
                 <TypeNumber SizeInBit="8" Type="unsignedInt" minInclusive="25" maxInclusive="100" />
               </ParameterType>
-              <ParameterType Id="%AID%_PT-FanDirection5V" Name="FanDirection5V">
-                <TypeRestriction Base="Value" SizeInBit="1">
-                  <Enumeration Text="unter 5 V = Zuluft" Value="0" Id="%ENID%" />
-                  <Enumeration Text="unter 5 V = Abluft" Value="1" Id="%ENID%" />
-                </TypeRestriction>
-              </ParameterType>
               <ParameterType Id="%AID%_PT-FanMilliVolt" Name="FanMilliVolt">
                 <TypeNumber SizeInBit="16" Type="unsignedInt" minInclusive="0" maxInclusive="10000" />
               </ParameterType>
