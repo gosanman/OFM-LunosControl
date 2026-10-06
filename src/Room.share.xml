@@ -239,10 +239,13 @@
                 <Parameter Id="%AID%_UP-%TT%00003" Name="Altitude" Offset="1" BitOffset="0" ParameterType="%AID%_PT-RoomAltitude" Text="Höhe über Meer" SuffixText=" m" Value="500" />
               </Union>
               <!-- Access="None" haelt ihn unsichtbar. Er MUSS zusaetzlich im Dynamic-Teil
-                   per ParameterRefRef vorkommen (Room.templ.xml, Kopf der Raumseite):
-                   sonst gilt er in der ETS als nicht vorhanden, und jedes choose darauf
-                   nimmt keinen Zweig, auch nicht den Default. Raum 1 verlor dadurch seine
-                   Aussenwert-Objekte KO 36/37, und "Quellen" blieb leer (2026-09-26). -->
+                   per ParameterRefRef vorkommen - sonst gilt er in der ETS als nicht
+                   vorhanden, und jedes choose darauf nimmt keinen Zweig, auch nicht den
+                   Default. Raum 1 verlor dadurch seine Aussenwert-Objekte KO 36/37, und
+                   "Quellen" blieb leer (2026-09-26).
+                   Genau EIN ParameterRefRef: er steht in Fan.share.xml, Seite "Allgemein".
+                   Auf der Raumseite waere er achtmal vorhanden, einmal je Kanal
+                   (2026-09-27). -->
               <Parameter Id="%AID%_P-%TT%00004" Name="ConstOne" ParameterType="%AID%_PT-RoomConstOne" Text="" Value="1" Access="None" />
             </Parameters>
             <ParameterRefs>

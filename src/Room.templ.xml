@@ -489,11 +489,12 @@
                     <choose ParamRefId="%AID%_UP-%TT%%CC%001_R-%TT%%CC%00101">
                       <when test="=1">
                         <ParameterBlock Id="%AID%_PB-nnn" Name="r%C%Page" Text="Raum %C%: {{0: ...}}" TextParameterRefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" Icon="floor-plan" HelpContext="Empty" ShowInComObjectTree="true">
-                          <!-- ConstOne muss im Dynamic-Teil vorkommen, sonst gilt er in der ETS
-                               als nicht vorhanden und jedes choose darauf nimmt keinen Zweig -
-                               auch nicht den Default. Folge war: "Quellen" leer, Raum 1 ohne
-                               KO 36/37. Access="None" haelt ihn unsichtbar. (2026-09-26) -->
-                          <ParameterRefRef RefId="%AID%_P-%TT%00004_R-%TT%0000401" />
+                          <!-- ConstOne (P-%TT%00004) muss im Dynamic-Teil vorkommen, sonst
+                               nimmt jedes choose darauf keinen Zweig. Sein ParameterRefRef steht
+                               aber NICHT hier: diese Seite wird je Kanal vervielfaeltigt, und die
+                               ETS lehnt einen ParameterRef ab, den mehr als ein ParameterRefRef
+                               benutzt. Er steht einmal in Fan.share.xml, Seite "Allgemein"
+                               (2026-09-27, Review-Befund 5). -->
 
                                                     <!-- ===== Allgemein ===== -->
                           <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
@@ -721,7 +722,24 @@
                                Nachgetragen 2026-09-26. Index 39 ist Reserve und bleibt
                                ausgeblendet; er haelt nur die Blockgroesse auf 40. -->
                           <!-- Betriebsarten und Bedienung (Eingaenge) -->
-                          <ComObjectRefRef RefId="%AID%_O-%TT%%CC%000_R-%TT%%CC%00001" />
+                          <!-- KO 000 Betriebsart: bei "Betriebsart von Raum 1 uebernehmen"
+                               wirkungslos - loop() ueberschreibt sie in jedem Durchlauf, und der
+                               Nebeneffekt resetAbove(10) loeschte dabei Handstufe und
+                               Zwangsobjekte. Also nur, wenn der Raum sie selbst fuehrt;
+                               Raum 1 immer. (2026-09-27, Review-Befund 9) -->
+                          <choose ParamRefId="%AID%_P-%TT%00004_R-%TT%0000401">
+                            <when test="&lt;%C%">
+                              <choose ParamRefId="%AID%_UP-%TT%%CC%003_R-%TT%%CC%00301">
+                                <when test="0">
+                                  <ComObjectRefRef RefId="%AID%_O-%TT%%CC%000_R-%TT%%CC%00001" />
+                                </when>
+                                <when default="true" />
+                              </choose>
+                            </when>
+                            <when default="true">
+                              <ComObjectRefRef RefId="%AID%_O-%TT%%CC%000_R-%TT%%CC%00001" />
+                            </when>
+                          </choose>
                           <ComObjectRefRef RefId="%AID%_O-%TT%%CC%001_R-%TT%%CC%00101" />
                           <ComObjectRefRef RefId="%AID%_O-%TT%%CC%002_R-%TT%%CC%00201" />
                           <ComObjectRefRef RefId="%AID%_O-%TT%%CC%003_R-%TT%%CC%00301" />
@@ -793,7 +811,17 @@
                           <ComObjectRefRef RefId="%AID%_O-%TT%%CC%031_R-%TT%%CC%03101" />
                           <ComObjectRefRef RefId="%AID%_O-%TT%%CC%032_R-%TT%%CC%03201" />
                           <ComObjectRefRef RefId="%AID%_O-%TT%%CC%033_R-%TT%%CC%03301" />
-                          <ComObjectRefRef RefId="%AID%_O-%TT%%CC%034_R-%TT%%CC%03401" />
+                          <!-- KO 034 Zuluftanforderung: bei "Zuluftanforderung senden = nein"
+                               stumm, also ausgeblendet. Achtung: derselbe Parameter schaltet
+                               auch den Wunsch ab, den die Verbuende im Geraet in-process lesen
+                               ("folgt Zuluftanforderung von Raum n", KwlRoom::runExhaust:
+                               mSupplyReq = running && mSendSupplyReq). (2026-09-27, Befund 9) -->
+                          <choose ParamRefId="%AID%_UP-%TT%%CC%232_R-%TT%%CC%23201">
+                            <when test="1">
+                              <ComObjectRefRef RefId="%AID%_O-%TT%%CC%034_R-%TT%%CC%03401" />
+                            </when>
+                            <when default="true" />
+                          </choose>
                           <ComObjectRefRef RefId="%AID%_O-%TT%%CC%035_R-%TT%%CC%03501" />
 
                         </ParameterBlock>

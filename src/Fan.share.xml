@@ -343,6 +343,10 @@
                 <!-- Im Dynamic-Teil einblenden (unsichtbar, Access="None"), damit die
                      ETS den Parameter fuer die Bedingungen der Luefterseiten kennt. -->
                 <ParameterRefRef RefId="%AID%_P-%TT%00006_R-%TT%0000601" />
+                <!-- Dasselbe fuer ConstOne des Raummoduls (ModuleType 20, Room.share.xml).
+                     Genau einmal: die Raumseiten werden je Kanal vervielfaeltigt, und ein
+                     ParameterRef darf nur von einem ParameterRefRef benutzt werden. -->
+                <ParameterRefRef RefId="%AID%_P-2000004_R-200000401" />
                 <choose ParamRefId="%AID%_UP-%TT%00001_R-%TT%0000101">
                   <when test="0"><Assign TargetParamRefRef="%AID%_P-%TT%00006_R-%TT%0000601" Value="2" /></when>
                   <when test="1"><Assign TargetParamRefRef="%AID%_P-%TT%00006_R-%TT%0000601" Value="4" /></when>
@@ -368,6 +372,13 @@
                      Bild, und eine Seite fuer ein Bild ist ein Klick zu viel. -->
                 <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
                 <ParameterSeparator Id="%AID%_PS-nnn" Text="Anschluss" UIHint="Headline" />
+                <!-- Erstinbetriebnahme: Die GP8413 haben keinen gespeicherten Startwert
+                     (Invariante 7, Befund B1). Mit 12 V und ohne laufende, parametrierte
+                     Firmware liegen 0 V = Volllast an, und ein nicht parametriertes Geraet
+                     kennt den Typ der Luefter nicht (RA 15-60 laeuft bei 5 V halb).
+                     Deshalb der Hinweis direkt am Klemmenbild. Ablauf und Zeitfenster:
+                     doc/Applikationsbeschreibung-Kwl.md, "Erstinbetriebnahme". -->
+                <ParameterSeparator Id="%AID%_PS-nnn" Text="Lüfter erst anschließen, wenn das Gerät mit der ETS programmiert ist. Ohne KNX-Bus läuft die Firmware nicht, und an S1…S4 liegen 0 V an – das ist Volllast, nicht Stillstand. Ein noch nicht programmiertes Gerät kennt die Lüftertypen nicht und gibt überall 5,00 V aus: Stillstand für e²60 und ego, halbe Drehzahl für RA 15-60. Reihenfolge: KNX-Bus anschließen, programmieren, 12 V aus, Lüfter anklemmen, 12 V ein. Vor jeder weiteren Programmierung fährt das Gerät alle Ausgänge auf Stillstand." UIHint="Information" />
   <!-- Klemmenbild haengt an der Platine, nicht an der Kanalzahl - deshalb hier die Kennung. -->
   <choose ParamRefId="%AID%_UP-%TT%00001_R-%TT%0000101">
                     <when test="0">
