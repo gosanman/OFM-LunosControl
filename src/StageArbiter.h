@@ -203,6 +203,13 @@ namespace Kwl
         /// nicht an - im Unterschied zur Zu-/Abluftanforderung, die beides setzt.
         /// Eine anstehende Anforderung geht vor: sie ist die konkretere Aussage.
         void setDirectionOverride(bool active, Direction direction);
+
+        /// Rang 4 (Verbund, nur Slave). Derzeit UNGENUTZT: die Firmware ruft
+        /// diese Funktion nirgends auf. Der Slave laeuft ueber
+        /// KwlFanModule::collectMembers(), das die empfangene Stufe und Halbwelle
+        /// als einziges Mitglied in den Verbund legt; Sperre, Schutz und
+        /// Anforderung des Raums wirken dort je Luefter (fanStageInGroup).
+        /// Siehe docs/Ablaufdiagramme.md, Diagramm 6 (Befund H, 2026-10-06).
         void setGroupStage(bool active, uint8_t stage, Direction direction);
 
         // --- Rang 5, Handstufe ----------------------------------------------
