@@ -455,11 +455,14 @@ namespace Kwl
             KoFAN_StageActPct.value(pct, DPT_Scaling);
             mSentStagePct.mark(pct, now);
         }
-        const bool exhaust = mDirection == Direction::Exhaust;
-        if (mSentDir.due(exhaust, now, cycle))
+        // 1 = Zuluft, 0 = Abluft - so steht es in der ETS und in der
+        // Applikationsbeschreibung. Bis 2026-10-06 sendete die Firmware genau
+        // umgekehrt (1 = Abluft, Befund I).
+        const bool supply = mDirection == Direction::Supply;
+        if (mSentDir.due(supply, now, cycle))
         {
-            KoFAN_DirAct.value(exhaust, DPT_Switch);
-            mSentDir.mark(exhaust, now);
+            KoFAN_DirAct.value(supply, DPT_Switch);
+            mSentDir.mark(supply, now);
         }
         if (mSentHrv.due(mHrv, now, cycle))
         {
