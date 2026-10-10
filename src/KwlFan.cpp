@@ -36,6 +36,11 @@ namespace Kwl
         mPhase = ParamFAN_fPhase ? 1 : 0;
         mShare = ParamFAN_fShare;
 
+        // Polaritaet je Luefter (entschieden 2026-10-10): 0 = ueber 5 V Zuluft,
+        // unter 5 V Abluft (LUNOS); 1 = umgekehrt, etwa fuer Fremdgeraete. Bis
+        // dahin galt FANDRV_BELOW_5V_IS_SUPPLY im Board-Header fuer alle.
+        mBelow5vIsSupply = ParamFAN_fPolarity == 1;
+
         // Der ETS-Parameter zaehlt ab 1, die Ausgabeschicht ab 0.
         if (mDacChannel > 0)
             mDacChannel--;
@@ -314,14 +319,14 @@ namespace Kwl
         return v;
     }
 
-    bool KwlFan::drive(KwlOutput& output, const DriveCommand& cmd, bool below5vIsSupply)
+    bool KwlFan::drive(KwlOutput& output, const DriveCommand& cmd)
     {
         if (!mActive)
             return true;
 
         const uint8_t stage = cmd.stage > kStageMax ? kStageMax : cmd.stage;
         const VoltPair nominal =
-            Curve::stageVolt(mType, stage, cmd.direction, below5vIsSupply);
+            Curve::stageVolt(mType, stage, cmd.direction, mBelow5vIsSupply);
         const bool pair = channelsNeeded() == 2;
         const VoltPair v{condition(nominal.a, stage), pair ? condition(nominal.b, stage) : 0.0f};
 
@@ -560,6 +565,9 @@ namespace Kwl
                  (unsigned)(mDacChannel + 1));
         logInfoP("Raum %u, Verbund %u, Phase %u, Anteil %u %%", (unsigned)mRoomNo,
                  (unsigned)mGroupNo, (unsigned)mPhase, (unsigned)mShare);
+        if (Curve::isBipolar(mType))
+            logInfoP("Zuluft %s 5 V, Abluft %s 5 V", mBelow5vIsSupply ? "unter" : "ueber",
+                     mBelow5vIsSupply ? "ueber" : "unter");
         logInfoP("Stufe %u %s, %d mV am Ausgang%s", (unsigned)mStage,
                  mDirection == Direction::Supply ? "Zuluft" : "Abluft",
                  (int)(mLastVolt * 1000.0f), mHrv ? ", WRG aktiv" : "");

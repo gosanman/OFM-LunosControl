@@ -252,6 +252,12 @@
               <ParameterType Id="%AID%_PT-FanSendCycleHour" Name="FanSendCycleHour">
                 <TypeNumber SizeInBit="8" Type="unsignedInt" minInclusive="0" maxInclusive="24" />
               </ParameterType>
+              <ParameterType Id="%AID%_PT-FanPolarity" Name="FanPolarity">
+                <TypeRestriction Base="Value" SizeInBit="1">
+                  <Enumeration Text="über 5 V Zuluft, unter 5 V Abluft" Value="0" Id="%ENID%" />
+                  <Enumeration Text="unter 5 V Zuluft, über 5 V Abluft" Value="1" Id="%ENID%" />
+                </TypeRestriction>
+              </ParameterType>
               <ParameterType Id="%AID%_PT-FanYesNo" Name="FanYesNo">
                 <TypeRestriction Base="Value" SizeInBit="1">
                   <Enumeration Text="Nein" Value="0" Id="%ENID%" />

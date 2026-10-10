@@ -102,9 +102,12 @@ namespace Kwl
         /// Belegt dieser Luefter zwei DAC-Kanaele? Nur der ego tut das.
         uint8_t channelsNeeded() const { return Curve::channelsNeeded(mType); }
 
-        /// Stufe und Richtung ausgeben. `below5vIsSupply` kommt aus dem
-        /// Board-Header (Messung M1) und wird nicht hier entschieden.
-        bool drive(KwlOutput& output, const DriveCommand& cmd, bool below5vIsSupply);
+        /// Stufe und Richtung ausgeben. Welche Spannungshaelfte Zuluft ist, legt
+        /// der ETS-Parameter "Polaritaet" dieses Luefters fest.
+        bool drive(KwlOutput& output, const DriveCommand& cmd);
+
+        /// Foerdert dieser Luefter unter 5 V Zuluft? Standard ist nein.
+        bool below5vIsSupply() const { return mBelow5vIsSupply; }
 
         /// Sicherer Zustand dieses Luefters, unabhaengig von allem anderen.
         bool driveSafe(KwlOutput& output);
@@ -148,6 +151,7 @@ namespace Kwl
         uint8_t mGroupNo = 1;
         uint8_t mPhase = 0;
         uint8_t mShare = 100;
+        bool mBelow5vIsSupply = false;
 
         // Leitungskompensation
         bool mCableComp = false;

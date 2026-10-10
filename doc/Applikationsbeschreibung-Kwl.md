@@ -110,6 +110,9 @@ Verbünden sind unabhängig voneinander.
 3. **Je Lüfter** Typ und Stellkanal festlegen, dann Raum, Verbund und Phase.
    Beide Lüfter eines Verbunds brauchen **verschiedene Phasen** (0 und 1) — sonst
    laufen sie gleichsinnig und es gibt weder Luftaustausch noch Wärmerückgewinnung.
+   Die **Polarität** (unter *Kennlinie*) legt fest, welche Spannungshälfte Zuluft
+   ist. Vorgabe ist über 5 V Zuluft, unter 5 V Abluft, das passt für die
+   LUNOS-Lüfter. Umstellen nur für ein Gerät, das es umgekehrt hält.
 4. **Je Raum** die Sensoren verknüpfen und die Betriebsarten parametrieren.
    Außentemperatur und Außenfeuchte gelten fürs ganze Haus: verknüpfen Sie sie an
    Raum 1 und stellen Sie bei den übrigen Räumen *von Raum 1 übernehmen* ein.

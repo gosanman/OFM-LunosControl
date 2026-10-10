@@ -142,7 +142,6 @@ namespace Kwl
         bool mGroupTimedOut[kSlotsMax] = {};
 
         ErrorCode mError = ErrorCode::None;
-        bool mBelow5vIsSupply = true;
 
         /// true, sobald loop() einmal mit gueltiger Parametrierung lief. Faellt
         /// knx.configured() danach auf false (ETS-Download laeuft), schreibt loop()

@@ -112,28 +112,29 @@ static void test_typmerkmale(void)
 
 // ---------------------------------------------------------------- Stufe + Richtung
 
-static void test_e2_60_richtung_polaritaet_normal(void)
+static void test_e2_60_richtung_polaritaet_standard(void)
 {
-    // below5vIsSupply = true: unter 5 V foerdert der Luefter Zuluft.
-    VoltPair v = Curve::stageVolt(FanType::E2_60, 1, Direction::Supply, true);
-    TEST_ASSERT_EQUAL_FLOAT(4.01f, v.a);
-    v = Curve::stageVolt(FanType::E2_60, 1, Direction::Exhaust, true);
-    TEST_ASSERT_EQUAL_FLOAT(6.01f, v.a);
-
-    v = Curve::stageVolt(FanType::E2_60, 4, Direction::Supply, true);
-    TEST_ASSERT_EQUAL_FLOAT(0.01f, v.a);
-    v = Curve::stageVolt(FanType::E2_60, 4, Direction::Exhaust, true);
-    TEST_ASSERT_EQUAL_FLOAT(10.00f, v.a);
-}
-
-static void test_e2_60_richtung_polaritaet_vertauscht(void)
-{
-    // below5vIsSupply = false: dieselbe Stufe, gespiegelte Zuordnung. Faellt
-    // Messung M1 anders aus als angenommen, muss sich NUR dieser Schalter aendern.
+    // below5vIsSupply = false, die ETS-Vorgabe (geklaert 2026-10-10): ueber 5 V
+    // foerdert der Luefter Zuluft, unter 5 V Abluft; 10 V = Zuluft voll.
     VoltPair v = Curve::stageVolt(FanType::E2_60, 1, Direction::Supply, false);
     TEST_ASSERT_EQUAL_FLOAT(6.01f, v.a);
     v = Curve::stageVolt(FanType::E2_60, 1, Direction::Exhaust, false);
     TEST_ASSERT_EQUAL_FLOAT(4.01f, v.a);
+
+    v = Curve::stageVolt(FanType::E2_60, 4, Direction::Supply, false);
+    TEST_ASSERT_EQUAL_FLOAT(10.00f, v.a);
+    v = Curve::stageVolt(FanType::E2_60, 4, Direction::Exhaust, false);
+    TEST_ASSERT_EQUAL_FLOAT(0.01f, v.a);
+}
+
+static void test_e2_60_richtung_polaritaet_umgekehrt(void)
+{
+    // below5vIsSupply = true: dieselbe Stufe, gespiegelte Zuordnung - der
+    // ETS-Parameter "Polaritaet" je Luefter, etwa fuer ein Fremdgeraet.
+    VoltPair v = Curve::stageVolt(FanType::E2_60, 1, Direction::Supply, true);
+    TEST_ASSERT_EQUAL_FLOAT(4.01f, v.a);
+    v = Curve::stageVolt(FanType::E2_60, 1, Direction::Exhaust, true);
+    TEST_ASSERT_EQUAL_FLOAT(6.01f, v.a);
 }
 
 static void test_stillstand_stufe_0(void)
@@ -155,13 +156,13 @@ static void test_ego_motoren_gegenlaeufig(void)
 {
     // Stufen 1 bis 3: die beiden Motoren liegen in verschiedenen Haelften, damit
     // das Geraet fuer sich pendelt. Bei Richtungswechsel tauschen sie.
-    VoltPair v = Curve::stageVolt(FanType::EGO, 2, Direction::Supply, true);
-    TEST_ASSERT_EQUAL_FLOAT(2.09f, v.a);
-    TEST_ASSERT_EQUAL_FLOAT(8.00f, v.b);
-
-    v = Curve::stageVolt(FanType::EGO, 2, Direction::Exhaust, true);
+    VoltPair v = Curve::stageVolt(FanType::EGO, 2, Direction::Supply, false);
     TEST_ASSERT_EQUAL_FLOAT(8.00f, v.a);
     TEST_ASSERT_EQUAL_FLOAT(2.09f, v.b);
+
+    v = Curve::stageVolt(FanType::EGO, 2, Direction::Exhaust, false);
+    TEST_ASSERT_EQUAL_FLOAT(2.09f, v.a);
+    TEST_ASSERT_EQUAL_FLOAT(8.00f, v.b);
 }
 
 static void test_ego_abluftstoss_richtungsunabhaengig(void)
@@ -228,8 +229,8 @@ int main(int, char**)
     RUN_TEST(test_wire_beide_formate);
     RUN_TEST(test_sicherer_zustand);
     RUN_TEST(test_typmerkmale);
-    RUN_TEST(test_e2_60_richtung_polaritaet_normal);
-    RUN_TEST(test_e2_60_richtung_polaritaet_vertauscht);
+    RUN_TEST(test_e2_60_richtung_polaritaet_standard);
+    RUN_TEST(test_e2_60_richtung_polaritaet_umgekehrt);
     RUN_TEST(test_stillstand_stufe_0);
     RUN_TEST(test_ego_motoren_gegenlaeufig);
     RUN_TEST(test_ego_abluftstoss_richtungsunabhaengig);

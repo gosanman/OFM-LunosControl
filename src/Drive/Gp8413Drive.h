@@ -61,6 +61,6 @@ namespace Kwl
     /// passen, sonst laeuft die Firmware mit falscher Kanalzahl.
     uint8_t boardId();
 
-    /// Polaritaet der Spannungshaelften (FANDRV_BELOW_5V_IS_SUPPLY, Messung M1).
-    bool boardBelow5vIsSupply();
+    // Die Polaritaet der Spannungshaelften ist seit 2026-10-10 ein ETS-Parameter
+    // je Luefter (KwlFan), keine Eigenschaft der Platine mehr.
 } // namespace Kwl

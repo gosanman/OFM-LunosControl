@@ -10,7 +10,7 @@ namespace Kwl
         // LUNOS-Steuerung 5/SC-FT v5.14 - keine Datenblattwerte.
         //
         // `low`  ist die Spannungshaelfte unter 5,00 V, `high` die darueber. Welche davon
-        // Zuluft ist, entscheidet erst die Polaritaet des Boards.
+        // Zuluft ist, entscheidet erst die Polaritaet des Luefters (ETS-Parameter).
         struct Table
         {
             float low[kStageMax + 1];

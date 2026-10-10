@@ -34,7 +34,8 @@ namespace Kwl
         static uint16_t codeToWire(uint16_t code, bool leftAligned);
 
         /// Sollspannung(en) fuer Typ, Stufe und Richtung.
-        /// `below5vIsSupply` kommt aus FANDRV_BELOW_5V_IS_SUPPLY (Messung M1).
+        /// `below5vIsSupply` kommt aus dem ETS-Parameter "Polaritaet" des
+        /// Luefters; Standard ist false (ueber 5 V Zuluft, unter 5 V Abluft).
         /// Stufen ueber kStageMax werden auf kStageMax geklemmt.
         static VoltPair stageVolt(FanType type, uint8_t stage, Direction dir,
                                   bool below5vIsSupply);

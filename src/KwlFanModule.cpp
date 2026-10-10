@@ -191,7 +191,6 @@ namespace Kwl
 
     void KwlFanModule::setup(bool configured)
     {
-        mBelow5vIsSupply = boardBelow5vIsSupply();
         mOutput.attach(&boardDacDrive(), boardLeftAligned());
 
         if (!configured)
@@ -628,7 +627,7 @@ namespace Kwl
 
             cmd.direction = KwlGroup::directionFor(r, fan->phase());
             cmd.hrv = r.hrv;
-            fan->drive(mOutput, cmd, mBelow5vIsSupply);
+            fan->drive(mOutput, cmd);
         }
 
         if (!mOutput.ready())
