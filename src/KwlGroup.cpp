@@ -4,7 +4,7 @@ namespace Kwl
 {
     KwlGroup::KwlGroup()
     {
-        mResult = {0, false, Direction::Supply, false, false, 0, 70, true};
+        mResult = {0, false, Direction::Supply, false, false, 0, 70, true, 1.0f};
     }
 
     Direction KwlGroup::opposite(Direction d)
@@ -222,6 +222,7 @@ namespace Kwl
         {
             mStarted = true;
             mSince = now;
+            mCycleSince = now;
         }
 
         const uint8_t stage = computeStage();
@@ -239,53 +240,142 @@ namespace Kwl
 
         // Stufe 0 ist Stillstand: nichts dreht sich, also gibt es auch nichts zu
         // wechseln. Der Takt faengt beim naechsten Anlauf von vorn an, damit die
-        // erste Richtung eine volle Zykluszeit steht.
+        // erste Richtung eine volle Zykluszeit steht. Eine laufende Rampe oder
+        // Totzeit ist damit erledigt.
         if (stage == 0)
         {
+            mPhase = Phase::Run;
             mInDeadTime = false;
+            mWasRunning = false;
             mSince = now;
+            mCycleSince = now;
             mResult.inDeadTime = false;
             mResult.phase0Direction = mCurrent;
+            mResult.ramp = 1.0f;
             return mResult;
         }
 
-        if (mInDeadTime)
+        const uint32_t rampMs = static_cast<uint32_t>(mRampTime) * 1000u;
+        const uint32_t deadMs = static_cast<uint32_t>(mDeadTime) * 1000u;
+
+        switch (mPhase)
         {
-            // Waehrend der Totzeit wird das Ziel NICHT aus dem Takt neu gebildet -
-            // der anstehende Wechsel wuerde sich sonst selbst aufheben. Nur eine
-            // Forderung darf das Ziel noch verschieben; die Totzeit laeuft dabei
-            // nicht neu an, sie ist ohnehin der sichere Zustand.
-            if (mFixed)
-                mPending = mDemandDirection;
-
-            if ((now - mSince) >= static_cast<uint32_t>(mDeadTime) * 1000u)
+            case Phase::Run:
             {
-                mCurrent = mPending;
-                mInDeadTime = false;
-                mSince = now;
-            }
-        }
-        else
-        {
-            Direction target = mCurrent;
-            if (mFixed)
-                target = mDemandDirection;
-            else if ((now - mSince) >= static_cast<uint32_t>(cycle) * 1000u)
-                target = opposite(mCurrent);
+                // Anlauf aus dem Stand: die erste Richtung steht eine volle
+                // Zykluszeit.
+                if (!mWasRunning)
+                    mCycleSince = now;
 
-            if (target != mCurrent)
+                const Direction t = target(now, cycle);
+                if (t != mCurrent)
+                {
+                    // Sicherheitsinvariante 5: zwischen zwei Richtungen liegt
+                    // immer ein Aufenthalt bei 5,00 V. Mit Rampe zuerst hinunter -
+                    // ausser der Verbund stand, dann gibt es nichts abzubremsen.
+                    mPending = t;
+                    mSince = now;
+                    mPhase = (rampMs > 0 && mWasRunning) ? Phase::RampDown : Phase::Dead;
+                }
+                break;
+            }
+
+            case Phase::RampDown:
             {
-                // Sicherheitsinvariante 5: zwischen zwei Richtungen liegt immer ein
-                // Aufenthalt bei 5,00 V.
-                mPending = target;
-                mInDeadTime = true;
-                mSince = now;
+                const Direction t = target(now, cycle);
+                if (t == mCurrent)
+                {
+                    // Die Forderung ist weg, bevor 5,00 V erreicht sind: ohne
+                    // Sprung und ohne Totzeit wieder hinauf - die Richtung hat
+                    // nie gewechselt.
+                    const float f = rampFactor(now);
+                    mPhase = Phase::RampUp;
+                    mSince = now - static_cast<uint32_t>(f * static_cast<float>(rampMs));
+                }
+                else
+                {
+                    mPending = t;
+                    if ((now - mSince) >= rampMs)
+                    {
+                        // Unten: erst jetzt beginnt die Totzeit.
+                        mPhase = Phase::Dead;
+                        mSince = now;
+                    }
+                }
+                break;
             }
+
+            case Phase::Dead:
+                // Waehrend der Totzeit wird das Ziel NICHT aus dem Takt neu
+                // gebildet - der anstehende Wechsel wuerde sich sonst selbst
+                // aufheben. Nur eine Forderung darf das Ziel noch verschieben; die
+                // Totzeit laeuft dabei nicht neu an, sie ist ohnehin der sichere
+                // Zustand.
+                if (mFixed)
+                    mPending = mDemandDirection;
+                if ((now - mSince) >= deadMs)
+                {
+                    mCurrent = mPending;
+                    mSince = now;
+                    mCycleSince = now;
+                    mPhase = rampMs > 0 ? Phase::RampUp : Phase::Run;
+                }
+                break;
+
+            case Phase::RampUp:
+                if (mFixed && mDemandDirection != mCurrent)
+                {
+                    // Neue Forderung in die Gegenrichtung, noch waehrend es
+                    // hinaufgeht: von hier aus wieder hinunter, ohne Sprung.
+                    const float f = rampFactor(now);
+                    mPending = mDemandDirection;
+                    mPhase = Phase::RampDown;
+                    mSince = now - static_cast<uint32_t>((1.0f - f) * static_cast<float>(rampMs));
+                }
+                else if ((now - mSince) >= rampMs)
+                {
+                    mPhase = Phase::Run;
+                }
+                break;
         }
 
+        mWasRunning = true;
+        mInDeadTime = mPhase == Phase::Dead;
         mResult.inDeadTime = mInDeadTime;
         mResult.phase0Direction = mCurrent;
+        mResult.ramp = rampFactor(now);
         return mResult;
+    }
+
+    Direction KwlGroup::target(uint32_t now, uint16_t cycle) const
+    {
+        if (mFixed)
+            return mDemandDirection;
+        if ((now - mCycleSince) >= static_cast<uint32_t>(cycle) * 1000u)
+            return opposite(mCurrent);
+        return mCurrent;
+    }
+
+    float KwlGroup::rampFactor(uint32_t now) const
+    {
+        const uint32_t rampMs = static_cast<uint32_t>(mRampTime) * 1000u;
+        const uint32_t elapsed = now - mSince;
+        switch (mPhase)
+        {
+            case Phase::Dead:
+                return 0.0f;
+            case Phase::RampDown:
+                if (rampMs == 0 || elapsed >= rampMs)
+                    return 0.0f;
+                return 1.0f - static_cast<float>(elapsed) / static_cast<float>(rampMs);
+            case Phase::RampUp:
+                if (rampMs == 0 || elapsed >= rampMs)
+                    return 1.0f;
+                return static_cast<float>(elapsed) / static_cast<float>(rampMs);
+            case Phase::Run:
+            default:
+                return 1.0f;
+        }
     }
 
     void KwlGroup::reset()
@@ -296,9 +386,12 @@ namespace Kwl
         mConflictRoom = 0;
         mCurrent = Direction::Supply;
         mPending = Direction::Supply;
+        mPhase = Phase::Run;
         mInDeadTime = false;
         mStarted = false;
+        mWasRunning = false;
         mSince = 0;
-        mResult = {0, false, Direction::Supply, false, false, 0, mCycleTime[1], true};
+        mCycleSince = 0;
+        mResult = {0, false, Direction::Supply, false, false, 0, mCycleTime[1], true, 1.0f};
     }
 } // namespace Kwl

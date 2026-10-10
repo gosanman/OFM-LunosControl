@@ -50,6 +50,9 @@ namespace Kwl
         /// Zyklus (Sommer) wechselt er zwar weiter die Richtung, der Regenerator
         /// ist nach etwa einer Minute aber gesaettigt - praktisch keine WRG mehr.
         bool hrv;
+        /// Rampe beim Richtungswechsel: Anteil des Ausschlags um 5,00 V, 0…1.
+        /// 1 = volle Stufenspannung, 0 = 5,00 V. Ohne Rampe immer 1.
+        float ramp;
     };
 
     // ========================================================================
@@ -75,6 +78,14 @@ namespace Kwl
     //
     // Jeder Richtungswechsel laeuft ueber die Totzeit bei 5,00 V
     // (Sicherheitsinvariante 5), auch der Wechsel in eine erzwungene Richtung.
+    //
+    // RAMPE (seit 2026-10-10): Mit Rampenzeit > 0 faehrt der Ausschlag vor der
+    // Totzeit linear auf 5,00 V herunter und danach in der neuen Richtung linear
+    // wieder hinauf. Die Totzeit bleibt unveraendert und beginnt erst bei 5,00 V.
+    // Stand der Verbund (Start, Stufe 0), gibt es nichts herunterzufahren: dann
+    // direkt die Totzeit. Die Zykluszeit zaehlt ab der Uebernahme der neuen
+    // Richtung bis zum Beginn des naechsten Wechsels; Rampe ab und Totzeit kommen
+    // hinzu. Stufenwechsel in derselben Richtung bleiben ein Sprung.
     // ========================================================================
     class KwlGroup
     {
@@ -92,6 +103,11 @@ namespace Kwl
         /// Totzeit vor jedem Richtungswechsel, Vorgabe 2 s.
         void setDeadTime(uint16_t seconds);
         uint16_t deadTime() const { return mDeadTime; }
+
+        /// Rampe vor und nach der Totzeit, je Richtung. 0 = aus (Vorgabe der
+        /// Klasse; die ETS gibt 5 s vor).
+        void setRampTime(uint16_t seconds) { mRampTime = seconds; }
+        uint16_t rampTime() const { return mRampTime; }
 
         /// Zykluszeit je Stufe (1…4), Vorgabe 70 s.
         void setCycleTime(uint8_t stage, uint16_t seconds);
@@ -132,6 +148,7 @@ namespace Kwl
         GroupCycleConflict mCycleConflict = GroupCycleConflict::ShortestWins;
         uint8_t mLeadRoom = 1;
         uint16_t mDeadTime = 2;
+        uint16_t mRampTime = 0;
         uint16_t mCycleTime[kStageMax + 1] = {70, 70, 70, 70, 70};
         uint16_t mSummerCycle = 3600;
 
@@ -144,11 +161,28 @@ namespace Kwl
         bool mConflict = false;
         uint8_t mConflictRoom = 0;
 
+        /// Abschnitt des Takts. Run: volle Stufe in mCurrent. RampDown: mCurrent,
+        /// Ausschlag faellt. Dead: 5,00 V. RampUp: neue Richtung, Ausschlag steigt.
+        enum class Phase : uint8_t
+        {
+            Run,
+            RampDown,
+            Dead,
+            RampUp
+        };
+
+        /// Wohin der Takt gerade will: Forderung oder abgelaufene Zykluszeit.
+        Direction target(uint32_t now, uint16_t cycle) const;
+        float rampFactor(uint32_t now) const;
+
         Direction mCurrent = Direction::Supply;
         Direction mPending = Direction::Supply;
+        Phase mPhase = Phase::Run;
         bool mInDeadTime = false;
         bool mStarted = false;
-        uint32_t mSince = 0;
+        bool mWasRunning = false;   ///< im letzten update() lief eine Stufe > 0
+        uint32_t mSince = 0;        ///< Beginn des aktuellen Abschnitts
+        uint32_t mCycleSince = 0;   ///< Uebernahme der aktuellen Richtung
 
         GroupResult mResult;
     };

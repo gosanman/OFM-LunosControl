@@ -298,6 +298,162 @@ static void test_takt_ueber_den_millis_ueberlauf(void)
     TEST_ASSERT_EQUAL(Direction::Exhaust, g.update(start + 72000).phase0Direction);
 }
 
+// ---------------------------------------------------------------- Rampe
+
+static void test_ohne_rampe_voller_ausschlag(void)
+{
+    // Rampe 0 (Vorgabe der Klasse): Verhalten wie vor 2026-10-10, der Faktor
+    // bleibt 1 - auch rund um die Totzeit.
+    KwlGroup g;
+    fill(g, 2, 4, 2, 4);
+    TEST_ASSERT_EQUAL_FLOAT(1.0f, g.update(0).ramp);
+    TEST_ASSERT_EQUAL_FLOAT(1.0f, g.update(69999).ramp);
+    TEST_ASSERT_TRUE(g.update(70000).inDeadTime);
+    const GroupResult r = g.update(72000);
+    TEST_ASSERT_EQUAL(Direction::Exhaust, r.phase0Direction);
+    TEST_ASSERT_EQUAL_FLOAT(1.0f, r.ramp);
+}
+
+static void test_rampe_ab_totzeit_auf(void)
+{
+    // 5 s Rampe, 2 s Totzeit: hinunter auf 5,00 V in der alten Richtung,
+    // Totzeit, hinauf in der neuen Richtung (entschieden 2026-10-10).
+    KwlGroup g;
+    g.setRampTime(5);
+    fill(g, 2, 4, 2, 4);
+    g.update(0);
+
+    GroupResult r = g.update(70000);
+    TEST_ASSERT_FALSE(r.inDeadTime);
+    TEST_ASSERT_EQUAL(Direction::Supply, r.phase0Direction);
+    TEST_ASSERT_EQUAL_FLOAT(1.0f, r.ramp);
+
+    r = g.update(72500);
+    TEST_ASSERT_EQUAL(Direction::Supply, r.phase0Direction);
+    TEST_ASSERT_FLOAT_WITHIN(0.001f, 0.5f, r.ramp);
+
+    // Unten angekommen: Totzeit bei 5,00 V.
+    r = g.update(75000);
+    TEST_ASSERT_TRUE(r.inDeadTime);
+    TEST_ASSERT_EQUAL_FLOAT(0.0f, r.ramp);
+    TEST_ASSERT_TRUE(g.update(76999).inDeadTime);
+
+    // Neue Richtung, von 0 hinauf.
+    r = g.update(77000);
+    TEST_ASSERT_FALSE(r.inDeadTime);
+    TEST_ASSERT_EQUAL(Direction::Exhaust, r.phase0Direction);
+    TEST_ASSERT_EQUAL_FLOAT(0.0f, r.ramp);
+    TEST_ASSERT_FLOAT_WITHIN(0.001f, 0.5f, g.update(79500).ramp);
+    TEST_ASSERT_EQUAL_FLOAT(1.0f, g.update(82000).ramp);
+
+    // Die Zykluszeit zaehlt ab der Uebernahme der neuen Richtung.
+    r = g.update(146999);
+    TEST_ASSERT_EQUAL_FLOAT(1.0f, r.ramp);
+    TEST_ASSERT_EQUAL_FLOAT(1.0f, g.update(147000).ramp);
+    TEST_ASSERT_FLOAT_WITHIN(0.001f, 0.8f, g.update(148000).ramp);
+}
+
+static void test_rampe_nie_ueber_eins_oder_unter_null(void)
+{
+    // Eine Schleife, die lange haengt, darf den Faktor nicht ueberschiessen.
+    KwlGroup g;
+    g.setRampTime(5);
+    fill(g, 2, 4, 2, 4);
+    g.update(0);
+    g.update(70000);
+    GroupResult r = g.update(90000);                      // weit hinter dem Rampenende
+    TEST_ASSERT_TRUE(r.inDeadTime);
+    TEST_ASSERT_EQUAL_FLOAT(0.0f, r.ramp);
+
+    // Die Totzeit zaehlt ab dem Erreichen von 5,00 V, nicht ab dem Rampenende.
+    TEST_ASSERT_TRUE(g.update(91999).inDeadTime);
+    r = g.update(92000);
+    TEST_ASSERT_EQUAL(Direction::Exhaust, r.phase0Direction);
+    TEST_ASSERT_EQUAL_FLOAT(0.0f, r.ramp);
+    TEST_ASSERT_EQUAL_FLOAT(1.0f, g.update(92000 + 60000).ramp);
+}
+
+static void test_erzwungene_richtung_aus_dem_stand_ohne_rampe_ab(void)
+{
+    // Steht der Verbund noch, gibt es nichts herunterzufahren: direkt die
+    // Totzeit, danach weich hinauf. Sonst liefe er erst kurz in die falsche
+    // Richtung an.
+    KwlGroup g;
+    g.setRampTime(5);
+    g.clearMembers();
+    g.addMember(member(1, 4, 4, 0, CycleRule::Wrg, true, Direction::Exhaust));
+    g.addMember(member(2, 2, 4, 1));
+
+    GroupResult r = g.update(0);
+    TEST_ASSERT_TRUE(r.inDeadTime);
+    TEST_ASSERT_EQUAL_FLOAT(0.0f, r.ramp);
+    r = g.update(2000);
+    TEST_ASSERT_EQUAL(Direction::Exhaust, r.phase0Direction);
+    TEST_ASSERT_EQUAL_FLOAT(0.0f, r.ramp);
+    TEST_ASSERT_EQUAL_FLOAT(1.0f, g.update(7000).ramp);
+}
+
+static void test_rampe_kehrt_um_wenn_die_forderung_faellt(void)
+{
+    // Abluftanforderung startet die Rampe nach unten; faellt sie halbwegs
+    // wieder weg, geht es ohne Sprung zurueck nach oben, ohne Totzeit.
+    KwlGroup g;
+    g.setRampTime(4);
+    fill(g, 2, 4, 2, 4);
+    g.update(0);
+    g.update(10000);
+
+    g.clearMembers();
+    g.addMember(member(1, 2, 4, 0, CycleRule::Wrg, true, Direction::Exhaust));
+    g.addMember(member(2, 2, 4, 1));
+    TEST_ASSERT_EQUAL_FLOAT(1.0f, g.update(20000).ramp);
+    TEST_ASSERT_FLOAT_WITHIN(0.001f, 0.75f, g.update(21000).ramp);
+
+    fill(g, 2, 4, 2, 4);
+    GroupResult r = g.update(21000);
+    TEST_ASSERT_FALSE(r.inDeadTime);
+    TEST_ASSERT_EQUAL(Direction::Supply, r.phase0Direction);
+    TEST_ASSERT_FLOAT_WITHIN(0.001f, 0.75f, r.ramp);
+    TEST_ASSERT_FLOAT_WITHIN(0.001f, 1.0f, g.update(22000).ramp);
+}
+
+static void test_stillstand_bricht_die_rampe_ab(void)
+{
+    KwlGroup g;
+    g.setRampTime(5);
+    fill(g, 2, 4, 2, 4);
+    g.update(0);
+    g.update(70000);
+    g.update(72000);                                      // mitten in der Rampe
+
+    fill(g, 0, 4, 0, 4);
+    GroupResult r = g.update(72100);
+    TEST_ASSERT_FALSE(r.inDeadTime);
+    TEST_ASSERT_EQUAL_UINT8(0, r.stage);
+
+    // Wieder an: volle Zykluszeit, voller Ausschlag, die Richtung von vorher.
+    fill(g, 2, 4, 2, 4);
+    r = g.update(80000);
+    TEST_ASSERT_EQUAL_FLOAT(1.0f, r.ramp);
+    TEST_ASSERT_EQUAL(Direction::Supply, r.phase0Direction);
+    TEST_ASSERT_EQUAL_FLOAT(1.0f, g.update(80000 + 69999).ramp);
+    TEST_ASSERT_EQUAL_FLOAT(1.0f, g.update(80000 + 70000).ramp);
+    TEST_ASSERT_FLOAT_WITHIN(0.001f, 0.5f, g.update(80000 + 72500).ramp);
+}
+
+static void test_rampe_ueber_den_millis_ueberlauf(void)
+{
+    KwlGroup g;
+    g.setRampTime(5);
+    fill(g, 2, 4, 2, 4);
+    const uint32_t start = 0xFFFEF000u;
+    g.update(start);
+    g.update(start + 70000);                              // Ueberlauf liegt in der Rampe
+    TEST_ASSERT_FLOAT_WITHIN(0.001f, 0.5f, g.update(start + 72500).ramp);
+    TEST_ASSERT_TRUE(g.update(start + 75000).inDeadTime);
+    TEST_ASSERT_EQUAL(Direction::Exhaust, g.update(start + 77000).phase0Direction);
+}
+
 // ---------------------------------------------------------------- Anforderung
 
 static void test_anforderung_haelt_die_richtung_fest(void)
@@ -488,6 +644,13 @@ int main(int, char**)
     RUN_TEST(test_stillstand_haelt_den_takt_an);
     RUN_TEST(test_laengere_totzeit);
     RUN_TEST(test_takt_ueber_den_millis_ueberlauf);
+    RUN_TEST(test_ohne_rampe_voller_ausschlag);
+    RUN_TEST(test_rampe_ab_totzeit_auf);
+    RUN_TEST(test_rampe_nie_ueber_eins_oder_unter_null);
+    RUN_TEST(test_erzwungene_richtung_aus_dem_stand_ohne_rampe_ab);
+    RUN_TEST(test_rampe_kehrt_um_wenn_die_forderung_faellt);
+    RUN_TEST(test_stillstand_bricht_die_rampe_ab);
+    RUN_TEST(test_rampe_ueber_den_millis_ueberlauf);
     RUN_TEST(test_anforderung_haelt_die_richtung_fest);
     RUN_TEST(test_gleichgerichtete_forderungen_sind_kein_konflikt);
     RUN_TEST(test_richtungskonflikt_hoehere_stufe_fuehrt);

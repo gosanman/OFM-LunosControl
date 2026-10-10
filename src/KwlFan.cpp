@@ -328,14 +328,29 @@ namespace Kwl
         const VoltPair nominal =
             Curve::stageVolt(mType, stage, cmd.direction, mBelow5vIsSupply);
         const bool pair = channelsNeeded() == 2;
-        const VoltPair v{condition(nominal.a, stage), pair ? condition(nominal.b, stage) : 0.0f};
+        const VoltPair target{condition(nominal.a, stage),
+                              pair ? condition(nominal.b, stage) : 0.0f};
+
+        // Rampe beim Richtungswechsel (seit 2026-10-10): der Ausschlag um 5,00 V
+        // wird skaliert, NACH Kompensation und Kalibrierung. So bleibt jeder Wert
+        // der Rampe auf der Seite seines Ziels, und Faktor 0 ist genau 5,00 V -
+        // eine Kompensation vor der Skalierung koennte bei Faktor 0 auf die
+        // Gegenseite schieben und den Totzeitwaechter neu ausloesen.
+        const bool bipolar = Curve::isBipolar(mType);
+        float ramp = cmd.ramp;
+        if (!bipolar || !(ramp < 1.0f))
+            ramp = 1.0f;
+        else if (!(ramp > 0.0f))
+            ramp = 0.0f;
+        const float safe = Curve::safeVolt(mType);
+        const VoltPair v{safe + (target.a - safe) * ramp,
+                         pair ? safe + (target.b - safe) * ramp : 0.0f};
 
         // Sicherheitsinvariante 5 je Motor: wechselt die Spannung die Seite von
         // 5 V, ohne dass der Kanal die Totzeit lang bei 5,00 V stand, wird
         // gehalten - egal warum (Abluftstoss des ego, 12-V-Wiederkehr, Start).
         // Beim ego beide Motoren gemeinsam: haelt einer, halten beide.
         const uint32_t now = millis();
-        const bool bipolar = Curve::isBipolar(mType);
         const int8_t sideA = DirectionGuard::sideOf(v.a);
         const int8_t sideB = pair ? DirectionGuard::sideOf(v.b) : 0;
         if (bipolar && (!mGuard[0].allow(sideA, now, cmd.deadTimeMs) ||
@@ -348,6 +363,7 @@ namespace Kwl
         else
             ok = output.setVolt(mDacChannel, v.a);
         mLastVolt = v.a;
+        mStatusVolt = target.a;
 
         if (!ok)
             return false;
@@ -396,6 +412,7 @@ namespace Kwl
         {
             mStage = 0;
             mLastVolt = safe;
+            mStatusVolt = safe;
             mStatusValid = true;
             sendStatus();
         }
@@ -423,6 +440,7 @@ namespace Kwl
         {
             noteSafe(now);
             mLastVolt = safe;
+            mStatusVolt = safe;
         }
         return ok;
     }
@@ -476,7 +494,9 @@ namespace Kwl
         }
 
         // Ausgangsspannung in mV (DPT 9.020), auf ganze mV verglichen.
-        const int32_t mv = static_cast<int32_t>(mLastVolt * 1000.0f + 0.5f);
+        // Gemeldet wird das Ziel, nicht jeder Zwischenwert der Rampe - sonst
+        // saehe der Bus bei jedem Pendelwechsel eine Telegrammflut (vgl. Befund A).
+        const int32_t mv = static_cast<int32_t>(mStatusVolt * 1000.0f + 0.5f);
         if (mSentVoltMv.due(mv, now, cycle))
         {
             KoFAN_OutVolt.value(static_cast<float>(mv), Dpt(9, 20));

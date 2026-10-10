@@ -96,6 +96,10 @@
               <ParameterType Id="%AID%_PT-BoardPic4" Name="BoardPic4">
                 <TypePicture RefId="%FILE-kwlboard4%" HorizontalAlignment="Left" />
               </ParameterType>
+              <!-- Diagramm Rampe/Totzeit/Zykluszeit auf der Verbundseite (graphics/make_ramp.py). -->
+              <ParameterType Id="%AID%_PT-RampPic" Name="RampPic">
+                <TypePicture RefId="%FILE-kwlramp%" HorizontalAlignment="Left" />
+              </ParameterType>
 
               <ParameterType Id="%AID%_PT-FanDacChannel" Name="FanDacChannel">
                 <TypeNumber SizeInBit="4" Type="unsignedInt" minInclusive="1" maxInclusive="12" />
@@ -153,6 +157,10 @@
               <ParameterType Id="%AID%_PT-FanDeadTime" Name="FanDeadTime">
                 <TypeNumber SizeInBit="8" Type="unsignedInt" minInclusive="1" maxInclusive="10" />
               </ParameterType>
+              <!-- Rampe vor und nach der Totzeit, je Richtung. 0 = Sprung wie bis 2026-10-10. -->
+              <ParameterType Id="%AID%_PT-FanRampTime" Name="FanRampTime">
+                <TypeNumber SizeInBit="8" Type="unsignedInt" minInclusive="0" maxInclusive="30" />
+              </ParameterType>
               <!-- 40 s .. 2 h in Sekunden. Eine Einheit statt Wert+Einheit-Paar: der ganze
                    interessante Bereich liegt zwischen 40 und 3600, und ein zweites
                    Auswahlfeld je Stufe waeren vier Klicks fuer nichts. -->
@@ -184,7 +192,6 @@
               </ParameterType>
               <ParameterType Id="%AID%_PT-FanGroupNo" Name="FanGroupNo">
                 <TypeRestriction Base="Value" SizeInBit="4">
-                  <Enumeration Text="eigenständig (eigener Takt)" Value="0" Id="%ENID%" />
                   <Enumeration Text="Verbund 1" Value="1" Id="%ENID%" />
                   <Enumeration Text="Verbund 2" Value="2" Id="%ENID%" />
                   <Enumeration Text="Verbund 3" Value="3" Id="%ENID%" />
@@ -410,7 +417,7 @@
               <ParameterBlock Id="%AID%_PB-nnn" Name="Kanalauswahl" Text="Kanalauswahl" Icon="format-list-bulleted-type" HelpContext="BASE-ChannelSelect">
 
                 <ParameterSeparator Id="%AID%_PS-nnn" Text="Verbünde" UIHint="Headline" />
-                <ParameterSeparator Id="%AID%_PS-nnn" Text="Ein Verbund lässt mehrere Lüfter gemeinsam takten: gegenläufig, mit gemeinsamer Stufe und Totzeit. Hier nur aktivieren und benennen – welcher Lüfter dazugehört, wird beim Lüfter eingestellt." UIHint="Information" />
+                <ParameterSeparator Id="%AID%_PS-nnn" Text="Jeder Lüfter braucht einen Verbund, auch wenn er allein in einem Raum arbeitet. Der Verbund legt den Takt fest: Zykluszeit, Totzeit und Rampe beim Richtungswechsel. Mehrere Lüfter in einem Verbund takten gemeinsam und gegenläufig. Hier nur aktivieren und benennen – welcher Lüfter dazugehört, wird beim Lüfter eingestellt." UIHint="Information" />
                 <ParameterBlock Id="%AID%_PB-nnn" Inline="true" Layout="Grid">
                   <Rows><Row Id="%AID%_PB-nnn_R-1" /></Rows>
                   <Columns>
@@ -539,6 +546,9 @@
           <FileInfo TimeInfo="%DATETIME%" />
         </Baggage>
         <Baggage Id="%FILE-kwlboard4%" Name="kwlboard-4.png" TargetPath="">
+          <FileInfo TimeInfo="%DATETIME%" />
+        </Baggage>
+        <Baggage Id="%FILE-kwlramp%" Name="kwlramp.png" TargetPath="">
           <FileInfo TimeInfo="%DATETIME%" />
         </Baggage>
       </Baggages>

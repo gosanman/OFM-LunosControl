@@ -38,7 +38,7 @@
                 <Parameter Id="%AID%_UP-%TT%%CC%001" Name="f%C%Type"        Offset="0" BitOffset="0" ParameterType="%AID%_PT-FanType"         Text="Lüftertyp" Value="0" />
                 <Parameter Id="%AID%_UP-%TT%%CC%002" Name="f%C%Room"        Offset="0" BitOffset="3" ParameterType="%AID%_PT-FanRoomNo"       Text="Raum" Value="1" />
                 <Parameter Id="%AID%_UP-%TT%%CC%003" Name="f%C%Phase"       Offset="0" BitOffset="7" ParameterType="%AID%_PT-FanPhase"        Text="Phase im Verbund" Value="0" />
-                <Parameter Id="%AID%_UP-%TT%%CC%004" Name="f%C%Group"       Offset="1" BitOffset="0" ParameterType="%AID%_PT-FanGroupNo"      Text="Verbund" Value="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%004" Name="f%C%Group"       Offset="1" BitOffset="0" ParameterType="%AID%_PT-FanGroupNo"      Text="Verbund" Value="1" />
                 <Parameter Id="%AID%_UP-%TT%%CC%005" Name="f%C%CableSection" Offset="1" BitOffset="4" ParameterType="%AID%_PT-FanCableSection" Text="Aderquerschnitt" Value="1" />
                 <Parameter Id="%AID%_UP-%TT%%CC%006" Name="f%C%FilterMode"  Offset="1" BitOffset="6" ParameterType="%AID%_PT-FanFilterMode"   Text="Filterzähler" Value="2" />
                 <Parameter Id="%AID%_UP-%TT%%CC%010" Name="f%C%Active"      Offset="2" BitOffset="0" ParameterType="%AID%_PT-FanChannelActive" Text="Kanalaktivität" Value="0" />
@@ -264,17 +264,12 @@
                           <ParameterRefRef RefId="%AID%_UP-%TT%%CC%028_R-%TT%%CC%02801" Cell="1,4" HelpContext="%DOC%" />
                           <ParameterRefRef RefId="%AID%_UP-%TT%%CC%002_R-%TT%%CC%00201" Cell="1,5" HelpContext="%DOC%" />
                           <ParameterRefRef RefId="%AID%_UP-%TT%%CC%004_R-%TT%%CC%00401" Cell="1,6" HelpContext="%DOC%" />
-                          <!-- Phase nur im Verbund und nur, wenn der Luefter nicht ohnehin intern
-                               pendelt - genauso wie auf der Kanalseite. Der ego hat keine Phase. -->
-                          <choose ParamRefId="%AID%_UP-%TT%%CC%004_R-%TT%%CC%00401">
-                            <when test="0" />
+                          <!-- Phase nur, wenn der Luefter nicht ohnehin intern pendelt - genauso
+                               wie auf der Kanalseite. Der ego hat keine Phase. -->
+                          <choose ParamRefId="%AID%_UP-%TT%%CC%001_R-%TT%%CC%00101">
+                            <when test="1" />
                             <when default="true">
-                              <choose ParamRefId="%AID%_UP-%TT%%CC%001_R-%TT%%CC%00101">
-                                <when test="1" />
-                                <when default="true">
-                                  <ParameterRefRef RefId="%AID%_UP-%TT%%CC%003_R-%TT%%CC%00301" Cell="1,7" HelpContext="%DOC%" />
-                                </when>
-                              </choose>
+                              <ParameterRefRef RefId="%AID%_UP-%TT%%CC%003_R-%TT%%CC%00301" Cell="1,7" HelpContext="%DOC%" />
                             </when>
                           </choose>
                           <ParameterRefRef RefId="%AID%_UP-%TT%%CC%020_R-%TT%%CC%02001" Cell="1,8" HelpContext="%DOC%" />
@@ -319,20 +314,76 @@
                           </choose>
                           <ParameterRefRef RefId="%AID%_UP-%TT%%CC%002_R-%TT%%CC%00201" IndentLevel="1" HelpContext="%DOC%" />
                           <ParameterRefRef RefId="%AID%_UP-%TT%%CC%004_R-%TT%%CC%00401" IndentLevel="1" HelpContext="%DOC%" />
-                          <!-- Phase und Anteil ergeben nur im Verbund einen Sinn; die Phase
-                               zusaetzlich nur, wenn der Luefter nicht ohnehin intern pendelt. -->
+                          <ParameterSeparator Id="%AID%_PS-nnn" Text="Der Verbund bestimmt Takt, Totzeit und Rampe dieses Lüfters. Arbeitet er allein, bekommt er einen eigenen Verbund. Ein Pendelpaar teilt sich einen Verbund, mit verschiedener Phase." UIHint="Information" />
+                          <!-- Seit 2026-10-10 braucht jeder Luefter einen aktiven Verbund. Ist der
+                               gewaehlte nicht aktiviert, warnt die ETS hier; die Firmware meldet
+                               Fehlercode 3 und haelt 5,00 V. -->
                           <choose ParamRefId="%AID%_UP-%TT%%CC%004_R-%TT%%CC%00401">
-                            <when test="0" />
-                            <when default="true">
-                              <choose ParamRefId="%AID%_UP-%TT%%CC%001_R-%TT%%CC%00101">
-                                <when test="1" />
-                                <when default="true">
-                                  <ParameterRefRef RefId="%AID%_UP-%TT%%CC%003_R-%TT%%CC%00301" IndentLevel="2" HelpContext="%DOC%" />
+                            <when test="1">
+                              <choose ParamRefId="%AID%_UP-%TT%00114_R-%TT%0011401">
+                                <when test="0">
+                                  <ParameterSeparator Id="%AID%_PS-nnn" Text="Verbund 1 ist nicht aktiviert. Bitte auf der Kanalauswahl aktivieren – sonst bleibt dieser Lüfter stehen und meldet Fehlercode 3." UIHint="Error" />
                                 </when>
                               </choose>
-                              <ParameterRefRef RefId="%AID%_UP-%TT%%CC%020_R-%TT%%CC%02001" IndentLevel="2" HelpContext="%DOC%" />
+                            </when>
+                            <when test="2">
+                              <choose ParamRefId="%AID%_UP-%TT%00134_R-%TT%0013401">
+                                <when test="0">
+                                  <ParameterSeparator Id="%AID%_PS-nnn" Text="Verbund 2 ist nicht aktiviert. Bitte auf der Kanalauswahl aktivieren – sonst bleibt dieser Lüfter stehen und meldet Fehlercode 3." UIHint="Error" />
+                                </when>
+                              </choose>
+                            </when>
+                            <when test="3">
+                              <choose ParamRefId="%AID%_UP-%TT%00154_R-%TT%0015401">
+                                <when test="0">
+                                  <ParameterSeparator Id="%AID%_PS-nnn" Text="Verbund 3 ist nicht aktiviert. Bitte auf der Kanalauswahl aktivieren – sonst bleibt dieser Lüfter stehen und meldet Fehlercode 3." UIHint="Error" />
+                                </when>
+                              </choose>
+                            </when>
+                            <when test="4">
+                              <choose ParamRefId="%AID%_UP-%TT%00174_R-%TT%0017401">
+                                <when test="0">
+                                  <ParameterSeparator Id="%AID%_PS-nnn" Text="Verbund 4 ist nicht aktiviert. Bitte auf der Kanalauswahl aktivieren – sonst bleibt dieser Lüfter stehen und meldet Fehlercode 3." UIHint="Error" />
+                                </when>
+                              </choose>
+                            </when>
+                            <when test="5">
+                              <choose ParamRefId="%AID%_UP-%TT%00194_R-%TT%0019401">
+                                <when test="0">
+                                  <ParameterSeparator Id="%AID%_PS-nnn" Text="Verbund 5 ist nicht aktiviert. Bitte auf der Kanalauswahl aktivieren – sonst bleibt dieser Lüfter stehen und meldet Fehlercode 3." UIHint="Error" />
+                                </when>
+                              </choose>
+                            </when>
+                            <when test="6">
+                              <choose ParamRefId="%AID%_UP-%TT%00214_R-%TT%0021401">
+                                <when test="0">
+                                  <ParameterSeparator Id="%AID%_PS-nnn" Text="Verbund 6 ist nicht aktiviert. Bitte auf der Kanalauswahl aktivieren – sonst bleibt dieser Lüfter stehen und meldet Fehlercode 3." UIHint="Error" />
+                                </when>
+                              </choose>
+                            </when>
+                            <when test="7">
+                              <choose ParamRefId="%AID%_UP-%TT%00234_R-%TT%0023401">
+                                <when test="0">
+                                  <ParameterSeparator Id="%AID%_PS-nnn" Text="Verbund 7 ist nicht aktiviert. Bitte auf der Kanalauswahl aktivieren – sonst bleibt dieser Lüfter stehen und meldet Fehlercode 3." UIHint="Error" />
+                                </when>
+                              </choose>
+                            </when>
+                            <when test="8">
+                              <choose ParamRefId="%AID%_UP-%TT%00254_R-%TT%0025401">
+                                <when test="0">
+                                  <ParameterSeparator Id="%AID%_PS-nnn" Text="Verbund 8 ist nicht aktiviert. Bitte auf der Kanalauswahl aktivieren – sonst bleibt dieser Lüfter stehen und meldet Fehlercode 3." UIHint="Error" />
+                                </when>
+                              </choose>
                             </when>
                           </choose>
+                          <!-- Die Phase nur, wenn der Luefter nicht ohnehin intern pendelt. -->
+                          <choose ParamRefId="%AID%_UP-%TT%%CC%001_R-%TT%%CC%00101">
+                            <when test="1" />
+                            <when default="true">
+                              <ParameterRefRef RefId="%AID%_UP-%TT%%CC%003_R-%TT%%CC%00301" IndentLevel="2" HelpContext="%DOC%" />
+                            </when>
+                          </choose>
+                          <ParameterRefRef RefId="%AID%_UP-%TT%%CC%020_R-%TT%%CC%02001" IndentLevel="2" HelpContext="%DOC%" />
 
                           <!-- ===== Kennlinie ===== -->
                           <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
@@ -452,15 +503,10 @@
                           <!-- ===== Kommunikationsobjekte ===== -->
                           <ComObjectRefRef RefId="%AID%_O-%TT%%CC%000_R-%TT%%CC%00001" />
                           <ComObjectRefRef RefId="%AID%_O-%TT%%CC%001_R-%TT%%CC%00101" />
-                          <choose ParamRefId="%AID%_UP-%TT%%CC%004_R-%TT%%CC%00401">
-                            <when test="0" />
-                            <when default="true">
-                              <ComObjectRefRef RefId="%AID%_O-%TT%%CC%002_R-%TT%%CC%00201" />
-                              <ComObjectRefRef RefId="%AID%_O-%TT%%CC%003_R-%TT%%CC%00301" />
-                              <ComObjectRefRef RefId="%AID%_O-%TT%%CC%004_R-%TT%%CC%00401" />
-                              <ComObjectRefRef RefId="%AID%_O-%TT%%CC%005_R-%TT%%CC%00501" />
-                            </when>
-                          </choose>
+                          <ComObjectRefRef RefId="%AID%_O-%TT%%CC%002_R-%TT%%CC%00201" />
+                          <ComObjectRefRef RefId="%AID%_O-%TT%%CC%003_R-%TT%%CC%00301" />
+                          <ComObjectRefRef RefId="%AID%_O-%TT%%CC%004_R-%TT%%CC%00401" />
+                          <ComObjectRefRef RefId="%AID%_O-%TT%%CC%005_R-%TT%%CC%00501" />
                           <ComObjectRefRef RefId="%AID%_O-%TT%%CC%006_R-%TT%%CC%00601" />
                           <ComObjectRefRef RefId="%AID%_O-%TT%%CC%007_R-%TT%%CC%00701" />
                           <ComObjectRefRef RefId="%AID%_O-%TT%%CC%008_R-%TT%%CC%00801" />

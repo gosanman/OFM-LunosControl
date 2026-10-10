@@ -1,11 +1,12 @@
 ### Verbund
 
-Der Verbund, mit dem dieser Lüfter gemeinsam taktet.
+Der Verbund, mit dem dieser Lüfter taktet. Jeder Lüfter braucht einen, auch ein einzelner: Der
+Verbund liefert Zykluszeit, Totzeit und Rampe.
 
-* **eigenständig** — der Lüfter taktet für sich. Er pendelt dann allein, also abwechselnd Zu- und
-  Abluft im selben Raum.
-* **Verbund 1…8** — der Lüfter läuft mit den übrigen Lüftern dieses Verbunds: gleiche Stufe,
-  gegenläufige Richtung.
+* **Lüfter allein im Raum:** ein eigener Verbund, in dem nur er steckt. Er pendelt dann allein,
+  also abwechselnd Zu- und Abluft im selben Raum.
+* **Pendelpaar:** zwei Lüfter, meist in verschiedenen Räumen, im selben Verbund mit verschiedener
+  Phase. Gleiche Stufe, gegenläufige Richtung.
 
-Das typische Pendelpaar sind zwei Lüfter in **verschiedenen** Räumen, die auf denselben Verbund
-zeigen und entgegengesetzte Phasen haben. Ein Raum braucht also keine zwei Lüfter.
+Der gewählte Verbund muss auf der Kanalauswahl aktiviert sein, sonst bleibt der Lüfter stehen und
+meldet Fehlercode 3.

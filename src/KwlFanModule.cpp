@@ -23,6 +23,7 @@ namespace Kwl
             bool active;
             uint8_t leadRoom;
             uint8_t deadTime;
+            uint8_t ramp;
             uint16_t cycle[kStageMax + 1]; // Index 1…4
             uint16_t summer;
         };
@@ -54,7 +55,7 @@ namespace Kwl
         p.cycleConflict = ParamFAN_Grp##n##CycleRule;                                  \
         p.active = ParamFAN_Grp##n##Active;                                            \
         p.leadRoom = ParamFAN_Grp##n##LeadRoom;                                        \
-        p.deadTime = ParamFAN_Grp##n##DeadTime;                                        \
+        p.deadTime = ParamFAN_Grp##n##DeadTime;                                                p.ramp = ParamFAN_Grp##n##Ramp;                                                \
         p.cycle[1] = ParamFAN_Grp##n##CycleS1;                                         \
         p.cycle[2] = ParamFAN_Grp##n##CycleS2;                                         \
         p.cycle[3] = ParamFAN_Grp##n##CycleS3;                                         \
@@ -125,35 +126,11 @@ namespace Kwl
         const KwlFan* f = mFan[fan];
         if (f == nullptr)
             return false;
-        if (slot < kGroupsMax)
-            return f->groupNo() == slot + 1;
-        // Eigenstaendig: Verbundnummer 0 und genau dieser Platz.
-        return f->groupNo() == 0 && fan == slot - kGroupsMax;
+        return slot < kGroupsMax && f->groupNo() == slot + 1;
     }
 
     void KwlFanModule::setupGroups()
     {
-        // Eigenstaendige Luefter: ein Platz je Luefter mit Verbund 0. Rolle intern,
-        // keine Gruppen-KOs, kein Lebenszeichen, Taktvorgaben aus KwlGroup. Die
-        // Stufenregel ist mit einem Mitglied belanglos: die Stufe des Raums.
-        for (uint8_t i = 0; i < FAN_ChannelCount; i++)
-        {
-            const uint8_t slot = kGroupsMax + i;
-            const KwlFan* fan = mFan[i];
-            mGroupActive[slot] = fan != nullptr && fan->isActive() && fan->groupNo() == 0;
-            mGroupRole[slot] = GroupRole::Internal;
-            mGroupSpeaker[slot] = -1;
-            mGroupFollowSupply[slot] = 0;
-            mGroupHeartbeatMs[slot] = 0;
-            mGroupTimeoutMs[slot] = 0;
-            mGroupTimedOut[slot] = false;
-            if (mGroupActive[slot])
-            {
-                mGroupLeadRoom[slot] = fan->roomNo();
-                mGroup[slot].setLeadRoom(fan->roomNo());
-            }
-        }
-
         for (uint8_t g = 0; g < kGroupsMax; g++)
         {
             const GroupParams p = readGroup(g + 1);
@@ -183,9 +160,24 @@ namespace Kwl
             mGroup[g].setCycleConflict(static_cast<GroupCycleConflict>(p.cycleConflict));
             mGroup[g].setLeadRoom(p.leadRoom);
             mGroup[g].setDeadTime(p.deadTime);
+            mGroup[g].setRampTime(p.ramp);
             mGroup[g].setSummerCycleTime(p.summer);
             for (uint8_t s = 1; s <= kStageMax; s++)
                 mGroup[g].setCycleTime(s, p.cycle[s]);
+        }
+
+        // Jeder aktive Luefter braucht einen aktiven Verbund (seit 2026-10-10,
+        // "eigenstaendig" ist entfallen). Verbund 0 kommt nur noch aus alten
+        // Projekten. Gemeldet wird es, nicht still uebergangen.
+        for (uint8_t i = 0; i < FAN_ChannelCount; i++)
+        {
+            const KwlFan* fan = mFan[i];
+            const uint8_t g = fan != nullptr ? fan->groupNo() : 0;
+            mFanWithoutGroup[i] = fan != nullptr && fan->isActive() &&
+                                  (g == 0 || g > kGroupsMax || !mGroupActive[g - 1]);
+            if (mFanWithoutGroup[i])
+                logErrorP("Luefter %u: Verbund %u ist nicht aktiv - Fehlercode 3, 5,00 V",
+                          (unsigned)(i + 1), (unsigned)g);
         }
     }
 
@@ -299,13 +291,13 @@ namespace Kwl
             if (mFan[i] != nullptr)
                 mFan[i]->loop();
 
-        // Alle Takt-Plaetze: die ETS-Verbuende und die eigenstaendigen Luefter.
         for (uint8_t g = 0; g < kSlotsMax; g++)
         {
             if (!mGroupActive[g])
                 continue;
             driveGroup(g, now);
         }
+        driveWithoutGroup();
 
         updateLed();
     }
@@ -627,6 +619,7 @@ namespace Kwl
 
             cmd.direction = KwlGroup::directionFor(r, fan->phase());
             cmd.hrv = r.hrv;
+            cmd.ramp = r.ramp;
             fan->drive(mOutput, cmd);
         }
 
@@ -668,6 +661,19 @@ namespace Kwl
 
             fan->sendFault(r.conflict && r.conflictRoom == fan->roomNo(), groupError,
                            roomError);
+        }
+    }
+
+    void KwlFanModule::driveWithoutGroup()
+    {
+        // Ohne Verbund kein Takt - und kein stilles Stehenbleiben (Invariante
+        // 10): sicherer Zustand und Fehlercode 3 "Konfiguration".
+        for (uint8_t i = 0; i < FAN_ChannelCount; i++)
+        {
+            if (!mFanWithoutGroup[i] || mFan[i] == nullptr)
+                continue;
+            mFan[i]->driveSafe(mOutput);
+            mFan[i]->sendFault(false, ErrorCode::Configuration, ErrorCode::None);
         }
     }
 

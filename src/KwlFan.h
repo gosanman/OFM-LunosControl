@@ -20,6 +20,9 @@ namespace Kwl
         /// (DirectionGuard), wenn die Spannung ohne Richtungswechsel des
         /// Verbunds die Seite wechselt.
         uint32_t deadTimeMs = 2000;
+        /// Rampe des Verbunds beim Richtungswechsel: Anteil des Ausschlags um
+        /// 5,00 V, 0…1. Wirkt nur bei bipolaren Typen.
+        float ramp = 1.0f;
     };
 
     // ========================================================================
@@ -198,7 +201,8 @@ namespace Kwl
         uint8_t mStage = 0;
         Direction mDirection = Direction::Supply;
         bool mHrv = false;
-        float mLastVolt = 0.0f;
+        float mLastVolt = 0.0f;   ///< zuletzt geschrieben (Motor 1), mit Rampe
+        float mStatusVolt = 0.0f; ///< Ziel ohne Rampe - das meldet der Status
         bool mStatusValid = false;
 
         /// Totzeit je Motor (Befund C): Motor 1 und beim ego Motor 2.

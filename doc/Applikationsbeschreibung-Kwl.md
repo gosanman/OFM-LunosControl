@@ -107,6 +107,8 @@ Verbünden sind unabhängig voneinander.
    und die Ausgänge bleiben auf 5,00 V. Das ist Absicht: eine verschobene
    Kanalzuordnung stellt den falschen Lüfter auf Vollgas.
 2. **Kanäle aktivieren** (Seite *Kanalauswahl*): Räume, Lüfter, Verbünde.
+   Jeder Lüfter braucht einen aktiven Verbund; ein allein arbeitender Lüfter
+   bekommt einen eigenen.
 3. **Je Lüfter** Typ und Stellkanal festlegen, dann Raum, Verbund und Phase.
    Beide Lüfter eines Verbunds brauchen **verschiedene Phasen** (0 und 1) — sonst
    laufen sie gleichsinnig und es gibt weder Luftaustausch noch Wärmerückgewinnung.
@@ -300,6 +302,18 @@ Frischluft.
 **Vor jedem Richtungswechsel** stehen alle Kanäle des Verbunds für die *Totzeit*
 (Vorgabe 2 s) auf 5,00 V. Beim ego gilt das für beide Motoren gleichzeitig.
 
+**Rampe beim Richtungswechsel** (je Verbund, Vorgabe 5 s, 0 = aus). Die
+Stellspannung geht vor der Totzeit gleichmäßig auf 5,00 V zurück und steigt
+danach in der neuen Richtung wieder auf die Stufenspannung. Ein Wechsel dauert
+damit Rampe + Totzeit + Rampe, mit den Vorgaben 12 s. Die Zykluszeit zählt ab der
+Übernahme der neuen Richtung. Die Rampe gilt nur für Richtungswechsel, auch für
+den erzwungenen (Zu-/Abluftanforderung, Betriebsweise). Ein Stufenwechsel in
+derselben Richtung springt sofort. Läuft der Verbund aus dem Stillstand an, gibt
+es nichts herunterzufahren: dann nur Totzeit und Rampe nach oben. Das Objekt
+„Ausgangsspannung“ meldet die Zielspannung, nicht jeden Zwischenwert.
+
+![Richtungswechsel: Rampe, Totzeit, Rampe](../src/Baggages/kwlramp.png)
+
 Zusätzlich wacht jeder Kanal selbst über die Totzeit. Wechselt die Spannung die
 Seite von 5 V, ohne dass der Verbund die Richtung ändert, steht der Kanal erst
 die Totzeit lang auf 5,00 V. Das betrifft den Abluftstoß des ego, bei dem Stufe 4
@@ -307,11 +321,13 @@ beide Motoren unabhängig von der Richtung belegt. Es betrifft auch jeden Start
 und jede Wiederkehr der 12 V, weil vorher 0 V = Volllast anliegen konnten. Nach
 dem Einschalten laufen die Lüfter deshalb erst nach der Totzeit an.
 
-**Eigenständige Lüfter.** Ein Lüfter mit Verbund *eigenständig (eigener Takt)*
-bildet einen Verbund für sich allein. Er fährt die Stufe seines Raums und pendelt
-mit festen Vorgaben: 70 s je Stufe, Sommer 3600 s, Totzeit 2 s. Es gibt keine
-Verbund-Objekte und keine Stufenregel. Für ein Pendelpaar mit Luftaustausch
-gehören zwei Lüfter in einen gemeinsamen Verbund.
+**Ein Lüfter allein.** Auch ein Lüfter, der allein in einem Raum arbeitet,
+braucht einen Verbund – einen eigenen, in dem nur er steckt. Der Verbund liefert
+Takt, Totzeit und Rampe; die Stufenregel ist mit einem Mitglied belanglos, es
+gilt die Stufe des Raums. Die frühere Auswahl „eigenständig“ mit festen Werten
+ist am 2026-10-10 entfallen. Zeigt ein Lüfter auf einen Verbund, der nicht
+aktiviert ist, warnt die ETS auf der Lüfterseite; die Firmware hält ihn auf
+5,00 V und meldet Fehlercode 3.
 
 ### Wenn die Räume uneins sind
 
@@ -484,7 +500,7 @@ Liegen mehrere an, gewinnt der kleinste.
 |---|---|---|
 | 1 | Freigabe fehlt | ja |
 | 2 | Master-Timeout | ja |
-| 3 | Konfiguration: Kanalzahl oder Kennlinie passt nicht | ja |
+| 3 | Konfiguration: Kanalzahl oder Kennlinie passt nicht, Verbund des Lüfters nicht aktiv | ja |
 | 4 | DAC nicht erreichbar | ja |
 | 5 | Ungültiger Empfangswert | ja |
 | 6 | Überwachung ausgesetzt (suspendiert) | nein |

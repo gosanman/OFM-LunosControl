@@ -1,6 +1,6 @@
 {
     "name": "OFM-KwlControl",
-    "version": "0.2",
+    "version": "0.3",
     "description": "Decentralised ventilation module (0-10 V analog fan drive) for the knx stack, can be embedded in an ETS application",
     "license": "GPL-3.0-only",
     "dependencies": {}

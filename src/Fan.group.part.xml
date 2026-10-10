@@ -17,6 +17,10 @@
 
               <!-- Name: nur ETS-seitig, kein Geraetespeicher. Traegt den Seitentitel. -->
               <Parameter Id="%AID%_P-%TT%00%GGG+0%" Name="Grp%Gn%Name" ParameterType="%AID%_PT-Text40Byte" Text="Beschreibung" Value="" />
+              <!-- Diagramm Richtungswechsel: kein Geraetespeicher, nur Anzeige. Je Verbund
+                   ein eigener Parameter, weil die ETS einen ParameterRef nur einmal
+                   verwenden laesst und die Verbundseite achtfach vorkommt. -->
+              <Parameter Id="%AID%_P-%TT%00%GGG+16%" Name="Grp%Gn%RampPic" ParameterType="%AID%_PT-RampPic" Text="" Access="Read" Value="" />
 
               <!-- 20 Byte je Verbund. Die Reserven sind Absicht: Verbund-Parameter kommen in
                    Phase 4c dazu (Nachstroemzeit, Phasenversatz), und ein waschsender Block
@@ -31,7 +35,8 @@
                 <Parameter Id="%AID%_UP-%TT%00%GGG+4%" Name="Grp%Gn%LeadRoom"  Offset="1" BitOffset="0" ParameterType="%AID%_PT-FanRoomNo"       Text="Führender Raum" Value="1" />
                 <Parameter Id="%AID%_UP-%TT%00%GGG+5%" Name="Grp%Gn%FollowSupply" Offset="1" BitOffset="4" ParameterType="%AID%_PT-FanRoomNo0"   Text="Folgt Zuluftanforderung von Raum" Value="0" />
                 <Parameter Id="%AID%_UP-%TT%00%GGG+6%" Name="Grp%Gn%DeadTime"  Offset="2" BitOffset="0" ParameterType="%AID%_PT-FanDeadTime"     Text="Totzeit vor Richtungswechsel" SuffixText=" s" Value="2" />
-                <!-- 1 Byte Reserve auf Offset 3 -->
+                <!-- Offset 3: bis 2026-10-10 Reserve -->
+                <Parameter Id="%AID%_UP-%TT%00%GGG+15%" Name="Grp%Gn%Ramp"      Offset="3" BitOffset="0" ParameterType="%AID%_PT-FanRampTime"     Text="Rampe beim Richtungswechsel" SuffixText=" s  (0 = Sprung)" Value="5" />
                 <Parameter Id="%AID%_UP-%TT%00%GGG+7%"  Name="Grp%Gn%CycleS1"     Offset="4"  BitOffset="0" ParameterType="%AID%_PT-FanCycleTime" Text="Zykluszeit Stufe 1" SuffixText=" s" Value="70" />
                 <Parameter Id="%AID%_UP-%TT%00%GGG+8%"  Name="Grp%Gn%CycleS2"     Offset="6"  BitOffset="0" ParameterType="%AID%_PT-FanCycleTime" Text="Zykluszeit Stufe 2" SuffixText=" s" Value="70" />
                 <Parameter Id="%AID%_UP-%TT%00%GGG+9%"  Name="Grp%Gn%CycleS3"     Offset="8"  BitOffset="0" ParameterType="%AID%_PT-FanCycleTime" Text="Zykluszeit Stufe 3" SuffixText=" s" Value="70" />
@@ -59,6 +64,8 @@
               <ParameterRef Id="%AID%_UP-%TT%00%GGG+12%_R-%TT%00%GGG+12%01" RefId="%AID%_UP-%TT%00%GGG+12%" />
               <ParameterRef Id="%AID%_UP-%TT%00%GGG+13%_R-%TT%00%GGG+13%01" RefId="%AID%_UP-%TT%00%GGG+13%" />
               <ParameterRef Id="%AID%_UP-%TT%00%GGG+14%_R-%TT%00%GGG+14%01" RefId="%AID%_UP-%TT%00%GGG+14%" />
+              <ParameterRef Id="%AID%_UP-%TT%00%GGG+15%_R-%TT%00%GGG+15%01" RefId="%AID%_UP-%TT%00%GGG+15%" />
+              <ParameterRef Id="%AID%_P-%TT%00%GGG+16%_R-%TT%00%GGG+16%01" RefId="%AID%_P-%TT%00%GGG+16%" />
             </ParameterRefs>
           </Static>
 
@@ -534,6 +541,8 @@
                       <ParameterRefRef RefId="%AID%_UP-%TT%00%GGG+10%_R-%TT%00%GGG+10%01" IndentLevel="1" HelpContext="%DOC%" />
                       <ParameterRefRef RefId="%AID%_UP-%TT%00%GGG+11%_R-%TT%00%GGG+11%01" IndentLevel="1" HelpContext="%DOC%" />
                       <ParameterRefRef RefId="%AID%_UP-%TT%00%GGG+6%_R-%TT%00%GGG+6%01"  IndentLevel="1" HelpContext="%DOC%" />
+                      <ParameterRefRef RefId="%AID%_UP-%TT%00%GGG+15%_R-%TT%00%GGG+15%01" IndentLevel="1" HelpContext="%DOC%" />
+                      <ParameterRefRef RefId="%AID%_P-%TT%00%GGG+16%_R-%TT%00%GGG+16%01" IndentLevel="1" />
                       <ParameterSeparator Id="%AID%_PS-nnn" Text="Der kurze Zyklus ist die Wärmerückgewinnung: der Regenerator gibt die gespeicherte Wärme wieder ab, bevor er auskühlt. Längere Zykluszeiten verringern die erreichbare Wärmerückgewinnung." UIHint="Information" />
 
                       <!-- Master sendet, Slave ueberwacht - je eine Zeit, nie beide. -->

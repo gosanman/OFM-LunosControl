@@ -11,13 +11,13 @@ namespace Kwl
     /// Compile-Zeit-Obergrenze der Verbuende (PLAN Phase 2).
     constexpr uint8_t kGroupsMax = 8;
 
-    /// Takt-Plaetze: die 8 Verbuende der ETS und dahinter ein Platz je Luefter
-    /// fuer "eigenstaendig (eigener Takt)". Ein eigenstaendiger Luefter ist ein
-    /// Verbund mit genau einem Mitglied - derselbe Antriebsweg, dieselbe Totzeit,
-    /// derselbe Takt, nur ohne ETS-Parameter (Vorgaben aus KwlGroup: 70 s WRG,
-    /// 3600 s Sommer, 2 s Totzeit). Bis 2026-09-27 gab es diesen Weg nicht, und ein
-    /// Luefter auf Verbund 0 blieb dauerhaft auf 5,00 V stehen.
-    constexpr uint8_t kSlotsMax = kGroupsMax + FAN_ChannelCount;
+    /// Takt-Plaetze = die 8 Verbuende der ETS. Jeder Luefter gehoert zu genau
+    /// einem, auch ein Luefter allein im Raum (dann ein Verbund mit einem
+    /// Mitglied). Von 2026-09-27 bis 2026-10-10 gab es dahinter einen Platz je
+    /// Luefter fuer "eigenstaendig (eigener Takt)" mit festen Vorgaben; die
+    /// Auswahl ist entfallen, damit Takt, Totzeit und Rampe immer einstellbar
+    /// sind. Ein Luefter ohne aktiven Verbund meldet Fehlercode 3.
+    constexpr uint8_t kSlotsMax = kGroupsMax;
 
     // ========================================================================
     // OpenKNX-Modul der Luefter. Haelt Ausgabeschicht, Luefterkanaele und Verbuende.
@@ -72,10 +72,11 @@ namespace Kwl
         bool checkHardware();
         void setupChannels();
         void setupGroups();
-        /// Gehoert Luefter `fan` zum Takt-Platz `slot`? Platz < kGroupsMax ist
-        /// Verbund slot+1, dahinter der eigenstaendige Platz genau eines Luefters.
+        /// Gehoert Luefter `fan` zum Takt-Platz `slot` (Verbund slot+1)?
         bool inSlot(uint8_t fan, uint8_t slot) const;
         void driveGroup(uint8_t group, uint32_t now);
+        /// Luefter ohne aktiven Verbund: sicherer Zustand und Fehlercode 3.
+        void driveWithoutGroup();
         bool tryRecoverOutput(uint32_t now);
         void holdSafeUnconfigured(uint32_t now);
         void collectMembers(uint8_t group);
@@ -113,10 +114,11 @@ namespace Kwl
 
         KwlOutput mOutput;
         KwlFan* mFan[FAN_ChannelCount] = {};
-        // Alle Verbundfelder sind je Takt-Platz angelegt (kSlotsMax), nicht je
-        // ETS-Verbund. Rolle, Lebenszeichen und Gruppen-KOs gibt es nur fuer die
-        // ersten kGroupsMax; ein eigenstaendiger Platz ist immer "intern".
+        // Alle Verbundfelder sind je Takt-Platz angelegt (kSlotsMax = Verbuende).
         KwlGroup mGroup[kSlotsMax];
+        /// Aktiver Luefter, dessen Verbund nicht aktiv ist (oder 0 aus einem
+        /// Projekt von vor 2026-10-10): er faehrt nicht und meldet Code 3.
+        bool mFanWithoutGroup[FAN_ChannelCount] = {};
         bool mGroupActive[kSlotsMax] = {};
         GroupRole mGroupRole[kSlotsMax] = {};
 
