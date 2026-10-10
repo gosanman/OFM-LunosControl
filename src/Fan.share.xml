@@ -325,7 +325,6 @@
 
               <!-- ===== Allgemein ===== -->
               <ParameterBlock Id="%AID%_PB-nnn" Name="Basic" Text="Allgemein" Icon="cog-outline">
-                <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
                 <ParameterSeparator Id="%AID%_PS-nnn" Text="Lüftersteuerung" UIHint="Headline" />
                 <ParameterSeparator Id="%AID%_PS-nnn" Text="Version: %ModuleVersion%" />
                 <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
@@ -405,6 +404,7 @@
               <ParameterBlock Id="%AID%_PB-nnn" Name="Kanalauswahl" Text="Kanalauswahl" Icon="format-list-bulleted-type" HelpContext="BASE-ChannelSelect">
 
                 <ParameterSeparator Id="%AID%_PS-nnn" Text="Verbünde" UIHint="Headline" />
+                <ParameterSeparator Id="%AID%_PS-nnn" Text="Ein Verbund lässt mehrere Lüfter gemeinsam takten: gegenläufig, mit gemeinsamer Stufe und Totzeit. Hier nur aktivieren und benennen – welcher Lüfter dazugehört, wird beim Lüfter eingestellt." UIHint="Information" />
                 <ParameterBlock Id="%AID%_PB-nnn" Inline="true" Layout="Grid">
                   <Rows><Row Id="%AID%_PB-nnn_R-1" /></Rows>
                   <Columns>
@@ -420,6 +420,7 @@
 
                 <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
                 <ParameterSeparator Id="%AID%_PS-nnn" Text="Räume" UIHint="Headline" />
+                <ParameterSeparator Id="%AID%_PS-nnn" Text="Ein Raum liefert die Anforderung: Sensoren, Betriebsart und Bedienung. Ein Raum kann mehrere Lüfter führen. Nur aktivierte Räume erscheinen links im Baum." UIHint="Information" />
                 <ParameterBlock Id="%AID%_PB-nnn" Inline="true" Layout="Grid">
                   <Rows><Row Id="%AID%_PB-nnn_R-1" /></Rows>
                   <Columns>
@@ -435,6 +436,7 @@
 
                 <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
                 <ParameterSeparator Id="%AID%_PS-nnn" Text="Lüfter" UIHint="Headline" />
+                <ParameterSeparator Id="%AID%_PS-nnn" Text="Ein Lüfter ist ein Gerät an einem Stellkanal (S1…S4). Typ, Stellkanal, Raum und Verbund werden auf seiner Seite eingestellt. Angeboten werden so viele Lüfter, wie die Platine Kanäle hat; ein ego belegt zwei." UIHint="Information" />
                 <ParameterBlock Id="%AID%_PB-nnn" Inline="true" Layout="Grid">
                   <Rows><Row Id="%AID%_PB-nnn_R-1" /></Rows>
                   <Columns>
