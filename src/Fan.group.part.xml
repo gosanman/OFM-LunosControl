@@ -542,7 +542,13 @@
                       <ParameterRefRef RefId="%AID%_UP-%TT%00%GGG+11%_R-%TT%00%GGG+11%01" IndentLevel="1" HelpContext="%DOC%" />
                       <ParameterRefRef RefId="%AID%_UP-%TT%00%GGG+6%_R-%TT%00%GGG+6%01"  IndentLevel="1" HelpContext="%DOC%" />
                       <ParameterRefRef RefId="%AID%_UP-%TT%00%GGG+15%_R-%TT%00%GGG+15%01" IndentLevel="1" HelpContext="%DOC%" />
-                      <ParameterRefRef RefId="%AID%_P-%TT%00%GGG+16%_R-%TT%00%GGG+16%01" IndentLevel="1" />
+                      <!-- Wie das Klemmenbild auf "Allgemein": Inline-Tabelle mit einer Spalte
+                           ueber die volle Breite, sonst zeigt die ETS das Bild klein. -->
+                      <ParameterBlock Id="%AID%_PB-nnn" Inline="true" Layout="Grid">
+                        <Rows><Row Id="%AID%_PB-nnn_R-1" /></Rows>
+                        <Columns><Column Id="%AID%_PB-nnn_C-1" Width="100%" /></Columns>
+                        <ParameterRefRef RefId="%AID%_P-%TT%00%GGG+16%_R-%TT%00%GGG+16%01" Cell="1,1" />
+                      </ParameterBlock>
                       <ParameterSeparator Id="%AID%_PS-nnn" Text="Der kurze Zyklus ist die Wärmerückgewinnung: der Regenerator gibt die gespeicherte Wärme wieder ab, bevor er auskühlt. Längere Zykluszeiten verringern die erreichbare Wärmerückgewinnung." UIHint="Information" />
 
                       <!-- Master sendet, Slave ueberwacht - je eine Zeit, nie beide. -->
