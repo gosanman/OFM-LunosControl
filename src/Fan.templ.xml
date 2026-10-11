@@ -50,7 +50,7 @@
                      2026-10-06 stand hier f%C%Direction5V, den die Firmware nie las
                      (Befund G); danach galt FANDRV_BELOW_5V_IS_SUPPLY fuer alle. -->
                 <Parameter Id="%AID%_UP-%TT%%CC%015" Name="f%C%Polarity"    Offset="2" BitOffset="5" ParameterType="%AID%_PT-FanPolarity"     Text="Polarität" Value="0" />
-<!-- %CC%016 "Einschaltwert ohne Bus (EEPROM)" gestrichen 2026-09-25: kein EEPROM-Store (Messprotokoll Phase 1, Befund B1). Offset 2, Bit 6-7 frei. -->
+                <!-- %CC%016 "Einschaltwert ohne Bus (EEPROM)" gestrichen 2026-09-25: kein EEPROM-Store (Messprotokoll Phase 1, Befund B1). Offset 2, Bit 6-7 frei. -->
                 <Parameter Id="%AID%_UP-%TT%%CC%020" Name="f%C%Share"       Offset="3" BitOffset="0" ParameterType="%AID%_PT-FanShare"        Text="Anteil an der Verbundstufe" SuffixText=" %" Value="100" />
                 <Parameter Id="%AID%_UP-%TT%%CC%021" Name="f%C%CableLength" Offset="4" BitOffset="0" ParameterType="%AID%_PT-FanCableLength"  Text="Einfache Leitungslänge" SuffixText=" m" Value="10" />
                 <Parameter Id="%AID%_UP-%TT%%CC%022" Name="f%C%FilterRemind" Offset="5" BitOffset="0" ParameterType="%AID%_PT-FanFilterRemind" Text="Meldung wiederholen nach" SuffixText=" h" Value="24" />
@@ -59,7 +59,12 @@
                 <Parameter Id="%AID%_UP-%TT%%CC%025" Name="f%C%FlowS2"      Offset="8"  BitOffset="0" ParameterType="%AID%_PT-FanFlow" Text="Volumenstrom Stufe 2" SuffixText=" m³/h" Value="20" />
                 <Parameter Id="%AID%_UP-%TT%%CC%026" Name="f%C%FlowS3"      Offset="9"  BitOffset="0" ParameterType="%AID%_PT-FanFlow" Text="Volumenstrom Stufe 3" SuffixText=" m³/h" Value="40" />
                 <Parameter Id="%AID%_UP-%TT%%CC%027" Name="f%C%FlowS4"      Offset="10" BitOffset="0" ParameterType="%AID%_PT-FanFlow" Text="Volumenstrom Stufe 4" SuffixText=" m³/h" Value="60" />
-                <Parameter Id="%AID%_UP-%TT%%CC%028" Name="f%C%Channel" Offset="11" BitOffset="0" ParameterType="%AID%_PT-FanDacChannel" Text="DAC-Kanal (Klemme)" Value="%C%" />
+                <!-- DAC-Kanal und Kalibrierfaktor gehoeren zur Verdrahtung bzw. zum einzelnen
+                     Ausgang, nicht zur Luefterkonfiguration: vom Konfigurationstransfer
+                     ausgenommen (2026-10-11). Kopieren, Tauschen, Zuruecksetzen und Import
+                     lassen beide stehen - sonst ergaebe eine Kopie sofort einen doppelten
+                     Kanal (Fehlercode 3) bzw. eine still verstellte Spannung. -->
+                <Parameter Id="%AID%_UP-%TT%%CC%028" Name="f%C%Channel" Offset="11" BitOffset="0" ParameterType="%AID%_PT-FanDacChannel" Text="DAC-Kanal (Klemme)" Value="%C%" op:configTransfer="never" />
                 <!-- 4 Bit Reserve auf Offset 11 -->
               </Union>
 
@@ -87,7 +92,7 @@
                 <Parameter Id="%AID%_UP-%TT%%CC%042" Name="f%C%CurrentS3" Offset="4"  BitOffset="0" ParameterType="%AID%_PT-FanCurrent" Text="Stromaufnahme Stufe 3" SuffixText=" mA" Value="170" />
                 <Parameter Id="%AID%_UP-%TT%%CC%043" Name="f%C%CurrentS4" Offset="6"  BitOffset="0" ParameterType="%AID%_PT-FanCurrent" Text="Stromaufnahme Stufe 4" SuffixText=" mA" Value="275" />
                 <Parameter Id="%AID%_UP-%TT%%CC%044" Name="f%C%CableResistance" Offset="8"  BitOffset="0" ParameterType="%AID%_PT-FanCableResistance" Text="Widerstand eines Leiters" SuffixText=" mΩ" Value="250" />
-                <Parameter Id="%AID%_UP-%TT%%CC%045" Name="f%C%CalibGain"  Offset="10" BitOffset="0" ParameterType="%AID%_PT-FanCalibGain" Text="Kalibrierfaktor" SuffixText="  (10000 = 1,0000)" Value="10000" />
+                <Parameter Id="%AID%_UP-%TT%%CC%045" Name="f%C%CalibGain"  Offset="10" BitOffset="0" ParameterType="%AID%_PT-FanCalibGain" Text="Kalibrierfaktor" SuffixText="  (10000 = 1,0000)" Value="10000" op:configTransfer="never" />
                 <Parameter Id="%AID%_UP-%TT%%CC%046" Name="f%C%FilterHours" Offset="12" BitOffset="0" ParameterType="%AID%_PT-FanFilterHours" Text="Wechselintervall" SuffixText=" h" Value="2200" />
                 <Parameter Id="%AID%_UP-%TT%%CC%047" Name="f%C%FilterVolume" Offset="14" BitOffset="0" ParameterType="%AID%_PT-FanFilterVolume" Text="Wechselintervall" SuffixText=" × 1000 m³" Value="60" />
                 <Parameter Id="%AID%_UP-%TT%%CC%048" Name="f%C%SendCycleStatus" Offset="16" BitOffset="0" ParameterType="%AID%_PT-FanSendCycleMin" Text="Status zyklisch senden" SuffixText=" min  (0 = aus)" Value="0" />

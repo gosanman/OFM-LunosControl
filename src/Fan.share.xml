@@ -14,9 +14,10 @@
        liefert nur <Static>. Die KO-Nummern bleiben davon unberuehrt - sie kommen aus dem
        op:define des jeweiligen Moduls, nicht aus dem Baum.
 
-       Preis dieser Loesung: im Auswahlfeld des Konfigurationstransfers heisst das Raummodul
-       roh "ROOM" statt "Raeume" (der Klartext kaeme aus einem eigenen <Channel Text=...>),
-       und auf der BASE-Seite "Module" gibt es nur noch einen Schalter fuer beide.
+       Preis dieser Loesung: ohne eigenen <Channel> haette das Raummodul im Auswahlfeld des
+       Konfigurationstransfers nur sein Praefix "ROOM" als Namen. Seit 2026-10-11 setzt
+       configTransferName="Räume" am op:define in Kwl.xml / Kwl-Release.xml den Klartext.
+       Auf der BASE-Seite "Module" gibt es weiterhin nur einen Schalter fuer beide.
 
        Geraeteweites Speicherbild dieses Moduls:
          Offset 0     Hardware      (Enum, Wert = Platinenkennung FANDRV_BOARD_ID)
@@ -385,8 +386,8 @@
                      Deshalb der Hinweis direkt am Klemmenbild. Ablauf und Zeitfenster:
                      doc/Applikationsbeschreibung-Kwl.md, "Erstinbetriebnahme". -->
                 <ParameterSeparator Id="%AID%_PS-nnn" Text="Lüfter erst anschließen, wenn das Gerät mit der ETS programmiert ist. Ohne KNX-Bus läuft die Firmware nicht, und an S1…S4 liegen 0 V an – das ist Volllast, nicht Stillstand. Ein noch nicht programmiertes Gerät kennt die Lüftertypen nicht und gibt überall 5,00 V aus: Stillstand für e²60 und ego, halbe Drehzahl für RA 15-60. Reihenfolge: KNX-Bus anschließen, programmieren, 12 V aus, Lüfter anklemmen, 12 V ein. Vor jeder weiteren Programmierung fährt das Gerät alle Ausgänge auf Stillstand." UIHint="Information" />
-  <!-- Klemmenbild haengt an der Platine, nicht an der Kanalzahl - deshalb hier die Kennung. -->
-  <choose ParamRefId="%AID%_UP-%TT%00001_R-%TT%0000101">
+                <!-- Klemmenbild haengt an der Platine, nicht an der Kanalzahl - deshalb hier die Kennung. -->
+                <choose ParamRefId="%AID%_UP-%TT%00001_R-%TT%0000101">
                     <when test="0">
                       <ParameterBlock Id="%AID%_PB-nnn" Inline="true" Layout="Grid">
                         <Rows><Row Id="%AID%_PB-nnn_R-1" /></Rows>

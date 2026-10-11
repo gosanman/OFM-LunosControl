@@ -393,7 +393,7 @@ Die Platine hat **eine** LED und **eine** Taste. Beide wirken aufs ganze Gerät.
 | Funktion | Verhalten |
 |---|---|
 | Lüftung | Alarm → Blinkcode des kleinsten anliegenden Codes (so viele Blitze wie der Code, dann Pause). Meldung → langsames Blinken. Sonst an, wenn ein Lüfter läuft. |
-| Lüftung, nur Störungen | wie oben, aber dunkel im Normalbetrieb — für den Schlafzimmerflur |
+| Lüftung, nur Störungen (**Vorgabe** für Info-LED 1) | wie oben, aber dunkel im Normalbetrieb — für den Schlafzimmerflur |
 
 **Funktionstaste** — je Geste wählbar unter *Allgemein → Funktionstaste*:
 

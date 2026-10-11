@@ -13,3 +13,6 @@ einzigen I²C-Frame gestellt und laufen beim Richtungswechsel nicht auseinander.
 > Kein Kanal darf doppelt vergeben sein. Die Firmware prüft beim Start auf Doppelbelegung, auf
 > Kanäle jenseits der gewählten Platine und auf einen ego mit geradem Startkanal; jeder dieser
 > Fälle ergibt Fehlercode 3 am betroffenen Lüfter, und sein Ausgang bleibt bei 5,00 V.
+
+Der Konfigurationstransfer lässt diesen Parameter aus: Beim Kopieren, Tauschen, Zurücksetzen
+oder Importieren eines Lüfters behält jeder Kanal seine Klemme.
